@@ -11,8 +11,11 @@
 
   let DATA = null, FAC = {}, LORE = {};
   let POI_IDS = new Set();
-  const facColor = (id) => (FAC[id] && FAC[id].color) || "#4b6b78";
-  const facName = (id) => (FAC[id] && FAC[id].name) || "CONTESTED";
+  // Hardcoded fallback palette so missing/empty `factions` data can NEVER render every icon as the
+  // grey-blue fallback (mirrors fetch_map.py's FACTIONS). The baked data normally supplies these.
+  const FAC_DEFAULTS = { 0: { name: "CONTESTED", color: "#4b6b78" }, 1: { name: "SUPER EARTH", color: "#81dffb" }, 2: { name: "TERMINIDS", color: "#ffca00" }, 3: { name: "AUTOMATONS", color: "#ff8080" }, 4: { name: "ILLUMINATE", color: "#daa4ef" } };
+  const facColor = (id) => (FAC[id] && FAC[id].color) || (FAC_DEFAULTS[id] && FAC_DEFAULTS[id].color) || "#4b6b78";
+  const facName = (id) => (FAC[id] && FAC[id].name) || (FAC_DEFAULTS[id] && FAC_DEFAULTS[id].name) || "CONTESTED";
 
   const cam = { x: 0, y: 0, zoom: 1, pitch: 0.65, rot: 0 };
   let baseScale = 0.25, cvW = 1100, cvH = 600, dpr = 1, HOME = null;
@@ -57,7 +60,7 @@
 
   const FLEETS_ENABLED = false;
 
-  const LAYERS = { sectors: true, supply: true, effects: true, text: true, subfactions: true, objectives: true, attacks: true };
+  const LAYERS = { sectors: true, supply: true, effects: true, text: true, subfactions: true, objectives: true, attacks: true, timers: false };
   let byIndex = {}, SECTOR_NAME = {}, sectorOrder = [], lastRot = null;
   const hazPat = {}, dotPat = {}, asciiPat = {};
 
@@ -1187,6 +1190,41 @@
     c.restore();
   }
 
+  function fmtHMS(ms) {
+    const s = Math.max(0, Math.floor(ms / 1000));
+    const hh = String(Math.floor(s / 3600)).padStart(2, "0");
+    const mm = String(Math.floor((s % 3600) / 60)).padStart(2, "0");
+    const ss = String(Math.floor(s % 60)).padStart(2, "0");
+    return hh + ":" + mm + ":" + ss;
+  }
+
+  // Shared on-map countdown chip. Both event timers and Major Order target timers
+  // call this, so they share one style; only `accent` differs (faction vs MO gold).
+  // Under 1h or expired it goes red + pulses, reusing the urgent-pulse rhythm.
+  function drawMapTimer(c, cx, anchorY, deadlineMs, label, accent, ts) {
+    const left = deadlineMs - Date.now();
+    const expired = left <= 0, urgent = !expired && left < 3600000;
+    const acc = (expired || urgent) ? "#FF5A5A" : accent;
+    const pulse = urgent ? (0.6 + 0.4 * Math.abs(Math.sin(ts / 360))) : 1;
+    const full = (label ? label + " " : "") + (expired ? "EXPIRED" : fmtHMS(left));
+    c.save();
+    c.font = "700 11px " + headFont();
+    c.textAlign = "left"; c.textBaseline = "middle";
+    const blockW = 4, gap = 5, padR = 7, h = 17, ch = 5;
+    const tw = c.measureText(full).width, w = blockW + gap + tw + padR;
+    const x = cx - w / 2, y = anchorY - h;
+    c.beginPath();
+    c.moveTo(x, y); c.lineTo(x + w - ch, y); c.lineTo(x + w, y + ch);
+    c.lineTo(x + w, y + h); c.lineTo(x, y + h); c.closePath();
+    c.fillStyle = "rgba(9,13,20,0.95)"; c.fill();
+    c.lineWidth = 1; c.strokeStyle = hexA(acc, 0.85 * pulse); c.stroke();
+    c.fillStyle = hexA(acc, pulse); c.fillRect(x, y, blockW, h);
+    const tx = x + blockW + gap;
+    c.fillStyle = "rgba(0,0,0,0.6)"; c.fillText(full, tx + 0.7, y + h / 2 + 1.3);
+    c.fillStyle = "#eef5fb"; c.fillText(full, tx, y + h / 2 + 0.4);
+    c.restore();
+  }
+
   function drawNotableLabels(c) {
     if (cam.zoom < 0.8) return;
     loadEmblems();
@@ -1393,6 +1431,21 @@
 
     if (LAYERS.objectives) PLANETS.forEach((e) => { if (e.p.ev) drawUrgentPulse(ctx, e.sx, e.sy, facColor(e.p.ev.race), ts, e.p.i); });
 
+    if (LAYERS.timers) {
+      const W = cv.width / dpr, H = cv.height / dpr, moDl = window.__MO_DEADLINE || 0;
+      const chips = {};
+      const add = (idx, chip) => { if (byIndex[idx]) (chips[idx] = chips[idx] || []).push(chip); };
+      // Major Order targets share the single order deadline -> the whole objective ticks in sync.
+      if (moDl > 0) MO_MARKS.forEach((m) => add(m.index, { dl: moDl, label: m.verb || "HOLD", accent: "#FFE900" }));
+      // Event planets use their own expiry + the DEFEND/CLAIM label and faction accent.
+      PLANETS.forEach((e) => { const p = e.p; if (p.ev && p.ev.expireEpoch) { const mm = tipMeta(p); add(p.i, { dl: p.ev.expireEpoch * 1000, label: mm.isDefense ? "DEFEND" : "CLAIM", accent: facColor(mm.dispFac) }); } });
+      Object.keys(chips).forEach((idx) => {
+        const e = byIndex[idx]; if (!e || e.sx < -160 || e.sx > W + 160 || e.sy < -120 || e.sy > H + 120) return;
+        let ay = e.sy - 13;
+        chips[idx].forEach((cp) => { drawMapTimer(ctx, e.sx, ay, cp.dl, cp.label, cp.accent, ts); ay -= 20; });
+      });
+    }
+
     const hi = selected != null ? selected : hovered;
     if (hi !== _hiLast) { _hiLast = hi; _hiT0 = ts; }
     if (hi != null && byIndex[hi]) drawHighlightLines(ctx, byIndex[hi].sx, byIndex[hi].sy, ts, RMOTION ? 1 : Math.min(1, (ts - _hiT0) / 280));
@@ -1507,10 +1560,12 @@
     const pointers = new Map();
     let pinchD = 0, pinchA = null, lastTap = null;
     cv.addEventListener("contextmenu", (e) => e.preventDefault());
-    // MOBILE: keep every map gesture ON the map. touch-action:none (CSS) covers most browsers, but
-    // iOS Safari ignores it for PAGE pinch-zoom (legacy gesture* events) and can scroll the page on
-    // drag -> preventDefault the touch/gesture defaults on the canvas so the page never pans/zooms.
-    ["gesturestart", "gesturechange", "gestureend"].forEach((g) => cv.addEventListener(g, (e) => e.preventDefault()));
+    // MOBILE/iOS: keep every map gesture ON the map. touch-action:none (CSS) covers most browsers,
+    // but iOS Safari IGNORES it for PAGE pinch-zoom -- those legacy gesture* events fire at the
+    // document level regardless of what's under the fingers, so binding them to the canvas alone lets
+    // a pinch that drifts off-canvas zoom the whole page. Bind at the document so a pinch never zooms
+    // the page; the canvas touchmove/multitouch guards keep map drags off the page too.
+    ["gesturestart", "gesturechange", "gestureend"].forEach((g) => document.addEventListener(g, (e) => e.preventDefault(), { passive: false }));
     cv.addEventListener("touchmove", (e) => e.preventDefault(), { passive: false });
     cv.addEventListener("touchstart", (e) => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
     cv.addEventListener("pointerdown", (e) => {
