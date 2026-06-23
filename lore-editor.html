@@ -217,6 +217,25 @@
     .le-login.verifying .le-auth-msg { animation: leblink 0.8s steps(2) infinite; }
     @keyframes leblink { 50% { opacity: .4; } }
     .le-auth-hint { font-size: 10px; line-height: 1.5; color: var(--muted); text-transform: none; margin-top: 16px; opacity: 0.8; }
+
+    /* ---- searchable planet combobox ---- */
+    .le-combo { position: relative; }
+    .le-combo-pop { position: absolute; top: calc(100% + 4px); left: 0; width: 300px; max-width: 80vw; max-height: 320px; overflow-y: auto;
+      z-index: 120; background: rgba(10,14,20,0.98); border: 1px solid color-mix(in srgb, var(--cta) 45%, #2a3540); box-shadow: 0 18px 48px rgba(0,0,0,0.6); }
+    .le-combo-pop[hidden] { display: none; }
+    .le-opt { display: flex; align-items: center; gap: 9px; padding: 8px 11px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .le-opt:hover, .le-opt.active { background: rgba(255,233,0,0.12); }
+    .le-opt-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; box-shadow: 0 0 6px currentColor; }
+    .le-opt-name { flex: 1; font-size: 13px; color: #e6eef4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .le-opt-name mark { background: rgba(255,233,0,0.28); color: #fff; }
+    .le-opt-meta { font-size: 10px; letter-spacing: 0.06em; color: var(--muted); flex: none; }
+    .le-opt-empty { padding: 12px; font-size: 12px; color: var(--muted); }
+
+    /* ---- locator minimap ---- */
+    .le-mini { position: sticky; top: 0; z-index: 5; margin: 0 0 12px; padding: 8px; background: rgba(8,12,18,0.7); border: 1px solid #232c37; }
+    .le-mini canvas { display: block; width: 100%; height: auto; cursor: crosshair; }
+    .le-mini-cap { margin-top: 6px; font-family: var(--head); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); text-align: center; }
+    .le-mini-cap b { color: var(--cta); }
   </style>
 </head>
 <body class="le-body">
@@ -241,16 +260,22 @@
       <span class="skull" aria-hidden="true"></span>
       <div class="le-brand">LORE EDITOR<span>CUSTOM GALACTIC WAR &middot; POINTS OF INTEREST</span></div>
     </div>
-    <label class="le-planet"><span>Select Planet</span>
-      <input id="le-planet" list="le-planets" placeholder="Search by name or #index…" autocomplete="off" />
-      <datalist id="le-planets"></datalist>
-    </label>
+    <div class="le-planet"><span>Select Planet</span>
+      <div class="le-combo">
+        <input id="le-planet" type="text" placeholder="Search by name or #index…" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="false" aria-controls="le-planet-pop" />
+        <div class="le-combo-pop" id="le-planet-pop" role="listbox" hidden></div>
+      </div>
+    </div>
     <span id="le-status" class="le-msg">Booting…</span>
   </header>
 
   <main class="le-main">
     <section class="le-panel le-frost le-cnr le-scan le-edit">
       <div class="le-scroll">
+        <div class="le-mini" id="le-mini">
+          <canvas id="le-mini-cv" width="220" height="160" aria-label="Galaxy minimap"></canvas>
+          <div class="le-mini-cap" id="le-mini-cap">Select a planet to locate it</div>
+        </div>
         <div class="le-entries">
           <div class="le-h">Entries <button class="btn le-h-act" id="le-new" disabled>+ New Entry</button></div>
           <ul id="le-list"></ul>
@@ -422,9 +447,8 @@
       PLANETS = res[0] || [];
       LORE = res[1] && typeof res[1] === "object" ? res[1] : { _format: {} };
       PLANETS.forEach(function (p) { byName[(p.name || "").toUpperCase()] = p; byIdx[String(p.i)] = p; });
-      var dl = $("#le-planets");
-      PLANETS.slice().sort(function (a, b) { return (a.name || "").localeCompare(b.name || ""); })
-        .forEach(function (p) { var o = document.createElement("option"); o.value = (p.name || ("PLANET " + p.i)) + " (#" + p.i + ")"; dl.appendChild(o); });
+      PLANETS_SORTED = PLANETS.slice().sort(function (a, b) { return (a.name || "").localeCompare(b.name || ""); });
+      initCombo(); drawMini();
       var di = $("#le-icons"); ICONS.forEach(function (n) { var o = document.createElement("option"); o.value = n; di.appendChild(o); });
       buildSwatches();
       msg("Loaded " + PLANETS.length + " planets", "ok");
@@ -440,13 +464,99 @@
     }
 
     /* ---- planet selection ---- */
-    $("#le-planet").addEventListener("change", function () {
-      var v = this.value.trim(); if (!v) return;
-      var m = v.match(/#(\d+)\s*\)?\s*$/);
-      var p = m ? byIdx[m[1]] : byName[v.toUpperCase()];
-      if (!p) { msg("No planet matches “" + v + "”", "err"); return; }
-      selectPlanet(String(p.i));
-    });
+    /* ---- planet combobox + locator minimap ---- */
+    var PLANETS_SORTED = [];
+    var FAC_COL = { 0: "#4b6b78", 1: "#81dffb", 2: "#ffca00", 3: "#ff8080", 4: "#daa4ef" };
+    function facCol(o) { return FAC_COL[o] || "#7f93a0"; }
+    function planetLabel(p) { return (p.name || ("PLANET " + p.i)) + " (#" + p.i + ")"; }
+    var comboItems = [], comboActive = -1, lastChosenLabel = "";
+
+    function renderCombo(filter) {
+      var pop = $("#le-planet-pop"), q = (filter || "").trim().toLowerCase();
+      var list = PLANETS_SORTED.filter(function (p) {
+        if (!q) return true;
+        return ((p.name || "").toLowerCase().indexOf(q) >= 0) || String(p.i) === q || ("#" + p.i).indexOf(q) >= 0;
+      }).slice(0, 60);
+      comboItems = list; comboActive = -1;
+      if (!list.length) { pop.innerHTML = '<div class="le-opt-empty">No planets match.</div>'; pop.hidden = false; return; }
+      var qesc = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      pop.innerHTML = list.map(function (p, i) {
+        var nm = esc(p.name || ("PLANET " + p.i));
+        if (q) nm = nm.replace(new RegExp("(" + qesc + ")", "ig"), "<mark>$1</mark>");
+        var col = facCol(p.owner);
+        return '<div class="le-opt" role="option" data-i="' + i + '"><span class="le-opt-dot" style="background:' + col + ';color:' + col + '"></span><span class="le-opt-name">' + nm + '</span><span class="le-opt-meta">#' + p.i + '</span></div>';
+      }).join("");
+      pop.hidden = false;
+      Array.prototype.forEach.call(pop.querySelectorAll(".le-opt"), function (el) {
+        el.addEventListener("mousedown", function (ev) { ev.preventDefault(); choosePlanet(comboItems[+el.getAttribute("data-i")]); });
+      });
+    }
+    function closeCombo() { var pop = $("#le-planet-pop"); if (pop) pop.hidden = true; var inp = $("#le-planet"); if (inp) inp.setAttribute("aria-expanded", "false"); comboActive = -1; }
+    function choosePlanet(p) {
+      if (!p) return;
+      lastChosenLabel = planetLabel(p); $("#le-planet").value = lastChosenLabel;
+      closeCombo(); selectPlanet(String(p.i));
+    }
+    function comboNav(d) {
+      var pop = $("#le-planet-pop"); if (pop.hidden || !comboItems.length) return;
+      comboActive = (comboActive + d + comboItems.length) % comboItems.length;
+      Array.prototype.forEach.call(pop.querySelectorAll(".le-opt"), function (el, i) { var on = i === comboActive; el.classList.toggle("active", on); if (on) el.scrollIntoView({ block: "nearest" }); });
+    }
+    function initCombo() {
+      var inp = $("#le-planet");
+      var openAll = function () { renderCombo((inp.value && inp.value !== lastChosenLabel) ? inp.value : ""); inp.setAttribute("aria-expanded", "true"); };
+      inp.addEventListener("focus", openAll);
+      inp.addEventListener("click", openAll);
+      inp.addEventListener("input", function () { renderCombo(inp.value); });
+      inp.addEventListener("keydown", function (e) {
+        if (e.key === "ArrowDown") { e.preventDefault(); comboNav(1); }
+        else if (e.key === "ArrowUp") { e.preventDefault(); comboNav(-1); }
+        else if (e.key === "Enter") { e.preventDefault(); if (comboActive >= 0 && comboItems[comboActive]) choosePlanet(comboItems[comboActive]); else if (comboItems.length === 1) choosePlanet(comboItems[0]); }
+        else if (e.key === "Escape") { closeCombo(); inp.blur(); }
+      });
+      document.addEventListener("click", function (e) { if (!e.target.closest(".le-combo")) closeCombo(); });
+    }
+
+    var MINI_PAD = 10, MINI_B = 1.08;
+    function miniXY(cv, p) {
+      return [MINI_PAD + ((p.x + MINI_B) / (2 * MINI_B)) * (cv.width - 2 * MINI_PAD),
+              MINI_PAD + ((p.y + MINI_B) / (2 * MINI_B)) * (cv.height - 2 * MINI_PAD)];
+    }
+    function drawMini() {
+      var cv = $("#le-mini-cv"); if (!cv) return; var g = cv.getContext("2d");
+      g.clearRect(0, 0, cv.width, cv.height);
+      g.fillStyle = "rgba(40,80,110,0.10)"; g.beginPath(); g.arc(cv.width / 2, cv.height / 2, Math.min(cv.width, cv.height) / 2 - 4, 0, 6.2832); g.fill();
+      for (var i = 0; i < PLANETS.length; i++) {
+        var p = PLANETS[i]; if (typeof p.x !== "number") continue;
+        if (curIdx != null && String(p.i) === String(curIdx)) continue;
+        var xy = miniXY(cv, p), hot = p.active || p.event;
+        g.globalAlpha = hot ? 0.85 : 0.4; g.fillStyle = facCol(p.owner);
+        g.beginPath(); g.arc(xy[0], xy[1], hot ? 2.1 : 1.5, 0, 6.2832); g.fill();
+      }
+      g.globalAlpha = 1;
+      if (curIdx != null && byIdx[curIdx] && typeof byIdx[curIdx].x === "number") {
+        var cp = byIdx[curIdx], c = miniXY(cv, cp), col = facCol(cp.owner);
+        g.strokeStyle = col; g.lineWidth = 1.5; g.beginPath(); g.arc(c[0], c[1], 6, 0, 6.2832); g.stroke();
+        g.fillStyle = "#fff"; g.beginPath(); g.arc(c[0], c[1], 2.4, 0, 6.2832); g.fill();
+        g.strokeStyle = "rgba(255,255,255,0.5)"; g.lineWidth = 0.8;
+        g.beginPath(); g.moveTo(c[0] - 11, c[1]); g.lineTo(c[0] + 11, c[1]); g.moveTo(c[0], c[1] - 11); g.lineTo(c[0], c[1] + 11); g.stroke();
+      }
+    }
+    function syncSelection() {
+      drawMini();
+      var cap = $("#le-mini-cap"), p = (curIdx != null ? byIdx[curIdx] : null);
+      if (cap) cap.innerHTML = p ? ("<b>" + esc(p.name || ("PLANET " + p.i)) + "</b> &middot; sector " + esc(String(p.sector))) : "Select a planet to locate it";
+      if (p) { lastChosenLabel = planetLabel(p); $("#le-planet").value = lastChosenLabel; }
+    }
+    (function () {
+      var cv = $("#le-mini-cv"); if (!cv) return;
+      cv.addEventListener("click", function (e) {
+        var r = cv.getBoundingClientRect(), sx = (e.clientX - r.left) * (cv.width / r.width), sy = (e.clientY - r.top) * (cv.height / r.height);
+        var best = null, bd = 1e9;
+        for (var i = 0; i < PLANETS.length; i++) { var p = PLANETS[i]; if (typeof p.x !== "number") continue; var xy = miniXY(cv, p), dx = xy[0] - sx, dy = xy[1] - sy, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = p; } }
+        if (best && bd < 400) choosePlanet(best);
+      });
+    })();
     function selectPlanet(idx) {
       curIdx = idx; curEntry = null;
       $("#le-new").disabled = false;
@@ -454,7 +564,7 @@
       $("#le-form").classList.remove("on");
       var p = byIdx[idx];
       msg((p ? p.name : "PLANET") + "  #" + idx + "  —  " + planetList().length + " entry(s)", "");
-      refreshList(); refreshPreview();
+      refreshList(); refreshPreview(); syncSelection();
     }
 
     /* ---- entries list ---- */
