@@ -640,25 +640,36 @@
     } else { c.beginPath(); c.arc(x, y, 3, 0, Math.PI * 2); c.fill(); }
   }
 
+  // Resilient image load: a flaky mobile fetch (or iOS Safari caching a failed response) used to
+  // blank an asset permanently, since every loader cached failure forever. Retry a few times with a
+  // cache-buster before giving up; calls done(img) on success or done(null) once attempts run out.
+  function loadImage(src, done, tries) {
+    tries = tries || 4;
+    const im = new Image();
+    im.onload = () => done(im);
+    im.onerror = () => {
+      if (--tries > 0) setTimeout(() => { im.src = src + (src.indexOf("?") < 0 ? "?" : "&") + "retry=" + (4 - tries); }, 500 * (4 - tries));
+      else done(null);
+    };
+    im.src = src;
+    return im;
+  }
+
   const FLEET_ICONS = {}, FLEET_ICON_SRC = { 1: "img/fleets/fleet_humans.png", 2: "img/fleets/fleet_bugs.png", 3: "img/fleets/fleet_bots.png", 4: "img/fleets/fleet_squids.png", dss: "img/fleets/fleet_spacestation.png" };
   let _fleetIconsTried = false;
   function loadFleetIcons() {
     if (_fleetIconsTried) return; _fleetIconsTried = true;
     for (const k in FLEET_ICON_SRC) {
-      const im = new Image();
-      im.onload = () => {
-
+      loadImage(FLEET_ICON_SRC[k], (im) => {
+        if (!im) { FLEET_ICONS[k] = false; return; }
         const S = 128, ICON = 80, cn = document.createElement("canvas"); cn.width = cn.height = S;
         const cc = cn.getContext("2d"); cc.imageSmoothingEnabled = true; cc.imageSmoothingQuality = "high";
         const r = Math.min(ICON / im.width, ICON / im.height), w = im.width * r, h = im.height * r, ox = (S - w) / 2, oy = (S - h) / 2;
-
         cc.shadowColor = k === "dss" ? "#46a4ff" : facColor(+k); cc.shadowBlur = 12;
         cc.drawImage(im, ox, oy, w, h); cc.drawImage(im, ox, oy, w, h);
         cc.shadowBlur = 0; cc.drawImage(im, ox, oy, w, h);
         FLEET_ICONS[k] = cn; staticKey = ""; render();
-      };
-      im.onerror = () => { FLEET_ICONS[k] = false; };
-      im.src = FLEET_ICON_SRC[k];
+      });
     }
   }
   const fleetIcon = (fac) => FLEET_ICONS[fac === 0 ? 1 : fac];
@@ -676,17 +687,15 @@
     const key = id + ":" + tint;
     if (key in TAG_ICONS) return TAG_ICONS[key] || null;
     TAG_ICONS[key] = undefined;
-    const im = new Image();
-    im.onload = () => {
+    loadImage("img/tags/" + id + ".png", (im) => {
+      if (!im) { TAG_ICONS[key] = false; return; }
       const S = 72, cn = document.createElement("canvas"); cn.width = cn.height = S;
       const cc = cn.getContext("2d"); cc.imageSmoothingEnabled = true; cc.imageSmoothingQuality = "high";
       const r = Math.min(S / im.width, S / im.height) * 0.96, w = im.width * r, h = im.height * r;
       cc.drawImage(im, (S - w) / 2, (S - h) / 2, w, h);
       cc.globalCompositeOperation = "source-in"; cc.fillStyle = tint; cc.fillRect(0, 0, S, S);
       TAG_ICONS[key] = cn; staticKey = ""; render();
-    };
-    im.onerror = () => { TAG_ICONS[key] = false; };
-    im.src = "img/tags/" + id + ".png";
+    });
     return null;
   }
 
@@ -1113,8 +1122,8 @@
   function loadEmblems() {
     if (_emblemTried) return; _emblemTried = true;
     for (const id of [1, 2, 3, 4]) {
-      const im = new Image();
-      im.onload = () => {
+      loadImage("img/icons/" + _EMBLEM_SRC[id] + ".png", (im) => {
+        if (!im) { FAC_EMBLEM[id] = false; return; }
         const S = 96, cn = document.createElement("canvas"); cn.width = cn.height = S;
         const cc = cn.getContext("2d"); cc.imageSmoothingEnabled = true; cc.imageSmoothingQuality = "high";
         const r = Math.min(S / im.width, S / im.height) * 0.9, w = im.width * r, h = im.height * r;
@@ -1136,9 +1145,7 @@
         sg.shadowBlur = 0; sg.drawImage(tmp, 0, 0); sg.drawImage(tmp, 0, 0);
         FAC_SIGIL[id] = sc;
         staticKey = ""; render();
-      };
-      im.onerror = () => { FAC_EMBLEM[id] = false; };
-      im.src = "img/icons/" + _EMBLEM_SRC[id] + ".png";
+      });
     }
   }
 
