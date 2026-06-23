@@ -13,6 +13,7 @@ Upload the resulting ``dist/`` to any static host (GitHub Pages, Netlify, Cloudf
 Stdlib only -- no pip deps. See DEPLOY.md.
 """
 import os
+import re
 import shutil
 import sys
 
@@ -54,6 +55,20 @@ def build():
         if os.path.isfile(src):
             shutil.copy2(src, os.path.join(DIST, f))
             copied.append(f)
+
+    # Lore editor: published ONLY under a secret slug from $EDITOR_SLUG (set as a GitHub Actions
+    # secret), never under its real name. The hosted copy is read/compose-only -- GitHub Pages has
+    # no /save backend -- so authors use Download/Copy and commit data/lore.json. Unset (e.g. local
+    # builds) -> the editor is simply not published.
+    raw = os.environ.get("EDITOR_SLUG", "").strip()
+    if raw.lower().endswith(".html"):
+        raw = raw[:-5]
+    slug = re.sub(r"[^A-Za-z0-9_-]", "", raw)
+    if slug:
+        ed = os.path.join(HERE, "lore-editor.html")
+        if os.path.isfile(ed):
+            shutil.copy2(ed, os.path.join(DIST, slug + ".html"))
+            copied.append(slug + ".html (lore editor)")
 
     # Static-host helpers (synthesize if they weren't present at the project root).
     nojekyll = os.path.join(DIST, ".nojekyll")

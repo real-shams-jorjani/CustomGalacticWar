@@ -35,6 +35,8 @@ jobs:
       # Pulls holotable via urllib (no pip deps) + assembles dist/. Needs _source/ committed.
       - name: Bake data + build dist/
         run: python build.py
+        env:
+          EDITOR_SLUG: ${{ secrets.LORE_EDITOR_SLUG }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
