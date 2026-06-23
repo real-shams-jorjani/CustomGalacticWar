@@ -1205,30 +1205,35 @@
     return hh + ":" + mm + ":" + ss;
   }
 
-  // Shared on-map countdown chip. Both event timers and Major Order target timers
-  // call this, so they share one style; only `accent` differs (faction vs MO gold).
-  // Under 1h or expired it goes red + pulses, reusing the urgent-pulse rhythm.
-  function drawMapTimer(c, cx, anchorY, deadlineMs, label, accent, ts) {
+  // Shared on-map countdown chip. Both event timers and Major Order target timers call
+  // this, so they share one style; only `accent` differs (faction vs MO gold). It shows a
+  // clock glyph + HH:MM:SS only -- the planet's own objective label (DEFEND / HOLD) already
+  // says the action, so repeating the verb here was redundant. <1h or expired -> red + pulse.
+  function drawMapTimer(c, cx, anchorY, deadlineMs, accent, ts) {
     const left = deadlineMs - Date.now();
     const expired = left <= 0, urgent = !expired && left < 3600000;
     const acc = (expired || urgent) ? "#FF5A5A" : accent;
     const pulse = urgent ? (0.6 + 0.4 * Math.abs(Math.sin(ts / 360))) : 1;
-    const full = (label ? label + " " : "") + (expired ? "EXPIRED" : fmtHMS(left));
+    const txt = expired ? "EXPIRED" : fmtHMS(left);
     c.save();
     c.font = "700 11px " + headFont();
-    c.textAlign = "left"; c.textBaseline = "middle";
-    const blockW = 4, gap = 5, padR = 7, h = 17, ch = 5;
-    const tw = c.measureText(full).width, w = blockW + gap + tw + padR;
-    const x = cx - w / 2, y = anchorY - h;
+    c.textAlign = "left"; c.textBaseline = "middle"; c.lineCap = "round";
+    const padL = 7, iconR = 5, gap = 6, padR = 9, h = 18, ch = 5;
+    const tw = c.measureText(txt).width, w = padL + iconR * 2 + gap + tw + padR;
+    const x = cx - w / 2, y = anchorY - h, midY = y + h / 2;
     c.beginPath();
     c.moveTo(x, y); c.lineTo(x + w - ch, y); c.lineTo(x + w, y + ch);
     c.lineTo(x + w, y + h); c.lineTo(x, y + h); c.closePath();
     c.fillStyle = "rgba(9,13,20,0.95)"; c.fill();
     c.lineWidth = 1; c.strokeStyle = hexA(acc, 0.85 * pulse); c.stroke();
-    c.fillStyle = hexA(acc, pulse); c.fillRect(x, y, blockW, h);
-    const tx = x + blockW + gap;
-    c.fillStyle = "rgba(0,0,0,0.6)"; c.fillText(full, tx + 0.7, y + h / 2 + 1.3);
-    c.fillStyle = "#eef5fb"; c.fillText(full, tx, y + h / 2 + 0.4);
+    // clock glyph (accent colour) in place of the old DEFEND/HOLD word
+    const ccx = x + padL + iconR;
+    c.strokeStyle = hexA(acc, pulse); c.lineWidth = 1.4;
+    c.beginPath(); c.arc(ccx, midY, iconR, 0, Math.PI * 2); c.stroke();
+    c.beginPath(); c.moveTo(ccx, midY); c.lineTo(ccx, midY - iconR * 0.62); c.moveTo(ccx, midY); c.lineTo(ccx + iconR * 0.5, midY + iconR * 0.18); c.stroke();
+    const tx = x + padL + iconR * 2 + gap;
+    c.fillStyle = "rgba(0,0,0,0.6)"; c.fillText(txt, tx + 0.7, midY + 1.3);
+    c.fillStyle = "#eef5fb"; c.fillText(txt, tx, midY + 0.4);
     c.restore();
   }
 
@@ -1443,13 +1448,14 @@
       const chips = {};
       const add = (idx, chip) => { if (byIndex[idx]) (chips[idx] = chips[idx] || []).push(chip); };
       // Major Order targets share the single order deadline -> the whole objective ticks in sync.
-      if (moDl > 0) MO_MARKS.forEach((m) => add(m.index, { dl: moDl, label: m.verb || "HOLD", accent: "#FFE900" }));
-      // Event planets use their own expiry + the DEFEND/CLAIM label and faction accent.
-      PLANETS.forEach((e) => { const p = e.p; if (p.ev && p.ev.expireEpoch) { const mm = tipMeta(p); add(p.i, { dl: p.ev.expireEpoch * 1000, label: mm.isDefense ? "DEFEND" : "CLAIM", accent: facColor(mm.dispFac) }); } });
+      if (moDl > 0) MO_MARKS.forEach((m) => add(m.index, { dl: moDl, accent: "#FFE900" }));
+      // Event planets use their own expiry; the faction accent (and the planet's own DEFEND/CLAIM
+      // label below) convey the action, so the chip itself stays a pure countdown.
+      PLANETS.forEach((e) => { const p = e.p; if (p.ev && p.ev.expireEpoch) { const mm = tipMeta(p); add(p.i, { dl: p.ev.expireEpoch * 1000, accent: facColor(mm.dispFac) }); } });
       Object.keys(chips).forEach((idx) => {
         const e = byIndex[idx]; if (!e || e.sx < -160 || e.sx > W + 160 || e.sy < -120 || e.sy > H + 120) return;
         let ay = e.sy - 13;
-        chips[idx].forEach((cp) => { drawMapTimer(ctx, e.sx, ay, cp.dl, cp.label, cp.accent, ts); ay -= 20; });
+        chips[idx].forEach((cp) => { drawMapTimer(ctx, e.sx, ay, cp.dl, cp.accent, ts); ay -= 20; });
       });
     }
 
