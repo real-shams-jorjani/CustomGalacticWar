@@ -127,25 +127,35 @@ window.EnvFX = (function () {
     ctx.restore();
   }
 
-  function voidFieldRect(ctx, x0, y0, x1, y1, c, ts, rm, simple) {
+  // Cyberpunk 2077 "Blackwall" look: vertical data-streak columns with chromatic (red/cyan) RGB
+  // split on the bright cores. phaseX/phaseY anchor the pattern to the map so it stops "swimming"
+  // against the region edge when you pan, and the per-column dim is a slow shimmer rather than the
+  // old hard strobe (which read as wonky in motion).
+  function voidFieldRect(ctx, x0, y0, x1, y1, c, ts, rm, simple, phaseX, phaseY) {
+    phaseX = phaseX || 0; phaseY = phaseY || 0;
     const STEP = simple ? 6 : 4;
     ctx.save(); ctx.globalCompositeOperation = "lighter";
     for (let gx = x0; gx <= x1; gx += STEP) {
-      const col = (gx * 0.5) | 0, drag = h1(col), torn = h1(col + 40);
-      const streak = rm ? 1 : 1 + drag * 8;
-      const flick = (!rm && Math.sin(col * 7 + ts / 150) < -0.3) ? 0.22 : 1;
-      const xoff = torn > 0.86 ? (h1(col + 7) - 0.5) * 9 : 0;
+      const col = ((gx - phaseX) * 0.5) | 0, drag = h1(col), torn = h1(col + 40);
+      const streak = rm ? 1 : 1 + drag * 7;
+      const dimCol = rm ? 1 : 0.5 + 0.5 * (0.5 + 0.5 * Math.sin(col * 1.7 + ts / 900));
+      const xoff = (!rm && torn > 0.9) ? (h1(col + 7) - 0.5) * 7 : 0;
       for (let gy = y0; gy <= y1; gy += STEP) {
-        const band = 0.5 + 0.5 * Math.sin(gy * 0.3 + col);
-        let b = (0.3 + 0.7 * band) * flick; b = b < 0 ? 0 : b > 1 ? 1 : b;
-        if (b < 0.08) continue;
-        ctx.globalAlpha = 0.16 + 0.5 * b; ctx.fillStyle = b > 0.82 ? "#fff" : c;
-        ctx.fillRect(gx + xoff - 0.9, gy, 1.8, 1.5 + streak * b);
+        const band = 0.5 + 0.5 * Math.sin((gy - phaseY) * 0.28 + col);
+        let b = (0.3 + 0.7 * band) * dimCol; b = b < 0 ? 0 : b > 1 ? 1 : b;
+        if (b < 0.1) continue;
+        const hgt = 1.5 + streak * b, bx = gx + xoff;
+        if (!rm && b > 0.62) {
+          ctx.globalAlpha = 0.16 * b; ctx.fillStyle = GR; ctx.fillRect(bx - 2.2, gy, 1.6, hgt);
+          ctx.globalAlpha = 0.16 * b; ctx.fillStyle = GC; ctx.fillRect(bx + 1.0, gy, 1.6, hgt);
+        }
+        ctx.globalAlpha = 0.18 + 0.55 * b; ctx.fillStyle = b > 0.85 ? "#fff" : c;
+        ctx.fillRect(bx - 0.9, gy, 1.8, hgt);
       }
     }
     if (!rm) {
       const hh = Math.max(1, y1 - y0), ty = y0 + ((ts * 0.12) % hh);
-      ctx.globalAlpha = 0.26; ctx.fillStyle = GR; ctx.fillRect(x0, ty, x1 - x0, 1.6);
+      ctx.globalAlpha = 0.22; ctx.fillStyle = GR; ctx.fillRect(x0, ty, x1 - x0, 1.6);
       ctx.fillStyle = GC; ctx.fillRect(x0, ty + 2.5, (x1 - x0) * (0.4 + 0.5 * h1((ts / 200) | 0)), 1.2);
     }
     ctx.restore();

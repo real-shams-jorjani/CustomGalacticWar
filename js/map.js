@@ -262,7 +262,7 @@
       let cx = 0, cy = 0, n = 0;
       sec.cells.forEach(([ring, line]) => { const rm = (ring + 0.5) * 100, am = ang(line + 0.5); cx += rm * Math.cos(am); cy += -rm * Math.sin(am); n++; });
       if (n) { cx /= n; cy /= n; }
-      return { tops, walls, risers, secEdges, dots, cx, cy, elev, tier, fillHex, wallHex, outline, alpha, se: isSE, enemy: isEnemy, available };
+      return { tops, walls, risers, secEdges, dots, cx, cy, elev, tier, fillHex, wallHex, outline, alpha, se: isSE, enemy: isEnemy, available, active: st.camp };
     });
 
     const NODE_POP = 0;
@@ -840,7 +840,11 @@
       }
 
       if (s.enemy) s._scrCells = [];
-      const tint = s.enemy ? hexA(s.fillHex, 0.34 + s.tier * 0.08) : facColor(1);
+      // Inactive sectors (no live campaign/event) recede -- darker + more translucent -- so the
+      // active fronts read at a glance, matching WarForge's active/inactive sector shading.
+      const dim = s.active ? 1 : 0.55;
+      const baseHex = s.active ? s.fillHex : scaleHex(s.fillHex, 0.72);
+      const tint = s.enemy ? hexA(baseHex, (0.34 + s.tier * 0.08) * dim) : facColor(1);
 
       c.beginPath();
       s.tops.forEach((poly) => {
@@ -851,9 +855,9 @@
       if (s.enemy) {
         c.fillStyle = "rgba(7,11,18,0.55)"; c.fill();
         c.fillStyle = tint; c.fill();
-        c.globalAlpha = 0.38 + s.tier * 0.06; c.fillStyle = hazPattern(s.fillHex); c.fill(); c.globalAlpha = 1;
+        c.globalAlpha = (0.38 + s.tier * 0.06) * dim; c.fillStyle = hazPattern(baseHex); c.fill(); c.globalAlpha = 1;
       } else {
-        c.fillStyle = "rgba(7,11,18,0.3)"; c.fill(); c.globalAlpha = s.alpha; c.fillStyle = tint; c.fill(); c.globalAlpha = 1;
+        c.fillStyle = "rgba(7,11,18,0.3)"; c.fill(); c.globalAlpha = s.alpha * dim; c.fillStyle = tint; c.fill(); c.globalAlpha = 1;
       }
 
     }
@@ -1028,10 +1032,13 @@
       const sig = FAC_SIGIL[l.fid];
       if (sig) { c.globalAlpha = ease; c.drawImage(sig, q.x - EM, q.y - EM - 14, EM * 2, EM * 2); }
       c.globalAlpha = 1;
-      if (ls) c.letterSpacing = "3px";
-      c.font = "700 22px " + headFont();
+      // Scale the faction name with zoom so it reads clean when zoomed out (was a fixed 22px
+      // that looked oversized at galaxy scale) and grows a little as you zoom toward the front.
+      const fs = clamp(11 + cam.zoom * 6, 11, 18);
+      if (ls) c.letterSpacing = "2px";
+      c.font = "700 " + Math.round(fs) + "px " + headFont();
       const ny = q.y + EM - 30;
-      c.lineWidth = 4.5; c.strokeStyle = "rgba(2,6,11," + (0.82 * ease).toFixed(3) + ")"; c.strokeText(l.t, q.x, ny);
+      c.lineWidth = Math.max(3, fs * 0.22); c.strokeStyle = "rgba(2,6,11," + (0.82 * ease).toFixed(3) + ")"; c.strokeText(l.t, q.x, ny);
       c.fillStyle = hexA(lightHex(l.col, 0.32), ease); c.fillText(l.t, q.x, ny);
       if (ls) c.letterSpacing = "0px";
     }
@@ -1353,6 +1360,28 @@
         window.EnvFX.draw(ctx, rest, e.sx, e.sy, R, ts, RMOTION, interacting, e.p.i);
       }
     }
+    drawVoidOutline(ts);
+  }
+
+  // Glowing boundary outline around the whole void region. Only edges belonging to a SINGLE void
+  // cell are stroked -- shared internal seams appear in two cells and are skipped -- so adjacent
+  // cells read as one mass with a clean glitch-magenta edge (the Blackwall border the user asked for).
+  function drawVoidOutline(ts) {
+    const cells = FX_MARKS.filter((e) => e.voidCell && e.voidCell.length >= 3 && e.p.fx.some((f) => f.t === "void"));
+    if (!cells.length) return;
+    const col = (cells[0].p.fx.find((f) => f.t === "void") || {}).c || "#A124E3";
+    const edges = {};
+    const key = (a, b) => { const ax = Math.round(a.x), ay = Math.round(a.y), bx = Math.round(b.x), by = Math.round(b.y); return (ax < bx || (ax === bx && ay <= by)) ? ax + "_" + ay + "_" + bx + "_" + by : bx + "_" + by + "_" + ax + "_" + ay; };
+    cells.forEach((e) => { const cl = e.voidCell; for (let i = 0; i < cl.length; i++) { const a = cl[i], b = cl[(i + 1) % cl.length], k = key(a, b); (edges[k] || (edges[k] = { n: 0, a: a, b: b })).n++; } });
+    const flick = RMOTION ? 1 : 0.78 + 0.22 * Math.sin(ts / 240);
+    ctx.save(); ctx.globalCompositeOperation = "lighter"; ctx.lineCap = "round"; ctx.lineJoin = "round";
+    const passes = [[3.4, 0.14], [1.3, 0.62 * flick]];
+    for (const pass of passes) {
+      ctx.lineWidth = pass[0]; ctx.strokeStyle = hexA(col, pass[1]); ctx.beginPath();
+      for (const k in edges) { const ed = edges[k]; if (ed.n !== 1) continue; const A = project(ed.a.x, ed.a.y, 0), B = project(ed.b.x, ed.b.y, 0); ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y); }
+      ctx.stroke();
+    }
+    ctx.restore();
   }
 
   function drawVoidCell(e, ts) {
@@ -1369,8 +1398,9 @@
     if (x1 < 0 || y1 < 0 || x0 > W || y0 > H) return;
     ctx.save();
     ctx.beginPath(); ctx.moveTo(pp[0].x, pp[0].y); for (let i = 1; i < pp.length; i++) ctx.lineTo(pp[i].x, pp[i].y); ctx.closePath();
-    ctx.clip();   // clip only - no per-cell edge stroke (it painted the shared seam between adjacent cells as a line)
-    window.EnvFX.voidFieldRect(ctx, Math.max(0, x0), Math.max(0, y0), Math.min(W, x1), Math.min(H, y1), col, ts, RMOTION, interacting);
+    ctx.clip();   // clip only - the union boundary is stroked once in drawVoidOutline (no internal seams)
+    const o = project(0, 0, 0);   // anchor the field pattern to the map so it doesn't swim when panning
+    window.EnvFX.voidFieldRect(ctx, Math.max(0, x0), Math.max(0, y0), Math.min(W, x1), Math.min(H, y1), col, ts, RMOTION, interacting, o.x, o.y);
     ctx.restore();
   }
 
