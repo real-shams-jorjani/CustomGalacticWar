@@ -1,4 +1,68 @@
 {
+  "0": {
+    "poi": [
+      {
+        "category": "MAJOR POINT OF INTEREST",
+        "title": "OBELISK OF MANAGED DEMOCRACY",
+        "icon": "major_order",
+        "date": "29.04.2184",
+        "status": "SECURED",
+        "statusColor": "#6FE994",
+        "body": [
+          {
+            "type": "text",
+            "text": "Raised over [c=#81dffb]Super Earth City[/c] to enshrine the [c=#FFE900]Eberhardt Doctrine[/c], the Obelisk broadcasts the Founding Charter on an eternal loop to every citizen within range."
+          },
+          {
+            "type": "image",
+            "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/The_Earth_seen_from_Apollo_17.jpg/640px-The_Earth_seen_from_Apollo_17.jpg",
+            "caption": "SUPER EARTH — viewed from high orbit over Home Fleet"
+          },
+          {
+            "type": "text",
+            "text": "Every Helldiver who falls on a distant world falls so that this one may stand free. Records are held in the [link=https://helldivers.wiki.gg/wiki/Super_Earth]Ministry of Truth archive[/link]."
+          }
+        ]
+      },
+      {
+        "category": "FIELD REPORT",
+        "title": "OPERATION AEGIS",
+        "icon": "campaign_defense",
+        "date": "01.05.2184",
+        "status": "ACTIVE",
+        "statusColor": "#FFE900",
+        "body": [
+          {
+            "type": "text",
+            "text": "The orbital shield grid, ratified by unanimous Senate vote. So long as the array holds, [c=#ff8080]no enemy fleet[/c] may make orbit over the homeworld."
+          },
+          {
+            "type": "quote",
+            "text": "Liberty is not given. It is taken, and it is held.",
+            "by": "Eagle Sage, First Senate"
+          }
+        ]
+      }
+    ]
+  },
+  "253": {
+    "poi": [
+      {
+        "category": "ESSENTIAL FREEDOM CAMP",
+        "title": "CAMP CREEK",
+        "icon": "region_megacity",
+        "date": "11.08.2134",
+        "status": "SPREADING LIES",
+        "statusColor": "#ff5a5a",
+        "body": [
+          {
+            "type": "text",
+            "text": "A [c=#FFE900]maximum security Freedom Camp[/c]; supplied only with the latest and [c=#FFE900]most effective re-education techniques[/c] to make sure that [c=#FFE900]all dissidents[/c] that pass through here are sufficiently shown the light of liberty.\nAdditionally, this serves as an important hub for the **[c=#93e8e6]Ministry of Unity[/c]** in this sector.\nIn accordance with the **2188 \"Freedom Derangement Syndrome\" Act**, all dissidents must be given [c=#FFE900]5 months' worth of psychiatric visits[/c] to ensure that no obstacle; human or alien, shall prevent all those under Super Earth to rediscover her light.\n\nIn unfortunate turn of events, Camp Creek has now found itself chained to the illegal occupation of the **[c=#ff5a5a]Cyborg Legion[/c]**, and now they are undoubtedly corrupting the minds of those poor dissidents stuck there."
+          }
+        ]
+      }
+    ]
+  },
   "_format": {
     "note": "Per-planet POINTS OF INTEREST. Key = planet INDEX (string). Each planet has a 'poi' array; every entry renders as a Helldivers-style intel card. EMPTY BY DEFAULT — add entries to author lore. Delete the example below freely.",
     "imagesAreURLs": "Image blocks take a remote 'url' (https://...), NOT a local file. Hotlink any image you like.",
@@ -10,40 +74,21 @@
       "status": "optional tag, rendered like [DESTROYED]",
       "statusColor": "optional hex for the tag (default #ff5a5a)",
       "body": [
-        { "type": "text", "text": "Body copy. Inline markup: [c=#FFE900]yellow highlight[/c], **bold**, *italic*, [link=https://example.com]underlined link[/link]." },
-        { "type": "image", "url": "https://example.com/photo.jpg", "caption": "optional caption" },
-        { "type": "quote", "text": "A memorable line.", "by": "optional attribution" }
+        {
+          "type": "text",
+          "text": "Body copy. Inline markup: [c=#FFE900]yellow highlight[/c], **bold**, *italic*, [link=https://example.com]underlined link[/link]."
+        },
+        {
+          "type": "image",
+          "url": "https://example.com/photo.jpg",
+          "caption": "optional caption"
+        },
+        {
+          "type": "quote",
+          "text": "A memorable line.",
+          "by": "optional attribution"
+        }
       ]
     }
-  },
-
-  "0": {
-    "poi": [
-      {
-        "category": "MAJOR POINT OF INTEREST",
-        "title": "OBELISK OF MANAGED DEMOCRACY",
-        "icon": "major_order",
-        "date": "29.04.2184",
-        "status": "SECURED",
-        "statusColor": "#6FE994",
-        "body": [
-          { "type": "text", "text": "Raised over [c=#81dffb]Super Earth City[/c] to enshrine the [c=#FFE900]Eberhardt Doctrine[/c], the Obelisk broadcasts the Founding Charter on an eternal loop to every citizen within range." },
-          { "type": "image", "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/The_Earth_seen_from_Apollo_17.jpg/640px-The_Earth_seen_from_Apollo_17.jpg", "caption": "SUPER EARTH — viewed from high orbit over Home Fleet" },
-          { "type": "text", "text": "Every Helldiver who falls on a distant world falls so that this one may stand free. Records are held in the [link=https://helldivers.wiki.gg/wiki/Super_Earth]Ministry of Truth archive[/link]." }
-        ]
-      },
-      {
-        "category": "FIELD REPORT",
-        "title": "OPERATION AEGIS",
-        "icon": "campaign_defense",
-        "date": "01.05.2184",
-        "status": "ACTIVE",
-        "statusColor": "#FFE900",
-        "body": [
-          { "type": "text", "text": "The orbital shield grid, ratified by unanimous Senate vote. So long as the array holds, [c=#ff8080]no enemy fleet[/c] may make orbit over the homeworld." },
-          { "type": "quote", "text": "Liberty is not given. It is taken, and it is held.", "by": "Eagle Sage, First Senate" }
-        ]
-      }
-    ]
   }
 }
