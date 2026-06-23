@@ -1507,6 +1507,12 @@
     const pointers = new Map();
     let pinchD = 0, pinchA = null, lastTap = null;
     cv.addEventListener("contextmenu", (e) => e.preventDefault());
+    // MOBILE: keep every map gesture ON the map. touch-action:none (CSS) covers most browsers, but
+    // iOS Safari ignores it for PAGE pinch-zoom (legacy gesture* events) and can scroll the page on
+    // drag -> preventDefault the touch/gesture defaults on the canvas so the page never pans/zooms.
+    ["gesturestart", "gesturechange", "gestureend"].forEach((g) => cv.addEventListener(g, (e) => e.preventDefault()));
+    cv.addEventListener("touchmove", (e) => e.preventDefault(), { passive: false });
+    cv.addEventListener("touchstart", (e) => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
     cv.addEventListener("pointerdown", (e) => {
       try { cv.setPointerCapture(e.pointerId); } catch (_) {}
       pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
