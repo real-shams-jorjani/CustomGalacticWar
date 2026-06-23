@@ -92,7 +92,7 @@
       rehydratePlanets(); mergeLivePosts(live); build();
     })
     .catch((err) => {
-      console.error("[map] data unavailable — run `python fetch_map.py` to bake data/map.json, then reload.", err);
+      console.error("[map] data unavailable - run `python fetch_map.py` to bake data/map.json, then reload.", err);
       const up = document.getElementById("uplink"); if (up) { up.textContent = "SIGNAL LOST"; up.classList.add("stale"); }
       ["dispatch-feed", "fleet-list", "home-dispatch"].forEach((id) => { const e = document.getElementById(id); if (e && !e.children.length) e.innerHTML = '<div class="fleet-empty">No signal from High Command.</div>'; });
     });
@@ -1319,7 +1319,7 @@
     if (x1 < 0 || y1 < 0 || x0 > W || y0 > H) return;
     ctx.save();
     ctx.beginPath(); ctx.moveTo(pp[0].x, pp[0].y); for (let i = 1; i < pp.length; i++) ctx.lineTo(pp[i].x, pp[i].y); ctx.closePath();
-    ctx.clip();   // clip only — no per-cell edge stroke (it painted the shared seam between adjacent cells as a line)
+    ctx.clip();   // clip only - no per-cell edge stroke (it painted the shared seam between adjacent cells as a line)
     window.EnvFX.voidFieldRect(ctx, Math.max(0, x0), Math.max(0, y0), Math.min(W, x1), Math.min(H, y1), col, ts, RMOTION, interacting);
     ctx.restore();
   }
