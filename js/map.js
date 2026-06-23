@@ -2171,7 +2171,7 @@
   function runMapLoader() {
     const el = document.getElementById("map-loader"); if (!el) return;
     const fill = document.getElementById("hp-fill"), pctEl = document.getElementById("hp-pct"), st = document.getElementById("hp-status");
-    const lines = ["INITIALISING HOLOTABLE", "ESTABLISHING UPLINK TO HIGH COMMAND", "SYNCING GALACTIC WAR DATA", "CALIBRATING SECTOR TELEMETRY", "RENDERING STRATEGIC THEATRE"];
+    const lines = ["INITIALISING HOLOTABLE", "ESTABLISHING UPLINK TO HIGH COMMAND", "SYNCING GALACTIC WAR DATA", "CALIBRATING SECTOR TELEMETRY", "RENDERING GALAXY MAP"];
     const fin = () => el.classList.add("done");
     el.addEventListener("pointerdown", fin, { once: true });
     setTimeout(fin, 3400);
@@ -2498,7 +2498,7 @@
   }
 
   function rosterHTML(sort) {
-    if (!FLEETS.length) return `<div class="fleet-empty">No active fleets in theatre.</div>`;
+    if (!FLEETS.length) return `<div class="fleet-empty">No active fleets in the galaxy.</div>`;
     if (sort === "faction") {
       let h = "";
       [1, 2, 3, 4].forEach((fc) => {
@@ -2562,7 +2562,7 @@
       `</div>` + mfDrawer(f) + `</div>`;
   }
   function mapRosterHTML() {
-    if (!FLEETS.length) return `<div class="fleet-empty">No active fleets in theatre.</div>`;
+    if (!FLEETS.length) return `<div class="fleet-empty">No active fleets in the galaxy.</div>`;
     if (mapFleetSort === "faction") {
       let h = "";
       [1, 2, 3, 4].forEach((fc) => {

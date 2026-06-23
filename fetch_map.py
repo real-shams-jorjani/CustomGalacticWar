@@ -1010,7 +1010,7 @@ def build():
           f"{len(attacks)} attacks | {out['stats']['activeCampaigns']} campaigns")
     print(f"     SE controls {se}/{len(planets)} planets "
           f"({out['stats']['seControlledPct']}%) | "
-          f"{total_players:,} players in theatre")
+          f"{total_players:,} players in galaxy")
 
 
 if __name__ == "__main__":
