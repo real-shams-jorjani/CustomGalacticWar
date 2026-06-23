@@ -1,0 +1,695 @@
+{
+  "version": 2,
+  "_schema": "WarForge fleet roster. Each fleet = one type-71 map flag + N type-40 spawn pools deployed on a planet, with a conserved invasion level (event HP = level*50000). The roster is the source of truth; planet effects are a projection of it.",
+  "fleets": [
+    {
+      "id": "fleet_47f9f626",
+      "name": "1st Illuminate Fleet",
+      "faction": 4,
+      "ordinal": 1,
+      "level": 1,
+      "planet": 220,
+      "flag": 2007,
+      "spawn_pools": [
+        2006
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_d8c5954e",
+      "name": "2nd Illuminate Fleet",
+      "faction": 4,
+      "ordinal": 2,
+      "level": 1,
+      "planet": 230,
+      "flag": 2012,
+      "spawn_pools": [
+        2013
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_295468a3",
+      "name": "3rd Illuminate Fleet",
+      "faction": 4,
+      "ordinal": 3,
+      "level": 1,
+      "planet": 224,
+      "flag": 1379,
+      "spawn_pools": [
+        1380
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_35f325b5",
+      "name": "4th Illuminate Fleet",
+      "faction": 4,
+      "ordinal": 4,
+      "level": 1,
+      "planet": 77,
+      "flag": 1378,
+      "spawn_pools": [
+        1377
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_08bdea15",
+      "name": "5th Illuminate Fleet",
+      "faction": 4,
+      "ordinal": 5,
+      "level": 1,
+      "planet": 114,
+      "flag": 1378,
+      "spawn_pools": [
+        1377
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_77904de9",
+      "name": "6th Illuminate Fleet",
+      "faction": 4,
+      "ordinal": 6,
+      "level": 1,
+      "planet": 127,
+      "flag": 0,
+      "spawn_pools": [
+        1377
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_b1f3f8a5",
+      "name": "7th Illuminate Fleet",
+      "faction": 4,
+      "ordinal": 7,
+      "level": 1,
+      "planet": 116,
+      "flag": 0,
+      "spawn_pools": [
+        1377
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_9bbe5a6e",
+      "name": "8th Illuminate Fleet",
+      "faction": 4,
+      "ordinal": 8,
+      "level": 1,
+      "planet": 142,
+      "flag": 0,
+      "spawn_pools": [
+        1377
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_5700a6fa",
+      "name": "9th Illuminate Fleet",
+      "faction": 4,
+      "ordinal": 9,
+      "level": 1,
+      "planet": 221,
+      "flag": 0,
+      "spawn_pools": [
+        1377
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_f5156818",
+      "name": "10th Illuminate Fleet",
+      "faction": 4,
+      "ordinal": 10,
+      "level": 1,
+      "planet": 140,
+      "flag": 0,
+      "spawn_pools": [
+        1377
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_7aacaa7d",
+      "name": "11th Illuminate Fleet",
+      "faction": 4,
+      "ordinal": 11,
+      "level": 1,
+      "planet": 230,
+      "flag": 0,
+      "spawn_pools": [
+        1377
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_3b1654d3",
+      "name": "12th Illuminate Fleet",
+      "faction": 4,
+      "ordinal": 12,
+      "level": 1,
+      "planet": 232,
+      "flag": 0,
+      "spawn_pools": [
+        1377
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_1fcdb886",
+      "name": "13th Illuminate Fleet",
+      "faction": 4,
+      "ordinal": 13,
+      "level": 1,
+      "planet": 251,
+      "flag": 0,
+      "spawn_pools": [
+        1377
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_0a406b4b",
+      "name": "14th Illuminate Fleet",
+      "faction": 4,
+      "ordinal": 14,
+      "level": 1,
+      "planet": 259,
+      "flag": 0,
+      "spawn_pools": [
+        1377
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_d78c4153",
+      "name": "15th Illuminate Fleet",
+      "faction": 4,
+      "ordinal": 15,
+      "level": 1,
+      "planet": 1,
+      "flag": 0,
+      "spawn_pools": [
+        1377
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_a3cc667b",
+      "name": "16th Illuminate Fleet",
+      "faction": 4,
+      "ordinal": 16,
+      "level": 1,
+      "planet": 76,
+      "flag": 2012,
+      "spawn_pools": [
+        2013
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_359496d6",
+      "name": "17th Illuminate Fleet",
+      "faction": 4,
+      "ordinal": 17,
+      "level": 1,
+      "planet": 135,
+      "flag": 0,
+      "spawn_pools": [
+        1377
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_3e6c2e1e",
+      "name": "18th Illuminate Fleet",
+      "faction": 4,
+      "ordinal": 18,
+      "level": 1,
+      "planet": 174,
+      "flag": 0,
+      "spawn_pools": [
+        1377
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_ae0c11a6",
+      "name": "19th Illuminate Fleet",
+      "faction": 4,
+      "ordinal": 19,
+      "level": 1,
+      "planet": 237,
+      "flag": 0,
+      "spawn_pools": [
+        1377
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_85128631",
+      "name": "20th Illuminate Fleet",
+      "faction": 4,
+      "ordinal": 20,
+      "level": 1,
+      "planet": 27,
+      "flag": 0,
+      "spawn_pools": [
+        1377
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_72d6aee3",
+      "name": "21st Illuminate Fleet",
+      "faction": 4,
+      "ordinal": 21,
+      "level": 1,
+      "planet": 31,
+      "flag": 0,
+      "spawn_pools": [
+        1377
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_3c48d371",
+      "name": "22nd Illuminate Fleet",
+      "faction": 4,
+      "ordinal": 22,
+      "level": 1,
+      "planet": 28,
+      "flag": 0,
+      "spawn_pools": [
+        1377
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_fd59fafe",
+      "name": "1st Super Earth Fleet",
+      "faction": 1,
+      "ordinal": 1,
+      "level": 1,
+      "planet": 86,
+      "flag": 2001,
+      "spawn_pools": [],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_53930ccf",
+      "name": "1st Bug Fleet",
+      "faction": 2,
+      "ordinal": 1,
+      "level": 1,
+      "planet": 59,
+      "flag": 0,
+      "spawn_pools": [
+        1307
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_f97c4561",
+      "name": "23rd Illuminate Fleet",
+      "faction": 4,
+      "ordinal": 23,
+      "level": 1,
+      "planet": 121,
+      "flag": 1378,
+      "spawn_pools": [
+        1377
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_5901993c",
+      "name": "2nd Super Earth Fleet",
+      "faction": 1,
+      "ordinal": 2,
+      "level": 1,
+      "planet": 121,
+      "flag": 2001,
+      "spawn_pools": [],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_029b80f8",
+      "name": "24th Illuminate Fleet",
+      "faction": 4,
+      "ordinal": 24,
+      "level": 1,
+      "planet": 129,
+      "flag": 1378,
+      "spawn_pools": [
+        1377
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_099f50ef",
+      "name": "3rd Super Earth Fleet",
+      "faction": 1,
+      "ordinal": 3,
+      "level": 1,
+      "planet": 260,
+      "flag": 2001,
+      "spawn_pools": [],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_2e22e552",
+      "name": "1st Bot Fleet",
+      "faction": 3,
+      "ordinal": 1,
+      "level": 1,
+      "planet": 132,
+      "flag": 2011,
+      "spawn_pools": [
+        2010
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_4facbca2",
+      "name": "25th Illuminate Fleet",
+      "faction": 4,
+      "ordinal": 25,
+      "level": 1,
+      "planet": 250,
+      "flag": 1379,
+      "spawn_pools": [
+        1380
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_6268ada5",
+      "name": "2nd Bot Fleet",
+      "faction": 3,
+      "ordinal": 2,
+      "level": 1,
+      "planet": 156,
+      "flag": 0,
+      "spawn_pools": [
+        1202
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_cf03240a",
+      "name": "3rd Bot Fleet",
+      "faction": 3,
+      "ordinal": 3,
+      "level": 1,
+      "planet": 156,
+      "flag": 0,
+      "spawn_pools": [
+        1360
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_08e7fa99",
+      "name": "4th Bot Fleet",
+      "faction": 3,
+      "ordinal": 4,
+      "level": 1,
+      "planet": 156,
+      "flag": 2003,
+      "spawn_pools": [
+        2002
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_cf24b57f",
+      "name": "5th Bot Fleet",
+      "faction": 3,
+      "ordinal": 5,
+      "level": 1,
+      "planet": 156,
+      "flag": 0,
+      "spawn_pools": [
+        2010
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_b106599a",
+      "name": "6th Bot Fleet",
+      "faction": 3,
+      "ordinal": 6,
+      "level": 1,
+      "planet": 157,
+      "flag": 1203,
+      "spawn_pools": [
+        1202
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_50185c5d",
+      "name": "7th Bot Fleet",
+      "faction": 3,
+      "ordinal": 7,
+      "level": 1,
+      "planet": 157,
+      "flag": 0,
+      "spawn_pools": [
+        1360
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_9a3e2716",
+      "name": "8th Bot Fleet",
+      "faction": 3,
+      "ordinal": 8,
+      "level": 1,
+      "planet": 157,
+      "flag": 0,
+      "spawn_pools": [
+        2002
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_f49a3d89",
+      "name": "9th Bot Fleet",
+      "faction": 3,
+      "ordinal": 9,
+      "level": 1,
+      "planet": 167,
+      "flag": 1361,
+      "spawn_pools": [
+        1360
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_c26d225c",
+      "name": "10th Bot Fleet",
+      "faction": 3,
+      "ordinal": 10,
+      "level": 1,
+      "planet": 167,
+      "flag": 0,
+      "spawn_pools": [
+        2002
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_1a634f2c",
+      "name": "26th Illuminate Fleet",
+      "faction": 4,
+      "ordinal": 26,
+      "level": 1,
+      "planet": 250,
+      "flag": 0,
+      "spawn_pools": [
+        2006
+      ],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    },
+    {
+      "id": "fleet_a0ca8496",
+      "name": "4th Super Earth Fleet",
+      "faction": 1,
+      "ordinal": 4,
+      "level": 1,
+      "planet": 263,
+      "flag": 2001,
+      "spawn_pools": [],
+      "user_renamed": false,
+      "created_at": 1781666670.532561
+    }
+  ],
+  "reconciler": {
+    "_comment": "Internal \u2014 the last planet->effect-ids projection the reconciler pushed; used to compute minimal diffs + protect manually-placed effects. Not user-editable.",
+    "last_projected": {
+      "86": [
+        2001
+      ],
+      "121": [
+        1377,
+        1378,
+        2001
+      ],
+      "260": [
+        2001
+      ],
+      "263": [
+        2001
+      ],
+      "59": [
+        1307
+      ],
+      "132": [
+        2010,
+        2011
+      ],
+      "156": [
+        1202,
+        1360,
+        2002,
+        2003,
+        2010
+      ],
+      "157": [
+        1202,
+        1203,
+        1360,
+        2002
+      ],
+      "167": [
+        1360,
+        1361,
+        2002
+      ],
+      "220": [
+        2006,
+        2007
+      ],
+      "230": [
+        1377,
+        2012,
+        2013
+      ],
+      "224": [
+        1379,
+        1380
+      ],
+      "77": [
+        1377,
+        1378
+      ],
+      "114": [
+        1377,
+        1378
+      ],
+      "127": [
+        1377
+      ],
+      "116": [
+        1377
+      ],
+      "142": [
+        1377
+      ],
+      "221": [
+        1377
+      ],
+      "140": [
+        1377
+      ],
+      "232": [
+        1377
+      ],
+      "251": [
+        1377
+      ],
+      "259": [
+        1377
+      ],
+      "1": [
+        1377
+      ],
+      "76": [
+        2012,
+        2013
+      ],
+      "135": [
+        1377
+      ],
+      "174": [
+        1377
+      ],
+      "237": [
+        1377
+      ],
+      "27": [
+        1377
+      ],
+      "31": [
+        1377
+      ],
+      "28": [
+        1377
+      ],
+      "129": [
+        1377,
+        1378
+      ],
+      "250": [
+        1379,
+        1380,
+        2006
+      ]
+    }
+  }
+}

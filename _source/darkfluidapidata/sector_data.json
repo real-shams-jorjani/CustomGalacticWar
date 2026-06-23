@@ -1,0 +1,1350 @@
+{
+    "entries": 55,
+    "data": [
+        {
+            "index": 0,
+            "name": "SOL SYSTEM @ 87675210",
+            "edges": [
+                {
+                    "ring": 0,
+                    "line": 0
+                },
+                {
+                    "ring": 0,
+                    "line": 1
+                },
+                {
+                    "ring": 0,
+                    "line": 2
+                },
+                {
+                    "ring": 0,
+                    "line": 3
+                },
+                {
+                    "ring": 0,
+                    "line": 4
+                },
+                {
+                    "ring": 0,
+                    "line": 5
+                },
+                {
+                    "ring": 0,
+                    "line": 6
+                },
+                {
+                    "ring": 0,
+                    "line": 7
+                },
+                {
+                    "ring": 0,
+                    "line": 8
+                },
+                {
+                    "ring": 0,
+                    "line": 9
+                },
+                {
+                    "ring": 0,
+                    "line": 10
+                },
+                {
+                    "ring": 0,
+                    "line": 11
+                },
+                {
+                    "ring": 0,
+                    "line": 12
+                },
+                {
+                    "ring": 0,
+                    "line": 13
+                },
+                {
+                    "ring": 0,
+                    "line": 14
+                },
+                {
+                    "ring": 0,
+                    "line": 15
+                },
+                {
+                    "ring": 0,
+                    "line": 16
+                },
+                {
+                    "ring": 0,
+                    "line": 17
+                },
+                {
+                    "ring": 0,
+                    "line": 18
+                },
+                {
+                    "ring": 0,
+                    "line": 19
+                },
+                {
+                    "ring": 0,
+                    "line": 20
+                },
+                {
+                    "ring": 0,
+                    "line": 21
+                },
+                {
+                    "ring": 0,
+                    "line": 22
+                },
+                {
+                    "ring": 0,
+                    "line": 23
+                }
+            ],
+            "num_edges": 24
+        },
+        {
+            "index": 1,
+            "name": "ALTUS SECTOR @ 754504867",
+            "edges": [
+                {
+                    "ring": 1,
+                    "line": 0
+                },
+                {
+                    "ring": 1,
+                    "line": 1
+                },
+                {
+                    "ring": 1,
+                    "line": 22
+                },
+                {
+                    "ring": 1,
+                    "line": 23
+                },
+                {
+                    "ring": 2,
+                    "line": 0
+                },
+                {
+                    "ring": 2,
+                    "line": 23
+                }
+            ],
+            "num_edges": 6
+        },
+        {
+            "index": 2,
+            "name": "BARNARD SECTOR @ 987942581",
+            "edges": [
+                {
+                    "ring": 1,
+                    "line": 2
+                },
+                {
+                    "ring": 1,
+                    "line": 3
+                },
+                {
+                    "ring": 1,
+                    "line": 4
+                },
+                {
+                    "ring": 1,
+                    "line": 5
+                },
+                {
+                    "ring": 2,
+                    "line": 3
+                },
+                {
+                    "ring": 2,
+                    "line": 4
+                }
+            ],
+            "num_edges": 6
+        },
+        {
+            "index": 3,
+            "name": "CANCRI SECTOR @ 559406208",
+            "edges": [
+                {
+                    "ring": 1,
+                    "line": 6
+                },
+                {
+                    "ring": 1,
+                    "line": 7
+                },
+                {
+                    "ring": 1,
+                    "line": 8
+                },
+                {
+                    "ring": 1,
+                    "line": 9
+                },
+                {
+                    "ring": 2,
+                    "line": 7
+                },
+                {
+                    "ring": 2,
+                    "line": 8
+                }
+            ],
+            "num_edges": 6
+        },
+        {
+            "index": 4,
+            "name": "GOTHMAR SECTOR @ 2449050769",
+            "edges": [
+                {
+                    "ring": 1,
+                    "line": 10
+                },
+                {
+                    "ring": 1,
+                    "line": 11
+                },
+                {
+                    "ring": 1,
+                    "line": 12
+                },
+                {
+                    "ring": 1,
+                    "line": 13
+                },
+                {
+                    "ring": 2,
+                    "line": 11
+                },
+                {
+                    "ring": 2,
+                    "line": 12
+                }
+            ],
+            "num_edges": 6
+        },
+        {
+            "index": 5,
+            "name": "CANTOLUS SECTOR @ 3880800031",
+            "edges": [
+                {
+                    "ring": 1,
+                    "line": 18
+                },
+                {
+                    "ring": 1,
+                    "line": 19
+                },
+                {
+                    "ring": 1,
+                    "line": 20
+                },
+                {
+                    "ring": 1,
+                    "line": 21
+                },
+                {
+                    "ring": 2,
+                    "line": 19
+                },
+                {
+                    "ring": 2,
+                    "line": 20
+                }
+            ],
+            "num_edges": 6
+        },
+        {
+            "index": 6,
+            "name": "IDUN SECTOR @ 4234894978",
+            "edges": [
+                {
+                    "ring": 6,
+                    "line": 18
+                },
+                {
+                    "ring": 7,
+                    "line": 16
+                },
+                {
+                    "ring": 7,
+                    "line": 17
+                },
+                {
+                    "ring": 7,
+                    "line": 18
+                }
+            ],
+            "num_edges": 4
+        },
+        {
+            "index": 7,
+            "name": "KELVIN SECTOR @ 4053729028",
+            "edges": [
+                {
+                    "ring": 4,
+                    "line": 2
+                },
+                {
+                    "ring": 5,
+                    "line": 2
+                }
+            ],
+            "num_edges": 2
+        },
+        {
+            "index": 8,
+            "name": "IPTUS SECTOR @ 3525702929",
+            "edges": [
+                {
+                    "ring": 4,
+                    "line": 3
+                },
+                {
+                    "ring": 4,
+                    "line": 4
+                },
+                {
+                    "ring": 4,
+                    "line": 5
+                },
+                {
+                    "ring": 5,
+                    "line": 3
+                },
+                {
+                    "ring": 5,
+                    "line": 5
+                }
+            ],
+            "num_edges": 5
+        },
+        {
+            "index": 9,
+            "name": "CELESTE SECTOR @ 3677750052",
+            "edges": [
+                {
+                    "ring": 7,
+                    "line": 5
+                },
+                {
+                    "ring": 7,
+                    "line": 6
+                }
+            ],
+            "num_edges": 2
+        },
+        {
+            "index": 10,
+            "name": "KORPUS SECTOR @ 1358608754",
+            "edges": [
+                {
+                    "ring": 5,
+                    "line": 8
+                },
+                {
+                    "ring": 5,
+                    "line": 9
+                },
+                {
+                    "ring": 6,
+                    "line": 9
+                }
+            ],
+            "num_edges": 3
+        },
+        {
+            "index": 11,
+            "name": "GALLUX SECTOR @ 2466054614",
+            "edges": [
+                {
+                    "ring": 5,
+                    "line": 10
+                },
+                {
+                    "ring": 5,
+                    "line": 11
+                },
+                {
+                    "ring": 6,
+                    "line": 10
+                },
+                {
+                    "ring": 7,
+                    "line": 10
+                }
+            ],
+            "num_edges": 4
+        },
+        {
+            "index": 12,
+            "name": "MORGON SECTOR @ 1674292329",
+            "edges": [
+                {
+                    "ring": 6,
+                    "line": 2
+                },
+                {
+                    "ring": 6,
+                    "line": 3
+                }
+            ],
+            "num_edges": 2
+        },
+        {
+            "index": 13,
+            "name": "RICTUS SECTOR @ 734122764",
+            "edges": [
+                {
+                    "ring": 4,
+                    "line": 17
+                },
+                {
+                    "ring": 5,
+                    "line": 16
+                },
+                {
+                    "ring": 5,
+                    "line": 17
+                },
+                {
+                    "ring": 5,
+                    "line": 18
+                }
+            ],
+            "num_edges": 4
+        },
+        {
+            "index": 14,
+            "name": "SALERIA SECTOR @ 2519064414",
+            "edges": [
+                {
+                    "ring": 6,
+                    "line": 15
+                },
+                {
+                    "ring": 6,
+                    "line": 16
+                },
+                {
+                    "ring": 6,
+                    "line": 17
+                },
+                {
+                    "ring": 7,
+                    "line": 15
+                }
+            ],
+            "num_edges": 4
+        },
+        {
+            "index": 15,
+            "name": "MERIDIAN SECTOR @ 4036369765",
+            "edges": [
+                {
+                    "ring": 5,
+                    "line": 15
+                }
+            ],
+            "num_edges": 1
+        },
+        {
+            "index": 16,
+            "name": "THESEUS SECTOR @ 1912909754",
+            "edges": [
+                {
+                    "ring": 4,
+                    "line": 19
+                },
+                {
+                    "ring": 5,
+                    "line": 19
+                },
+                {
+                    "ring": 6,
+                    "line": 19
+                }
+            ],
+            "num_edges": 3
+        },
+        {
+            "index": 17,
+            "name": "SAGAN SECTOR @ 2121888692",
+            "edges": [
+                {
+                    "ring": 2,
+                    "line": 1
+                },
+                {
+                    "ring": 2,
+                    "line": 2
+                },
+                {
+                    "ring": 3,
+                    "line": 0
+                },
+                {
+                    "ring": 3,
+                    "line": 1
+                },
+                {
+                    "ring": 3,
+                    "line": 2
+                },
+                {
+                    "ring": 4,
+                    "line": 1
+                }
+            ],
+            "num_edges": 6
+        },
+        {
+            "index": 18,
+            "name": "MARSPIRA SECTOR @ 1911682224",
+            "edges": [
+                {
+                    "ring": 3,
+                    "line": 3
+                }
+            ],
+            "num_edges": 1
+        },
+        {
+            "index": 19,
+            "name": "TALUS SECTOR @ 391138216",
+            "edges": [
+                {
+                    "ring": 2,
+                    "line": 5
+                },
+                {
+                    "ring": 2,
+                    "line": 6
+                },
+                {
+                    "ring": 3,
+                    "line": 4
+                },
+                {
+                    "ring": 3,
+                    "line": 5
+                },
+                {
+                    "ring": 3,
+                    "line": 6
+                }
+            ],
+            "num_edges": 5
+        },
+        {
+            "index": 20,
+            "name": "ORION SECTOR @ 2999904680",
+            "edges": [
+                {
+                    "ring": 3,
+                    "line": 8
+                },
+                {
+                    "ring": 3,
+                    "line": 11
+                },
+                {
+                    "ring": 4,
+                    "line": 8
+                },
+                {
+                    "ring": 4,
+                    "line": 9
+                },
+                {
+                    "ring": 4,
+                    "line": 10
+                },
+                {
+                    "ring": 4,
+                    "line": 11
+                },
+                {
+                    "ring": 4,
+                    "line": 12
+                }
+            ],
+            "num_edges": 7
+        },
+        {
+            "index": 21,
+            "name": "UMLAUT SECTOR @ 4003330548",
+            "edges": [
+                {
+                    "ring": 3,
+                    "line": 7
+                },
+                {
+                    "ring": 4,
+                    "line": 6
+                },
+                {
+                    "ring": 4,
+                    "line": 7
+                },
+                {
+                    "ring": 5,
+                    "line": 7
+                }
+            ],
+            "num_edges": 4
+        },
+        {
+            "index": 22,
+            "name": "DRACO SECTOR @ 2947173848",
+            "edges": [
+                {
+                    "ring": 8,
+                    "line": 8
+                },
+                {
+                    "ring": 9,
+                    "line": 7
+                },
+                {
+                    "ring": 9,
+                    "line": 8
+                }
+            ],
+            "num_edges": 3
+        },
+        {
+            "index": 23,
+            "name": "BORGUS SECTOR @ 1364807175",
+            "edges": [
+                {
+                    "ring": 4,
+                    "line": 13
+                },
+                {
+                    "ring": 4,
+                    "line": 14
+                },
+                {
+                    "ring": 4,
+                    "line": 15
+                },
+                {
+                    "ring": 4,
+                    "line": 16
+                }
+            ],
+            "num_edges": 4
+        },
+        {
+            "index": 24,
+            "name": "URSA SECTOR @ 1012377516",
+            "edges": [
+                {
+                    "ring": 2,
+                    "line": 13
+                },
+                {
+                    "ring": 2,
+                    "line": 14
+                },
+                {
+                    "ring": 3,
+                    "line": 12
+                },
+                {
+                    "ring": 3,
+                    "line": 13
+                },
+                {
+                    "ring": 3,
+                    "line": 14
+                },
+                {
+                    "ring": 3,
+                    "line": 15
+                }
+            ],
+            "num_edges": 6
+        },
+        {
+            "index": 25,
+            "name": "FERRIS SECTOR @ 4016785230",
+            "edges": [
+                {
+                    "ring": 1,
+                    "line": 14
+                },
+                {
+                    "ring": 1,
+                    "line": 15
+                },
+                {
+                    "ring": 1,
+                    "line": 16
+                },
+                {
+                    "ring": 1,
+                    "line": 17
+                },
+                {
+                    "ring": 2,
+                    "line": 15
+                },
+                {
+                    "ring": 2,
+                    "line": 16
+                }
+            ],
+            "num_edges": 6
+        },
+        {
+            "index": 26,
+            "name": "HANZO SECTOR @ 1857499959",
+            "edges": [
+                {
+                    "ring": 2,
+                    "line": 17
+                },
+                {
+                    "ring": 3,
+                    "line": 16
+                },
+                {
+                    "ring": 3,
+                    "line": 17
+                }
+            ],
+            "num_edges": 3
+        },
+        {
+            "index": 27,
+            "name": "AKIRA SECTOR @ 71980820",
+            "edges": [
+                {
+                    "ring": 2,
+                    "line": 18
+                },
+                {
+                    "ring": 3,
+                    "line": 18
+                },
+                {
+                    "ring": 3,
+                    "line": 19
+                },
+                {
+                    "ring": 4,
+                    "line": 18
+                }
+            ],
+            "num_edges": 4
+        },
+        {
+            "index": 28,
+            "name": "GUANG SECTOR @ 4072255229",
+            "edges": [
+                {
+                    "ring": 5,
+                    "line": 21
+                },
+                {
+                    "ring": 6,
+                    "line": 21
+                }
+            ],
+            "num_edges": 2
+        },
+        {
+            "index": 29,
+            "name": "TARRAGON SECTOR @ 2064715177",
+            "edges": [
+                {
+                    "ring": 5,
+                    "line": 22
+                },
+                {
+                    "ring": 5,
+                    "line": 23
+                },
+                {
+                    "ring": 6,
+                    "line": 22
+                }
+            ],
+            "num_edges": 3
+        },
+        {
+            "index": 30,
+            "name": "ALSTRAD SECTOR @ 1295934071",
+            "edges": [
+                {
+                    "ring": 4,
+                    "line": 0
+                },
+                {
+                    "ring": 5,
+                    "line": 0
+                },
+                {
+                    "ring": 5,
+                    "line": 1
+                },
+                {
+                    "ring": 6,
+                    "line": 1
+                }
+            ],
+            "num_edges": 4
+        },
+        {
+            "index": 31,
+            "name": "NANOS SECTOR @ 955032040",
+            "edges": [
+                {
+                    "ring": 8,
+                    "line": 13
+                },
+                {
+                    "ring": 8,
+                    "line": 14
+                },
+                {
+                    "ring": 9,
+                    "line": 13
+                }
+            ],
+            "num_edges": 3
+        },
+        {
+            "index": 32,
+            "name": "HYDRA SECTOR @ 1694795796",
+            "edges": [
+                {
+                    "ring": 2,
+                    "line": 21
+                },
+                {
+                    "ring": 3,
+                    "line": 20
+                },
+                {
+                    "ring": 3,
+                    "line": 21
+                }
+            ],
+            "num_edges": 3
+        },
+        {
+            "index": 33,
+            "name": "ANDROMEDA SECTOR @ 1044017705",
+            "edges": [
+                {
+                    "ring": 6,
+                    "line": 23
+                },
+                {
+                    "ring": 7,
+                    "line": 22
+                },
+                {
+                    "ring": 7,
+                    "line": 23
+                },
+                {
+                    "ring": 8,
+                    "line": 23
+                }
+            ],
+            "num_edges": 4
+        },
+        {
+            "index": 34,
+            "name": "LACAILLE SECTOR @ 2582617403",
+            "edges": [
+                {
+                    "ring": 8,
+                    "line": 22
+                },
+                {
+                    "ring": 9,
+                    "line": 22
+                },
+                {
+                    "ring": 9,
+                    "line": 23
+                }
+            ],
+            "num_edges": 3
+        },
+        {
+            "index": 35,
+            "name": "TANIS SECTOR @ 1785959411",
+            "edges": [
+                {
+                    "ring": 8,
+                    "line": 18
+                },
+                {
+                    "ring": 9,
+                    "line": 17
+                },
+                {
+                    "ring": 9,
+                    "line": 18
+                }
+            ],
+            "num_edges": 3
+        },
+        {
+            "index": 36,
+            "name": "ARTURION SECTOR @ 151044459",
+            "edges": [
+                {
+                    "ring": 8,
+                    "line": 1
+                },
+                {
+                    "ring": 9,
+                    "line": 0
+                },
+                {
+                    "ring": 9,
+                    "line": 1
+                }
+            ],
+            "num_edges": 3
+        },
+        {
+            "index": 37,
+            "name": "FALSTAFF SECTOR @ 173450602",
+            "edges": [
+                {
+                    "ring": 7,
+                    "line": 2
+                },
+                {
+                    "ring": 7,
+                    "line": 3
+                },
+                {
+                    "ring": 8,
+                    "line": 2
+                }
+            ],
+            "num_edges": 3
+        },
+        {
+            "index": 38,
+            "name": "MIRIN SECTOR @ 2565002699",
+            "edges": [
+                {
+                    "ring": 8,
+                    "line": 3
+                },
+                {
+                    "ring": 9,
+                    "line": 2
+                },
+                {
+                    "ring": 9,
+                    "line": 3
+                },
+                {
+                    "ring": 9,
+                    "line": 4
+                }
+            ],
+            "num_edges": 4
+        },
+        {
+            "index": 39,
+            "name": "JIN XI SECTOR @ 3894418747",
+            "edges": [
+                {
+                    "ring": 5,
+                    "line": 4
+                },
+                {
+                    "ring": 6,
+                    "line": 4
+                },
+                {
+                    "ring": 6,
+                    "line": 5
+                },
+                {
+                    "ring": 7,
+                    "line": 4
+                },
+                {
+                    "ring": 8,
+                    "line": 4
+                }
+            ],
+            "num_edges": 5
+        },
+        {
+            "index": 40,
+            "name": "FARSIGHT SECTOR @ 3257616781",
+            "edges": [
+                {
+                    "ring": 5,
+                    "line": 6
+                },
+                {
+                    "ring": 6,
+                    "line": 6
+                },
+                {
+                    "ring": 6,
+                    "line": 7
+                },
+                {
+                    "ring": 7,
+                    "line": 7
+                }
+            ],
+            "num_edges": 4
+        },
+        {
+            "index": 41,
+            "name": "LEO SECTOR @ 1729099758",
+            "edges": [
+                {
+                    "ring": 7,
+                    "line": 9
+                },
+                {
+                    "ring": 8,
+                    "line": 9
+                },
+                {
+                    "ring": 8,
+                    "line": 10
+                },
+                {
+                    "ring": 9,
+                    "line": 9
+                }
+            ],
+            "num_edges": 4
+        },
+        {
+            "index": 42,
+            "name": "RIGEL SECTOR @ 1560758003",
+            "edges": [
+                {
+                    "ring": 7,
+                    "line": 11
+                },
+                {
+                    "ring": 7,
+                    "line": 12
+                },
+                {
+                    "ring": 8,
+                    "line": 11
+                },
+                {
+                    "ring": 8,
+                    "line": 12
+                },
+                {
+                    "ring": 9,
+                    "line": 10
+                },
+                {
+                    "ring": 9,
+                    "line": 11
+                },
+                {
+                    "ring": 9,
+                    "line": 12
+                }
+            ],
+            "num_edges": 7
+        },
+        {
+            "index": 43,
+            "name": "OMEGA SECTOR @ 3377907980",
+            "edges": [
+                {
+                    "ring": 6,
+                    "line": 20
+                },
+                {
+                    "ring": 7,
+                    "line": 19
+                },
+                {
+                    "ring": 7,
+                    "line": 20
+                },
+                {
+                    "ring": 7,
+                    "line": 21
+                }
+            ],
+            "num_edges": 4
+        },
+        {
+            "index": 44,
+            "name": "XI TAURI SECTOR @ 853869815",
+            "edges": [
+                {
+                    "ring": 6,
+                    "line": 8
+                },
+                {
+                    "ring": 7,
+                    "line": 8
+                }
+            ],
+            "num_edges": 2
+        },
+        {
+            "index": 45,
+            "name": "QUINTUS SECTOR @ 3256192545",
+            "edges": [
+                {
+                    "ring": 5,
+                    "line": 12
+                },
+                {
+                    "ring": 5,
+                    "line": 13
+                },
+                {
+                    "ring": 6,
+                    "line": 11
+                },
+                {
+                    "ring": 6,
+                    "line": 12
+                }
+            ],
+            "num_edges": 4
+        },
+        {
+            "index": 46,
+            "name": "XZAR SECTOR @ 1630007655",
+            "edges": [
+                {
+                    "ring": 5,
+                    "line": 14
+                },
+                {
+                    "ring": 6,
+                    "line": 13
+                },
+                {
+                    "ring": 6,
+                    "line": 14
+                },
+                {
+                    "ring": 7,
+                    "line": 13
+                },
+                {
+                    "ring": 7,
+                    "line": 14
+                }
+            ],
+            "num_edges": 5
+        },
+        {
+            "index": 47,
+            "name": "SEVERIN SECTOR @ 3545171052",
+            "edges": [
+                {
+                    "ring": 8,
+                    "line": 16
+                },
+                {
+                    "ring": 8,
+                    "line": 17
+                },
+                {
+                    "ring": 9,
+                    "line": 16
+                }
+            ],
+            "num_edges": 3
+        },
+        {
+            "index": 48,
+            "name": "TRIGON SECTOR @ 1172950089",
+            "edges": [
+                {
+                    "ring": 8,
+                    "line": 15
+                },
+                {
+                    "ring": 9,
+                    "line": 14
+                },
+                {
+                    "ring": 9,
+                    "line": 15
+                }
+            ],
+            "num_edges": 3
+        },
+        {
+            "index": 49,
+            "name": "YMIR SECTOR @ 1785813534",
+            "edges": [
+                {
+                    "ring": 2,
+                    "line": 22
+                },
+                {
+                    "ring": 3,
+                    "line": 22
+                },
+                {
+                    "ring": 3,
+                    "line": 23
+                },
+                {
+                    "ring": 4,
+                    "line": 22
+                },
+                {
+                    "ring": 4,
+                    "line": 23
+                }
+            ],
+            "num_edges": 5
+        },
+        {
+            "index": 50,
+            "name": "VALDIS SECTOR @ 3473770236",
+            "edges": [
+                {
+                    "ring": 8,
+                    "line": 19
+                },
+                {
+                    "ring": 8,
+                    "line": 20
+                },
+                {
+                    "ring": 8,
+                    "line": 21
+                },
+                {
+                    "ring": 9,
+                    "line": 19
+                },
+                {
+                    "ring": 9,
+                    "line": 20
+                },
+                {
+                    "ring": 9,
+                    "line": 21
+                }
+            ],
+            "num_edges": 6
+        },
+        {
+            "index": 51,
+            "name": "PANDORA SECTOR @ 855413042",
+            "edges": [
+                {
+                    "ring": 2,
+                    "line": 9
+                },
+                {
+                    "ring": 2,
+                    "line": 10
+                },
+                {
+                    "ring": 3,
+                    "line": 9
+                },
+                {
+                    "ring": 3,
+                    "line": 10
+                }
+            ],
+            "num_edges": 4
+        },
+        {
+            "index": 52,
+            "name": "HAWKING SECTOR @ 929685836",
+            "edges": [
+                {
+                    "ring": 4,
+                    "line": 20
+                },
+                {
+                    "ring": 4,
+                    "line": 21
+                },
+                {
+                    "ring": 5,
+                    "line": 20
+                }
+            ],
+            "num_edges": 3
+        },
+        {
+            "index": 53,
+            "name": "L'ESTRADE SECTOR @ 1125878261",
+            "edges": [
+                {
+                    "ring": 8,
+                    "line": 5
+                },
+                {
+                    "ring": 8,
+                    "line": 6
+                },
+                {
+                    "ring": 8,
+                    "line": 7
+                },
+                {
+                    "ring": 9,
+                    "line": 5
+                },
+                {
+                    "ring": 9,
+                    "line": 6
+                }
+            ],
+            "num_edges": 5
+        },
+        {
+            "index": 54,
+            "name": "STEN SECTOR @ 724779259",
+            "edges": [
+                {
+                    "ring": 6,
+                    "line": 0
+                },
+                {
+                    "ring": 7,
+                    "line": 0
+                },
+                {
+                    "ring": 7,
+                    "line": 1
+                },
+                {
+                    "ring": 8,
+                    "line": 0
+                }
+            ],
+            "num_edges": 4
+        }
+    ]
+}

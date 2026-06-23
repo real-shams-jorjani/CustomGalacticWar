@@ -1,0 +1,716 @@
+{
+  "enemy_settings": {
+    "cha_scavenger_tier_1": {
+      "name": "Scavenger",
+      "emoji": "<:MOD_WARRIOR:1468802377392853203>",
+      "unit": "content/fac_bugs/cha_scavenger/cha_scavenger_tier_1 @ 0x51eea86bf6997e4e",
+      "hashes": [
+        3478611010
+      ]
+    },
+    "cha_scavenger_tier_2": {
+      "name": "Scavenger",
+      "emoji": "<:MOD_WARRIOR:1468802377392853203>",
+      "unit": "content/fac_bugs/cha_scavenger/cha_scavenger_tier_2 @ 0x9a8a3aae287b230c",
+      "hashes": [
+        3478611010
+      ]
+    },
+    "cha_scavenger_spitter": {
+      "name": "Bile Spitter",
+      "emoji": "<:MOD_WARRIOR:1468802377392853203>",
+      "unit": "content/fac_bugs/cha_scavenger_spitter/cha_scavenger_spitter @ 0x72a83e49ced6db3d",
+      "hashes": [
+        96305411
+      ]
+    },
+    "cha_scavenger_predator": {
+      "name": "Pouncer",
+      "emoji": "<:MOD_WARRIOR:1468802377392853203>",
+      "unit": "content/fac_bugs/cha_scavenger_predator/cha_scavenger_predator @ 0xaab438596f5e8fd9",
+      "hashes": [
+        137310222
+      ]
+    },
+    "cha_warrior_tier_1": {
+      "name": "Warrior",
+      "emoji": "<:MOD_WARRIOR:1468802377392853203>",
+      "unit": "content/fac_bugs/cha_warrior/cha_warrior_tier_1 @ 0xbe39e313a1e46bb9",
+      "hashes": [
+        2406941944,
+        2478129961
+      ]
+    },
+    "cha_warrior_tier_2": {
+      "name": "Warrior",
+      "emoji": "<:MOD_WARRIOR:1468802377392853203>",
+      "unit": "content/fac_bugs/cha_warrior/cha_warrior_tier_2 @ 0x32541fc4ec7c9cdc",
+      "hashes": [
+        2406941944,
+        2478129961
+      ]
+    },
+    "cha_warrior_plus": {
+      "name": "Alpha Warrior",
+      "emoji": "<:MOD_WARRIOR:1468802377392853203>",
+      "unit": "content/fac_bugs/cha_warrior_plus/cha_warrior_plus @ 0xa1f37bf2a40fbde4",
+      "hashes": [
+        2406941944,
+        2478129961,
+        3603869457
+      ]
+    },
+    "cha_warrior_acid": {
+      "name": "Bile Warrior",
+      "emoji": "",
+      "unit": "content/fac_bugs/cha_warrior_acid/cha_warrior_acid @ 0x10081acef6163ef6",
+      "hashes": [
+        1453367020
+      ]
+    },
+    "cha_hunter_tier_1": {
+      "name": "Hunter",
+      "emoji": "",
+      "unit": "content/fac_bugs/cha_hunter/cha_hunter_tier_1 @ 0x3d0e03e2d574e1ca",
+      "hashes": [
+        3517152816
+      ]
+    },
+    "cha_hunter_tier_2": {
+      "name": "Hunter",
+      "emoji": "",
+      "unit": "content/fac_bugs/cha_hunter/cha_hunter_tier_2 @ 0x5ca832447445c0ba",
+      "hashes": [
+        3517152816
+      ]
+    },
+    "cha_warrior_big": {
+      "name": "Brood Commander",
+      "emoji": "",
+      "unit": "content/fac_bugs/cha_warrior_big/cha_warrior_big @ 0xd522fd4748d443a5",
+      "hashes": [
+        957043117
+      ]
+    },
+    "cha_warrior_big_tier2": {
+      "name": "Brood Commander",
+      "emoji": "",
+      "unit": "content/fac_bugs/cha_warrior_big/cha_warrior_big_tier2 @ 0xf79cd8bb654397df",
+      "hashes": [
+        957043117
+      ]
+    },
+    "cha_charger": {
+      "name": "Charger",
+      "emoji": "<:MOD_CHARGER:1468802378978295861>",
+      "unit": "content/fac_bugs/cha_charger/cha_charger @ 0x1a7fcdff98c664b0",
+      "hashes": [
+        2724699650
+      ]
+    },
+    "cha_charger_tier2": {
+      "name": "Charger",
+      "emoji": "<:MOD_CHARGER:1468802378978295861>",
+      "unit": "content/fac_bugs/cha_charger/cha_charger_tier2 @ 0xa05bd1ec67b3ac4c",
+      "hashes": [
+        2724699650
+      ]
+    },
+    "cha_charger_acid": {
+      "name": "Spore Charger",
+      "emoji": "<:MOD_CHARGER:1468802378978295861>",
+      "unit": "content/fac_bugs/cha_charger_acid/cha_charger_acid @ 0x6b202392f4ab605e",
+      "hashes": [
+        2724699650
+      ]
+    },
+    "cha_boomer": {
+      "name": "Bile Spewer",
+      "emoji": "<:MOD_WARRIOR:1468802377392853203>",
+      "unit": "content/fac_bugs/cha_boomer/cha_boomer @ 0x36aa99cce5e60146",
+      "hashes": [
+        2255668545
+      ]
+    },
+    "cha_boomer_tier_2": {
+      "name": "Bile Spewer",
+      "emoji": "<:MOD_WARRIOR:1468802377392853203>",
+      "unit": "content/fac_bugs/cha_boomer/cha_boomer_tier_2 @ 0xccae5264acd591b7",
+      "hashes": [
+        2255668545
+      ]
+    },
+    "cha_strider": {
+      "name": "Bile Titan",
+      "emoji": "<:MOD_BILE_TITAN:1468802374041600267>",
+      "unit": "content/fac_bugs/cha_strider/cha_strider @ 0x9e2e17f2ccccafdd",
+      "hashes": [
+        839087686
+      ]
+    },
+    "cha_stalker": {
+      "name": "Stalker",
+      "emoji": "<:MOD_STALKER:1468802371495919638>",
+      "unit": "content/fac_bugs/cha_stalker/cha_stalker @ 0xf540ca9d9d4a422e",
+      "hashes": [
+        1571860610
+      ]
+    },
+    "cha_scavenger_tier_1_captive": {
+      "name": "Scavenger",
+      "emoji": "<:MOD_WARRIOR:1468802377392853203>",
+      "unit": "content/fac_bugs/cha_scavenger/cha_scavenger_tier_1_captive @ 0xdfbacbd977a948dc",
+      "hashes": [
+        592702357
+      ]
+    },
+    "cha_warrior_tier_1_captive": {
+      "name": "Warrior",
+      "emoji": "<:MOD_WARRIOR:1468802377392853203>",
+      "unit": "content/fac_bugs/cha_warrior/cha_warrior_tier_1_captive @ 0x4e97fb073bdc7a4b",
+      "hashes": [
+        1610950166
+      ]
+    },
+    "cha_boomer_nurser": {
+      "name": "Nursing Spewer",
+      "emoji": "<:MOD_WARRIOR:1468802377392853203>",
+      "unit": "content/fac_bugs/cha_boomer_nurser/cha_boomer_nurser @ 0xcc7022fdd172089b",
+      "hashes": [
+        1837263553
+      ]
+    },
+    "cha_warrior_tier_2_guard": {
+      "name": "Warrior",
+      "emoji": "<:MOD_WARRIOR:1468802377392853203>",
+      "unit": "content/fac_bugs/cha_warrior/cha_warrior_tier_2_guard @ 0xb2a6fa1e4284c7e6",
+      "hashes": [
+        2406941944
+      ]
+    },
+    "cha_charger_bull": {
+      "name": "Charger Behemoth",
+      "emoji": "<:MOD_CHARGER:1468802378978295861>",
+      "unit": "content/fac_bugs/cha_charger_bull/cha_charger_bull @ 0x3aff5fd7d5450b99",
+      "hashes": [
+        1289790787
+      ]
+    },
+    "cha_shrieker": {
+      "name": "Shrieker",
+      "emoji": "<:MOD_WARRIOR:1468802377392853203>",
+      "unit": "content/fac_bugs/cha_shrieker/cha_shrieker @ 0x64090088502435dd",
+      "hashes": [
+        2519355991
+      ]
+    },
+    "cha_boomer_nurser_mission": {
+      "name": "Nursing Spewer",
+      "emoji": "<:MOD_WARRIOR:1468802377392853203>",
+      "unit": "content/fac_bugs/cha_boomer_nurser/cha_boomer_nurser_mission @ 0x6021e22338333d88",
+      "hashes": [
+        1202601230
+      ]
+    },
+    "cha_impaler": {
+      "name": "Impaler",
+      "emoji": "<:MOD_IMPALER:1468802375841222747>",
+      "unit": "content/fac_bugs/cha_impaler/cha_impaler @ 0xdcf8e74212fbee3b",
+      "hashes": [
+        769209189
+      ]
+    },
+    "cha_impaler_tentacle": {
+      "name": "Impaler",
+      "emoji": "<:MOD_IMPALER:1468802375841222747>",
+      "unit": "content/fac_bugs/cha_impaler/cha_impaler_tentacle @ 0x672f7da17f3ba34a",
+      "hashes": [
+        2952114795
+      ]
+    },
+    "0xd1e990baf22d5a52": {
+      "name": "Unknown Unit (0xd1e990baf22d5a52)",
+      "emoji": "",
+      "unit": "0xd1e990baf22d5a52 @ 0xd1e990baf22d5a52",
+      "hashes": [
+        112786645
+      ]
+    },
+    "cha_hive_lord": {
+      "name": "Hive Lord",
+      "emoji": "<:MOD_HIVELORD:1468808959485022334>",
+      "unit": "content/fac_bugs/cha_hive_lord/cha_hive_lord @ 0xd465d9c7f77a07cb",
+      "hashes": [
+        889552243
+      ]
+    },
+    "cha_dragon": {
+      "name": "Dragonroach",
+      "emoji": "<:MOD_BUG_DRAGON:1468808752462434366>",
+      "unit": "content/fac_bugs/cha_dragon/cha_dragon @ 0x960b48a421a3faaa",
+      "hashes": [
+        644868927
+      ]
+    },
+    "cha_boomer_burrower": {
+      "name": "Rupture Spewer",
+      "emoji": "<:MOD_WARRIOR:1468802377392853203>",
+      "unit": "content/fac_bugs/cha_boomer_burrower/cha_boomer_burrower @ 0xa381a11c07d3eb94",
+      "hashes": [
+        2631899986
+      ]
+    },
+    "cha_warrior_burrower": {
+      "name": "Rupture Warrior",
+      "emoji": "<:MOD_WARRIOR:1468802377392853203>",
+      "unit": "content/fac_bugs/cha_warrior_burrower/cha_warrior_burrower @ 0xa35207c6f2150806",
+      "hashes": [
+        3953553244
+      ]
+    },
+    "cha_charger_burrower": {
+      "name": "Rupture Charger",
+      "emoji": "<:MOD_CHARGER:1468802378978295861>",
+      "unit": "content/fac_bugs/cha_charger_burrower/cha_charger_burrower @ 0xab7b92b131c228c",
+      "hashes": [
+        3382434603
+      ]
+    },
+    "cha_jet_champion": {
+      "name": "Elevated Overseer",
+      "emoji": "<:MOD_OVERSEER:1468802498801438882>",
+      "unit": "content/fac_illuminate/cha_jet_champion/cha_jet_champion @ 0x604a794ec45bb820",
+      "hashes": [
+        1638635866,
+        2502858826,
+        3235582888
+      ]
+    },
+    "cha_illuminate_guy_staff": {
+      "name": "Overseer",
+      "emoji": "<:MOD_OVERSEER:1468802498801438882>",
+      "unit": "content/fac_illuminate/cha_illuminate_guy_staff/cha_illuminate_guy_staff @ 0xda40bb347c7447f2",
+      "hashes": [
+        1638635866,
+        2502858826,
+        3235582888
+      ]
+    },
+    "cha_beamer_champion": {
+      "name": "Crescent Overseer",
+      "emoji": "<:MOD_OVERSEER:1468802498801438882>",
+      "unit": "content/fac_illuminate/cha_beamer_champion/cha_beamer_champion @ 0xe8f19a0aa958e46d",
+      "hashes": [
+        1638635866,
+        2502858826,
+        3235582888
+      ]
+    },
+    "cha_tripod": {
+      "name": "Harvester",
+      "emoji": "<:MOD_TRIPOD:1468802497463193752>",
+      "unit": "content/fac_illuminate/cha_tripod/cha_tripod @ 0x965eae5a51acdd4a",
+      "hashes": [
+        2686922360
+      ]
+    },
+    "cha_illusionist": {
+      "name": "Illusionist",
+      "emoji": "<:MOD_ILLUSIONIST:1468802494975971523>",
+      "unit": "content/fac_illuminate/cha_illusionist/cha_illusionist @ 0x2830e78e6614e452",
+      "hashes": [
+        905948069
+      ]
+    },
+    "cha_observer": {
+      "name": "Watcher",
+      "emoji": "<:MOD_OBSERVER:1468808010611556372>",
+      "unit": "content/fac_illuminate/cha_observer/cha_observer @ 0xac60e78435098c9d",
+      "hashes": [
+        921769811
+      ]
+    },
+    "0x767596ded5798af4": {
+      "name": "Unknown Unit (0x767596ded5798af4)",
+      "emoji": "",
+      "unit": "0x767596ded5798af4 @ 0x767596ded5798af4",
+      "hashes": [
+        4216557598
+      ]
+    },
+    "0xa2a1afa88203ab4c": {
+      "name": "Unknown Unit (0xa2a1afa88203ab4c)",
+      "emoji": "",
+      "unit": "0xa2a1afa88203ab4c @ 0xa2a1afa88203ab4c",
+      "hashes": [
+        4216557598
+      ]
+    },
+    "cha_illuminate_guy_staff_fake": {
+      "name": "Proxy",
+      "emoji": "<:MOD_OVERSEER:1468802498801438882>",
+      "unit": "content/fac_illuminate/cha_illuminate_guy_staff/cha_illuminate_guy_staff_fake @ 0xf1610ac48cdc5240",
+      "hashes": [
+        1813344283
+      ]
+    },
+    "cha_corrupted": {
+      "name": "Voteless",
+      "emoji": "<:MOD_VOTELESS:1468802501510959309>",
+      "unit": "content/fac_illuminate/cha_corrupted/cha_corrupted @ 0x78e1497571012c47",
+      "hashes": [
+        1638635866,
+        1648726799,
+        2502858826
+      ]
+    },
+    "cha_corrupted_v2": {
+      "name": "Voteless",
+      "emoji": "<:MOD_VOTELESS:1468802501510959309>",
+      "unit": "content/fac_illuminate/cha_corrupted/cha_corrupted_v2 @ 0xadc9f9173ad8e1d",
+      "hashes": [
+        1638635866,
+        1648726799,
+        2502858826
+      ]
+    },
+    "cha_corrupted_v3": {
+      "name": "Voteless",
+      "emoji": "<:MOD_VOTELESS:1468802501510959309>",
+      "unit": "content/fac_illuminate/cha_corrupted/cha_corrupted_v3 @ 0x44458a2c52b002fb",
+      "hashes": [
+        1638635866,
+        1648726799,
+        2502858826
+      ]
+    },
+    "illuminate_attack_ship": {
+      "name": "Stingray",
+      "emoji": "<:MOD_ATTACK_SHIP:1468810741388673025>",
+      "unit": "content/fac_illuminate/vehicles/illuminate_attack_ship/illuminate_attack_ship @ 0x19e18b46ec55d94a",
+      "hashes": [
+        2873160530
+      ]
+    },
+    "cha_meatglue": {
+      "name": "Fleshmob",
+      "emoji": "<:MOD_VOTELESS:1468802501510959309>",
+      "unit": "content/fac_illuminate/cha_meatglue/cha_meatglue @ 0x67dc32dca4f02d33",
+      "hashes": [
+        3541110630
+      ]
+    },
+    "illuminate_war_machine": {
+      "name": "Leviathan",
+      "emoji": "<:MOD_LEVIATHAN:1468811092523483240>",
+      "unit": "content/fac_illuminate/vehicles/illuminate_war_machine/illuminate_war_machine @ 0xf22d027b37bef107",
+      "hashes": [
+        1986520905
+      ]
+    },
+    "cha_conscript_tier_1": {
+      "name": "Trooper",
+      "emoji": "<:MOD_CONSCRIPT:1468803475126354086>",
+      "unit": "content/fac_cyborgs/cha_conscript/cha_conscript_tier_1 @ 0x4019623142351cb6",
+      "hashes": [
+        1678159601,
+        3192111246
+      ]
+    },
+    "cha_conscript_tier_2": {
+      "name": "Raider",
+      "emoji": "<:MOD_CONSCRIPT:1468803475126354086>",
+      "unit": "content/fac_cyborgs/cha_conscript/cha_conscript_tier_2 @ 0x64ba5f030b114ec1",
+      "hashes": [
+        1678159601,
+        3192111246
+      ]
+    },
+    "cha_conscript_tier_3": {
+      "name": "Marauder",
+      "emoji": "<:MOD_CONSCRIPT:1468803475126354086>",
+      "unit": "content/fac_cyborgs/cha_conscript/cha_conscript_tier_3 @ 0x2ba767df856f3",
+      "hashes": [
+        1678159601,
+        3192111246
+      ]
+    },
+    "cha_conscript_melee": {
+      "name": "Brawler",
+      "emoji": "<:MOD_CONSCRIPT:1468803475126354086>",
+      "unit": "content/fac_cyborgs/cha_conscript/cha_conscript_melee @ 0xd8cbc4a807a6d035",
+      "hashes": [
+        1625228342,
+        1678159601
+      ]
+    },
+    "cha_conscript_jump_melee": {
+      "name": "Assault Raider",
+      "emoji": "<:MOD_CONSCRIPT:1468803475126354086>",
+      "unit": "content/fac_cyborgs/cha_conscript/cha_conscript_jump_melee @ 0x856e9710e45e760f",
+      "hashes": [
+        1678159601,
+        4155034467
+      ]
+    },
+    "0xb4ed319b39f5457b": {
+      "name": "Unknown Unit (0xb4ed319b39f5457b)",
+      "emoji": "",
+      "unit": "0xb4ed319b39f5457b @ 0xb4ed319b39f5457b",
+      "hashes": [
+        1678159601,
+        4141283163
+      ]
+    },
+    "0x2a12104f2853ae16": {
+      "name": "Unknown Unit (0x2a12104f2853ae16)",
+      "emoji": "",
+      "unit": "0x2a12104f2853ae16 @ 0x2a12104f2853ae16",
+      "hashes": [
+        1678159601,
+        1867408488
+      ]
+    },
+    "cha_conscript_commander": {
+      "name": "Commissar",
+      "emoji": "<:MOD_CONSCRIPT:1468803475126354086>",
+      "unit": "content/fac_cyborgs/cha_conscript_commander/cha_conscript_commander @ 0xa71aafd82c6ebc92",
+      "hashes": [
+        2521687525
+      ]
+    },
+    "cha_conscript_scout": {
+      "name": "Scout Trooper",
+      "emoji": "<:MOD_CONSCRIPT:1468803475126354086>",
+      "unit": "content/fac_cyborgs/cha_conscript/cha_conscript_scout @ 0x30cf04b2ec8c9bd4",
+      "hashes": [
+        874245638
+      ]
+    },
+    "cha_berserker": {
+      "name": "Berserker",
+      "emoji": "<:MOD_BOT:1468802430358650890>",
+      "unit": "content/fac_cyborgs/cha_berserker/cha_berserker @ 0xa6a68d8af177f3a1",
+      "hashes": [
+        1264796786,
+        3744054757
+      ]
+    },
+    "cha_soldier": {
+      "name": "Devastator",
+      "emoji": "<:MOD_BOT:1468802430358650890>",
+      "unit": "content/fac_cyborgs/cha_soldier/cha_soldier @ 0xae63e525853d7044",
+      "hashes": [
+        565587391,
+        2176809320
+      ]
+    },
+    "cha_soldier_mg": {
+      "name": "Heavy Devastator",
+      "emoji": "<:MOD_BOT:1468802430358650890>",
+      "unit": "content/fac_cyborgs/cha_soldier/cha_soldier_mg @ 0xb92435fbf60f0748",
+      "hashes": [
+        498789095,
+        2176809320
+      ]
+    },
+    "cha_soldier_rpg": {
+      "name": "Rocket Devastator",
+      "emoji": "<:MOD_BOT:1468802430358650890>",
+      "unit": "content/fac_cyborgs/cha_soldier/cha_soldier_rpg @ 0x9647b00cc3a9d36f",
+      "hashes": [
+        2176809320,
+        2194729737
+      ]
+    },
+    "cyborg_walker_scout": {
+      "name": "Scout Strider",
+      "emoji": "<:MOD_SCOUT:1468813751389261969>",
+      "unit": "content/fac_cyborgs/vehicles/cyborg_walker_scout/cyborg_walker_scout @ 0xf8131632aa867107",
+      "hashes": [
+        1708780433
+      ]
+    },
+    "0x9076eeed17fcee35": {
+      "name": "Unknown Unit (0x9076eeed17fcee35)",
+      "emoji": "",
+      "unit": "0x9076eeed17fcee35 @ 0x9076eeed17fcee35",
+      "hashes": [
+        1708780433
+      ]
+    },
+    "cha_cyborg_elite": {
+      "name": "Agitator",
+      "emoji": "<:MOD_CYBORG:1468815740063846554>",
+      "unit": "content/fac_cyborgs/cha_cyborg_elite/cha_cyborg_elite @ 0x9d8827fed763650e",
+      "hashes": [
+        1708780433
+      ]
+    },
+    "cha_cyborg_elite_rusher": {
+      "name": "Radical",
+      "emoji": "<:MOD_CYBORG:1468815740063846554>",
+      "unit": "content/fac_cyborgs/cha_cyborg_elite/cha_cyborg_elite_rusher @ 0x746a7f3beda32699",
+      "hashes": [
+        1708780433
+      ]
+    },
+    "0x9fe0be51a23396c": {
+      "name": "Unknown Unit (0x9fe0be51a23396c)",
+      "emoji": "",
+      "unit": "0x9fe0be51a23396c @ 0x9fe0be51a23396c",
+      "hashes": [
+        1708780433
+      ]
+    },
+    "0xcbb1ba3366009c3a": {
+      "name": "Unknown Unit (0xcbb1ba3366009c3a)",
+      "emoji": "",
+      "unit": "0xcbb1ba3366009c3a @ 0xcbb1ba3366009c3a",
+      "hashes": [
+        1708780433
+      ]
+    },
+    "cha_lieutenant_assault": {
+      "name": "Hulk Scorcher",
+      "emoji": "<:MOD_HULK:1468802431545512080>",
+      "unit": "content/fac_cyborgs/cha_lieutenant/cha_lieutenant_assault @ 0x3e0537d606438fea",
+      "hashes": [
+        819295132,
+        2976047544,
+        3744054757
+      ]
+    },
+    "cha_lieutenant_suppressor": {
+      "name": "Hulk Bruiser",
+      "emoji": "<:MOD_HULK:1468802431545512080>",
+      "unit": "content/fac_cyborgs/cha_lieutenant/cha_lieutenant_suppressor @ 0x137988cea16458f7",
+      "hashes": [
+        819295132,
+        3857136067
+      ]
+    },
+    "0x53d8919d7b8abd67": {
+      "name": "Unknown Unit (0x53d8919d7b8abd67)",
+      "emoji": "",
+      "unit": "0x53d8919d7b8abd67 @ 0x53d8919d7b8abd67",
+      "hashes": [
+        1925535306,
+        3744054757
+      ]
+    },
+    "0xc6449ffd9ea3779c": {
+      "name": "Unknown Unit (0xc6449ffd9ea3779c)",
+      "emoji": "",
+      "unit": "0xc6449ffd9ea3779c @ 0xc6449ffd9ea3779c",
+      "hashes": [
+        1925535306
+      ]
+    },
+    "0x63df3d07b7424588": {
+      "name": "Unknown Unit (0x63df3d07b7424588)",
+      "emoji": "",
+      "unit": "0x63df3d07b7424588 @ 0x63df3d07b7424588",
+      "hashes": [
+        1925535306
+      ]
+    },
+    "cyborg_spawner": {
+      "name": "Factory Strider",
+      "emoji": "<:MOD_FACTORY_STRIDER:1468802427531825152>",
+      "unit": "content/fac_cyborgs/vehicles/cyborg_spawner/cyborg_spawner @ 0xd37e8d120d2836e3",
+      "hashes": [
+        1054068826
+      ]
+    },
+    "cyborg_siege_engine": {
+      "name": "Vox Engine",
+      "emoji": "<:MOD_CYBORG:1468815740063846554>",
+      "unit": "content/fac_cyborgs/vehicles/cyborg_siege_engine/cyborg_siege_engine @ 0xbc242702fb46b7e7",
+      "hashes": [
+        1054068826
+      ]
+    },
+    "cha_lieutenant_artillery": {
+      "name": "Hulk Firebomber",
+      "emoji": "<:MOD_HULK:1468802431545512080>",
+      "unit": "content/fac_cyborgs/cha_lieutenant/cha_lieutenant_artillery @ 0x1e66ee1f6f7fd00e",
+      "hashes": [
+        854147169
+      ]
+    },
+    "cha_soldier_mg_assassinate": {
+      "name": "Heavy Devastator",
+      "emoji": "<:MOD_BOT:1468802430358650890>",
+      "unit": "content/fac_cyborgs/cha_soldier/cha_soldier_mg_assassinate @ 0xf8b5a81a86d5d4eb",
+      "hashes": [
+        1816450187
+      ]
+    },
+    "cha_soldier_rpg_assassinate": {
+      "name": "Rocket Devastator",
+      "emoji": "<:MOD_BOT:1468802430358650890>",
+      "unit": "content/fac_cyborgs/cha_soldier/cha_soldier_rpg_assassinate @ 0xf66d0bad8693779a",
+      "hashes": [
+        1671042384
+      ]
+    },
+    "cha_soldier_jumppack": {
+      "name": "Jet Brigade Devastator",
+      "emoji": "<:MOD_BOT:1468802430358650890>",
+      "unit": "content/fac_cyborgs/cha_soldier/cha_soldier_jumppack @ 0xbe743b2faa3a6e26",
+      "hashes": [
+        2176809320
+      ]
+    },
+    "cyborg_gunship": {
+      "name": "Gunship",
+      "emoji": "<:MOD_DROPSHIP:1468823579306233962>",
+      "unit": "content/fac_cyborgs/vehicles/cyborg_gunship/cyborg_gunship @ 0x282eb766c1ffa6a1",
+      "hashes": [
+        437176070
+      ]
+    },
+    "cyborg_spawner_jammer": {
+      "name": "Factory Strider",
+      "emoji": "<:MOD_FACTORY_STRIDER:1468802427531825152>",
+      "unit": "content/fac_cyborgs/vehicles/cyborg_spawner/cyborg_spawner_jammer @ 0x30f2dee2333f227a",
+      "hashes": [
+        4054604406
+      ]
+    },
+    "cha_soldier_shotgun_ivory_legion": {
+      "name": "Conflagration Devastator",
+      "emoji": "<:MOD_BOT:1468802430358650890>",
+      "unit": "content/fac_cyborgs/cha_soldier/cha_soldier_shotgun_ivory_legion @ 0xe0353177f1329573",
+      "hashes": [
+        3132503137
+      ]
+    },
+    "cha_conscript_flamer": {
+      "name": "Pyro Trooper",
+      "emoji": "<:MOD_CONSCRIPT:1468803475126354086>",
+      "unit": "content/fac_cyborgs/cha_conscript/cha_conscript_flamer @ 0x82a87ad8d595b2ba",
+      "hashes": [
+        3213088485,
+        3557177074
+      ]
+    },
+    "cyborg_assault_walker": {
+      "name": "War Strider",
+      "emoji": "<:MOD_WAR_STRIDER:1468802429318598840>",
+      "unit": "content/fac_cyborgs/vehicles/cyborg_assault_walker/cyborg_assault_walker @ 0xef570293245a17c2",
+      "hashes": [
+        3216070267
+      ]
+    },
+    "cha_conscript_scout_walker_rider": {
+      "name": "Scout Strider",
+      "emoji": "<:MOD_SCOUT:1468813751389261969>",
+      "unit": "content/fac_cyborgs/cha_conscript/cha_conscript_scout_walker_rider @ 0xfb9937035d652c43",
+      "hashes": [
+        3298122511
+      ]
+    }
+  }
+}

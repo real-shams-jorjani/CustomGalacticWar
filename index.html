@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Custom Galactic War</title>
+  <meta name="description" content="The Custom Galactic War (CGW) is a fanmade, player-driven alternative to the Helldivers 2 Galactic War with new biomes, modified enemy spawns, and rebalanced weapons. Live galactic map, dispatches, and fleet status." />
+  <meta name="theme-color" content="#0b0c10" />
+  <link rel="canonical" href="https://holotable.net/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Custom Galactic War" />
+  <meta property="og:title" content="Custom Galactic War — Live Galactic Map" />
+  <meta property="og:description" content="A fanmade, player-driven alternative to the Helldivers 2 Galactic War — new biomes, modified spawns, rebalanced weapons. Track the live galactic map." />
+  <meta property="og:url" content="https://holotable.net/" />
+  <meta property="og:image" content="https://holotable.net/img/keyart.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Custom Galactic War — Live Galactic Map" />
+  <meta name="twitter:description" content="A fanmade, player-driven alternative to the Helldivers 2 Galactic War — track the live galactic map." />
+  <meta name="twitter:image" content="https://holotable.net/img/keyart.png" />
+  <link rel="icon" href="img/favicon.png" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <a class="skip" href="#views">Skip to content</a>
+
+  <!-- ============ TOP COMMAND BAR (persistent) ============ -->
+  <header class="topbar">
+    <a href="#home" data-view="home" class="mark">
+      <span class="skull" aria-hidden="true"></span>
+      <span>CUSTOM&nbsp;<span style="color:#FFE900">GALACTIC WAR</span></span>
+    </a>
+    <nav>
+      <a href="#home" data-view="home">Home</a>
+      <a href="#war" data-view="war">War Map</a>
+      <!-- Dispatch tab disabled for now -->
+    </nav>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Menu">&#9776;</button>
+    <div class="status">
+      <span class="live-dot" id="uplink">UPLINK LIVE</span>
+      <span>SEASON <b>801</b></span>
+      <span>DAY <b id="war-day">--</b></span>
+    </div>
+  </header>
+
+  <main id="views">
+
+    <!-- ===================== HOME ===================== -->
+    <section class="view is-active" data-view="home">
+      <!-- HERO: pitch on the left, the Featured Front showcase fills the right (no more empty gap) -->
+      <div class="home-hero">
+        <div class="home-hero-main">
+          <h1 class="home-title"><img class="home-logo" src="img/cgw_logo.png" alt="Custom Galactic War" /></h1>
+          <p class="home-intro" style="text-transform:none">
+            The CGW is a fanmade alternative to the Official Galactic War which aims to provide a
+            faster-paced, player-driven experience by increasing player control, adding new biomes,
+            modifying enemy spawns, and rebalancing weapons.
+          </p>
+          <div class="cta">
+            <a class="btn accent" id="download-btn" href="https://cdn.discordapp.com/attachments/1502800006560743635/1516970874945667273/CGW_E-710_Launcher_v1.1.4.zip?ex=6a3b2c38&amp;is=6a39dab8&amp;hm=8a9e248507407b38fa222dba0302442466b79859745d17b1913f427ea6af46f2" target="_blank" rel="noopener"><span class="btn-skull" aria-hidden="true"></span>Download</a>
+            <a class="btn discord" href="https://discord.com/invite/cgw" target="_blank" rel="noopener noreferrer"><img class="btn-ic" src="img/discord.png" alt="" aria-hidden="true" />Join the Discord</a>
+          </div>
+        </div>
+        <aside class="home-hero-side">
+          <div class="section-head"><h2>Featured Front</h2><span class="tag">PRIORITY</span><span class="rule"></span></div>
+          <div id="home-featured" class="home-featured"></div>
+        </aside>
+      </div>
+
+      <div class="section-head"><h2>Live War Status</h2><span class="tag">THEATRE OVERVIEW</span><span class="rule"></span></div>
+      <div class="stat-grid">
+        <div class="stat"><div class="k">Galactic Liberation</div><div class="v green" id="h-lib" data-count="0" data-suffix="%">0%</div><div class="sub">of all worlds held</div></div>
+        <div class="stat"><div class="k">Active Campaigns</div><div class="v amber" id="h-camp" data-count="0">0</div><div class="sub">contested frontlines</div></div>
+        <div class="stat"><div class="k">Active Fleets</div><div class="v" id="h-fleets" data-count="0">0</div><div class="sub">detected in theatre</div></div>
+        <div class="stat"><div class="k">Enemy Strength</div><div class="v red" id="h-enemy" data-count="0" data-suffix="%">0%</div><div class="sub">of the galaxy occupied</div></div>
+      </div>
+
+      <div class="section-head"><h2>Major Order</h2><span class="tag">MINISTRY OF DEFENSE</span><span class="rule"></span></div>
+      <div class="mo-card home-mo" id="home-mo" aria-label="Major Order"></div>
+
+    </section>
+
+    <!-- ===================== WAR ===================== -->
+    <section class="view" data-view="war">
+      <!-- Major Order -->
+      <section class="hero" aria-label="Major Order">
+        <div class="left">
+          <div class="eyebrow">Priority Directive - Ministry of Defense</div>
+          <h1 id="mo-title">Major Order</h1>
+          <p style="text-transform:none" id="mo-brief">Awaiting directive from High Command. Stand by for orders, Helldiver.</p>
+          <div class="cta">
+            <button class="btn accent" onclick="document.getElementById('galaxy').scrollIntoView({behavior:'smooth'})">Deploy to Front</button>
+            <button class="btn ghost" onclick="location.hash='dispatch'">View Dispatches</button>
+          </div>
+        </div>
+        <div class="right">
+          <div class="reward-row"><span>Reward</span><b id="mo-reward">CLASSIFIED</b></div>
+          <div class="reward-row"><span>Objective</span><span style="color:#d6f5ff" id="mo-objective">ALL FRONTS</span></div>
+          <div class="reward-row"><span>Assigned</span><span style="color:#d6f5ff">ALL DIVERS</span></div>
+          <div class="countdown">
+            <div class="label">TIME REMAINING</div>
+            <div class="time" id="countdown">00:00:00</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- War Status -->
+      <section class="section" id="status">
+        <div class="section-head"><h2>War Status</h2><span class="tag">GALACTIC OVERVIEW</span><span class="rule"></span></div>
+        <div class="stat-grid">
+          <div class="stat"><div class="k">Galactic Liberation</div><div class="v green" id="st-lib" data-count="0" data-suffix="%">0%</div><div class="sub">of all worlds held</div></div>
+          <div class="stat"><div class="k">Active Fleets</div><div class="v" id="st-fleets" data-count="0">0</div><div class="sub">detected in theatre</div></div>
+          <div class="stat"><div class="k">Active Campaigns</div><div class="v amber" id="st-contested" data-count="0">0</div><div class="sub">contested frontlines</div></div>
+          <div class="stat"><div class="k">Enemy Strength</div><div class="v red" id="st-enemy" data-count="0" data-suffix="%">0%</div><div class="sub">of the galaxy occupied</div></div>
+        </div>
+      </section>
+
+      <!-- Galactic Map -->
+      <section class="section" id="galaxy">
+        <div class="section-head"><h2>Holotable Galactic Map</h2><span class="tag">LIVE SNAPSHOT : READ-ONLY</span><span class="rule"></span></div>
+        <div class="map-hud" id="map-hud">
+          <div class="mh"><span class="mh-ic" style="--icon:url(img/icons/players.png)"></span><span class="mh-k">PLANETS</span><b id="mh-planets">--</b></div>
+          <span class="mh-div" aria-hidden="true"></span>
+          <div class="mh amber"><span class="mh-ic" style="--icon:url(img/icons/attacking.png)"></span><span class="mh-k">CAMPAIGNS</span><b id="mh-camp">--</b></div>
+          <span class="mh-div" aria-hidden="true"></span>
+          <div class="mh green"><span class="mh-ic" style="--icon:url(img/icons/fac_superearth.png)"></span><span class="mh-k">SE CONTROL</span><b id="mh-se">--</b></div>
+          <div class="mh snap-cell"><span class="mh-ic" style="--icon:url(img/icons/time.png)"></span><span class="snap" id="mh-snap">SNAPSHOT --</span></div>
+        </div>
+        <div class="galaxy-wrap">
+          <canvas id="galaxy-map"></canvas>
+          <div class="holo-fx" aria-hidden="true"></div>
+          <div class="map-tooltip" id="map-tip"></div>
+          <div class="map-controls">
+            <button id="zin" title="Zoom in">+</button>
+            <button id="zout" title="Zoom out">&minus;</button>
+            <button id="ztop" class="reset" title="Top-down / tilt">TILT</button>
+            <button id="zreset" class="reset" title="Reset view">RESET</button>
+            <button id="zfleet" class="reset on" title="Fleet tracker">FLEET</button>
+          </div>
+          <!-- display-layer toggles: hide/show map elements -->
+          <button class="map-layers-btn" id="layers-btn" title="Display layers" aria-expanded="false" aria-controls="map-layers">LAYERS</button>
+          <div class="map-layers" id="map-layers" aria-label="Display layers">
+            <div class="ml-head">Display Layers</div>
+            <button data-layer="sectors" class="on">Sectors</button>
+            <button data-layer="supply" class="on">Supply Lines</button>
+            <button data-layer="effects" class="on">Effects</button>
+            <button data-layer="text" class="on">Labels</button>
+            <button data-layer="subfactions" class="on">Fleets</button>
+            <button data-layer="objectives" class="on">Objectives</button>
+            <button data-layer="attacks" class="on">Attacks</button>
+          </div>
+          <!-- Major Order card moved to the HOME page; fleet tracker hidden (see CSS) -->
+          <!-- holographic fleet tracker docked on the map (same roster as the FLEETS tab) -->
+          <div class="map-fleets open" id="map-fleets" aria-label="Fleet tracker">
+            <span class="mf-cnr tl"></span><span class="mf-cnr tr"></span><span class="mf-cnr bl"></span><span class="mf-cnr br"></span>
+            <span class="mf-scan"></span>
+            <div class="mf-head">
+              <span class="mf-hic" aria-hidden="true"></span>
+              <div class="mf-title">FLEET TRACKER</div>
+              <span class="mf-count" id="mf-count">0</span>
+              <button class="mf-close" id="mf-close" title="Collapse" aria-label="Collapse fleet tracker">&times;</button>
+            </div>
+            <div class="mf-sum" id="mf-sum">DETECTING&hellip;</div>
+            <div class="mf-sort" id="mf-sort">
+              <button data-sort="faction" class="on">FACTION</button>
+              <button data-sort="level">LEVEL</button>
+              <button data-sort="role">ROLE</button>
+            </div>
+            <div class="mf-list" id="mf-list"></div>
+          </div>
+          <div class="wf-console" id="planet-console" aria-hidden="true"></div>
+          <!-- holotable boot loader (HD2 "personal hellpad system" style) -->
+          <div id="map-loader" class="map-loader" role="status" aria-label="Loading holotable">
+            <div class="hp-scan"></div>
+            <div class="hp-panel">
+              <span class="hp-cnr tl"></span><span class="hp-cnr tr"></span><span class="hp-cnr bl"></span><span class="hp-cnr br"></span>
+              <span class="hp-skull"></span>
+              <div class="hp-title">GALACTIC WAR<br>HOLOTABLE</div>
+              <div class="hp-pct"><span id="hp-pct">0</span>%</div>
+              <div class="hp-bar"><i id="hp-fill"></i></div>
+              <div class="hp-status" id="hp-status">INITIALISING HOLOTABLE</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- ===================== DISPATCH (ministry FYP) ===================== -->
+    <section class="view" data-view="dispatch" id="dispatch">
+      <div class="section-head"><h2>Dispatch</h2><span class="tag" id="dispatch-count">MINISTRY NETWORK</span><span class="rule"></span></div>
+      <div class="fyp">
+        <div class="fyp-feed" id="dispatch-feed"></div>
+        <aside class="fyp-rail" id="dispatch-rail"></aside>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ PERSISTENT TICKER HUD ============ -->
+  <div class="ticker">
+    <span class="tlabel"><i class="nub" aria-hidden="true"></i>NEWS</span>
+    <div class="track" id="ticker-track"></div>
+  </div>
+
+  <footer>
+    <div class="foot-links">
+      <a href="https://discord.com/invite/cgw" target="_blank" rel="noopener noreferrer">Join the CGW Discord</a>
+      <a href="#war">War Map</a>
+    </div>
+    <div style="margin-top:9px">The Custom Galactic War is a fanmade, community-run alternative to the Helldivers 2 Galactic War, built and operated by players.</div>
+    <div style="margin-top:6px">Interface styled after the <b>WARFORGE</b> command console. <b>NOT AFFILIATED WITH ARROWHEAD GAME STUDIOS.</b></div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script src="js/envfx.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/router.js"></script>
+  <script src="js/fx.js"></script>
+</body>
+</html>

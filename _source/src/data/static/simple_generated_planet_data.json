@@ -1,0 +1,1646 @@
+{
+  "897386910": {
+    "debug_name": "planet_000",
+    "name": "SUPER EARTH "
+  },
+  "3621417917": {
+    "debug_name": "planet_001",
+    "name": "KLEN DAHTH II "
+  },
+  "2543303604": {
+    "debug_name": "planet_002",
+    "name": "PATHFINDER V "
+  },
+  "2768073863": {
+    "debug_name": "planet_003",
+    "name": "RUBICON "
+  },
+  "158585041": {
+    "debug_name": "planet_004",
+    "name": "NEW HAVEN "
+  },
+  "1008084099": {
+    "debug_name": "planet_005",
+    "name": "PILEN V "
+  },
+  "352961341": {
+    "debug_name": "planet_006",
+    "name": "MERIDIAN IIa "
+  },
+  "167872110": {
+    "debug_name": "planet_007",
+    "name": "HYDROFALL PRIME "
+  },
+  "1138804949": {
+    "debug_name": "planet_008",
+    "name": "ZEA RUGOSIA "
+  },
+  "3550298780": {
+    "debug_name": "planet_009",
+    "name": "DARROWSPORT "
+  },
+  "1025193891": {
+    "debug_name": "planet_010",
+    "name": "FORNSKOGUR II "
+  },
+  "2767954873": {
+    "debug_name": "planet_011",
+    "name": "MIDASBURG "
+  },
+  "688773671": {
+    "debug_name": "planet_012",
+    "name": "CERBERUS IIIc "
+  },
+  "160818366": {
+    "debug_name": "planet_013",
+    "name": "PROSPERITY FALLS "
+  },
+  "2877873656": {
+    "debug_name": "planet_014",
+    "name": "OKUL VI "
+  },
+  "1529228469": {
+    "debug_name": "planet_015",
+    "name": "MARTYR'S BAY "
+  },
+  "3749877391": {
+    "debug_name": "planet_016",
+    "name": "FREEDOM PEAK "
+  },
+  "4254371037": {
+    "debug_name": "planet_017",
+    "name": "FORT UNION "
+  },
+  "2273175182": {
+    "debug_name": "planet_018",
+    "name": "KELVINOR "
+  },
+  "3088889549": {
+    "debug_name": "planet_019",
+    "name": "WRAITH "
+  },
+  "768352347": {
+    "debug_name": "planet_020",
+    "name": "IGLA "
+  },
+  "1299274778": {
+    "debug_name": "planet_021",
+    "name": "NEW KIRUNA "
+  },
+  "3992185257": {
+    "debug_name": "planet_022",
+    "name": "FORT JUSTICE "
+  },
+  "3064614513": {
+    "debug_name": "planet_023",
+    "name": "HOXXES IV"
+  },
+  "160106209": {
+    "debug_name": "planet_homeworld_illuminate",
+    "name": "ZEGEMA PARADISE "
+  },
+  "1257502272": {
+    "debug_name": "planet_homeworld_superearth",
+    "name": "PROVIDENCE "
+  },
+  "2862366365": {
+    "debug_name": "planet_026",
+    "name": "PRIMORDIA "
+  },
+  "1812451556": {
+    "debug_name": "planet_027",
+    "name": "SULFURA "
+  },
+  "4068066596": {
+    "debug_name": "planet_028",
+    "name": "KASHYYYK "
+  },
+  "2585302931": {
+    "debug_name": "planet_029",
+    "name": "KRAKATWO "
+  },
+  "3650236983": {
+    "debug_name": "planet_030",
+    "name": "VOLTERRA "
+  },
+  "410562438": {
+    "debug_name": "planet_031",
+    "name": "SECUNDA "
+  },
+  "3538905431": {
+    "debug_name": "planet_032",
+    "name": "VEIL "
+  },
+  "529527934": {
+    "debug_name": "planet_033",
+    "name": "MARRE IV "
+  },
+  "3945891756": {
+    "debug_name": "planet_034",
+    "name": "FORT SANCTUARY "
+  },
+  "3266374354": {
+    "debug_name": "planet_035",
+    "name": "SQU'BAI SHRINE"
+  },
+  "3551496165": {
+    "debug_name": "planet_036",
+    "name": "HELLMIRE "
+  },
+  "2640422831": {
+    "debug_name": "planet_037",
+    "name": "EFFLUVIA "
+  },
+  "3407890530": {
+    "debug_name": "planet_038",
+    "name": "SOLGHAST "
+  },
+  "760056919": {
+    "debug_name": "planet_039",
+    "name": "DILUVIA "
+  },
+  "1831450049": {
+    "debug_name": "planet_040",
+    "name": "VIRIDIA PRIME "
+  },
+  "298165685": {
+    "debug_name": "planet_041",
+    "name": "OBARI "
+  },
+  "2146401321": {
+    "debug_name": "planet_042",
+    "name": "MYRADESH "
+  },
+  "3508924100": {
+    "debug_name": "planet_043",
+    "name": "MIRKWOOD "
+  },
+  "2243203717": {
+    "debug_name": "planet_044",
+    "name": "EMERIA "
+  },
+  "1678797801": {
+    "debug_name": "planet_045",
+    "name": "BARABOS "
+  },
+  "3404343820": {
+    "debug_name": "planet_046",
+    "name": "FENMIRE "
+  },
+  "2969736642": {
+    "debug_name": "planet_047",
+    "name": "MASTIA "
+  },
+  "1438199726": {
+    "debug_name": "planet_048",
+    "name": "SHALLUS "
+  },
+  "2013504640": {
+    "debug_name": "planet_049",
+    "name": "KRAKABOS "
+  },
+  "2525961073": {
+    "debug_name": "planet_050",
+    "name": "IRIDICA "
+  },
+  "2151164116": {
+    "debug_name": "planet_051",
+    "name": "AZTERRA "
+  },
+  "3265310936": {
+    "debug_name": "planet_052",
+    "name": "AZUR SECUNDUS "
+  },
+  "4148701638": {
+    "debug_name": "planet_053",
+    "name": "IVIS "
+  },
+  "1756822119": {
+    "debug_name": "planet_054",
+    "name": "SLIF "
+  },
+  "438925458": {
+    "debug_name": "planet_055",
+    "name": "CARAMOOR "
+  },
+  "4130121765": {
+    "debug_name": "planet_056",
+    "name": "ARLIA "
+  },
+  "4190033207": {
+    "debug_name": "planet_057",
+    "name": "KHARST "
+  },
+  "3951456049": {
+    "debug_name": "planet_058",
+    "name": "EUKORIA "
+  },
+  "207323189": {
+    "debug_name": "planet_059",
+    "name": "MYRIUM "
+  },
+  "3674393208": {
+    "debug_name": "planet_060",
+    "name": "KERTH SECUNDUS "
+  },
+  "430094434": {
+    "debug_name": "planet_061",
+    "name": "PARSH "
+  },
+  "1018677806": {
+    "debug_name": "planet_062",
+    "name": "REAF "
+  },
+  "2414771368": {
+    "debug_name": "planet_063",
+    "name": "IRULTA "
+  },
+  "635122119": {
+    "debug_name": "planet_064",
+    "name": "EMORATH "
+  },
+  "3508592390": {
+    "debug_name": "planet_065",
+    "name": "ILDUNA PRIME "
+  },
+  "4056948497": {
+    "debug_name": "planet_066",
+    "name": "MAW "
+  },
+  "215016124": {
+    "debug_name": "planet_067",
+    "name": "MERIDIA "
+  },
+  "3293929397": {
+    "debug_name": "planet_068",
+    "name": "BOREA "
+  },
+  "1750606702": {
+    "debug_name": "planet_069",
+    "name": "CURIA "
+  },
+  "3882819373": {
+    "debug_name": "planet_070",
+    "name": "TARSH "
+  },
+  "1223630977": {
+    "debug_name": "planet_071",
+    "name": "SHELT "
+  },
+  "2115544264": {
+    "debug_name": "planet_072",
+    "name": "IMBER "
+  },
+  "4206815834": {
+    "debug_name": "planet_073",
+    "name": "BLISTICA "
+  },
+  "2898292715": {
+    "debug_name": "planet_074",
+    "name": "RATCH "
+  },
+  "922433838": {
+    "debug_name": "planet_075",
+    "name": "JULHEIM "
+  },
+  "3238002446": {
+    "debug_name": "planet_076",
+    "name": "VALGAARD "
+  },
+  "670993741": {
+    "debug_name": "planet_077",
+    "name": "ARKTURUS "
+  },
+  "2729833133": {
+    "debug_name": "planet_078",
+    "name": "ESKER "
+  },
+  "910588397": {
+    "debug_name": "planet_079",
+    "name": "TERREK "
+  },
+  "2112907641": {
+    "debug_name": "planet_080",
+    "name": "CIRRUS "
+  },
+  "1886266372": {
+    "debug_name": "planet_081",
+    "name": "CRIMSICA "
+  },
+  "1391690878": {
+    "debug_name": "planet_082",
+    "name": "HEETH "
+  },
+  "3659340575": {
+    "debug_name": "planet_083",
+    "name": "VELD "
+  },
+  "572365311": {
+    "debug_name": "planet_084",
+    "name": "REACH "
+  },
+  "4009717368": {
+    "debug_name": "planet_085",
+    "name": "URSICA XI "
+  },
+  "2623879324": {
+    "debug_name": "planet_086",
+    "name": "INARI "
+  },
+  "1076755284": {
+    "debug_name": "planet_087",
+    "name": "SKAASH "
+  },
+  "912379297": {
+    "debug_name": "planet_088",
+    "name": "MORADESH "
+  },
+  "2598991571": {
+    "debug_name": "planet_089",
+    "name": "RASP "
+  },
+  "49391513": {
+    "debug_name": "planet_090",
+    "name": "BASHYR "
+  },
+  "2299441253": {
+    "debug_name": "planet_091",
+    "name": "REGNUS "
+  },
+  "2695815635": {
+    "debug_name": "planet_092",
+    "name": "MOG "
+  },
+  "1922612740": {
+    "debug_name": "planet_093",
+    "name": "VALMOX "
+  },
+  "3172148623": {
+    "debug_name": "planet_094",
+    "name": "IRO "
+  },
+  "3602852408": {
+    "debug_name": "planet_095",
+    "name": "GRAFMERE "
+  },
+  "3515684391": {
+    "debug_name": "planet_096",
+    "name": "NEW STOCKHOLM "
+  },
+  "997855239": {
+    "debug_name": "planet_097",
+    "name": "OASIS "
+  },
+  "910436923": {
+    "debug_name": "planet_098",
+    "name": "GENESIS PRIME "
+  },
+  "2306843160": {
+    "debug_name": "planet_099",
+    "name": "OUTPOST 32 "
+  },
+  "4011448258": {
+    "debug_name": "planet_100",
+    "name": "CALYPSO "
+  },
+  "3533355425": {
+    "debug_name": "planet_101",
+    "name": "ELYSIAN MEADOWS "
+  },
+  "1616302990": {
+    "debug_name": "planet_102",
+    "name": "ALDERIDGE COVE "
+  },
+  "3515299681": {
+    "debug_name": "planet_103",
+    "name": "TRANDOR "
+  },
+  "3115954791": {
+    "debug_name": "planet_104",
+    "name": "EAST IRIDIUM TRADING PORT "
+  },
+  "1017957570": {
+    "debug_name": "planet_105",
+    "name": "LIBERTY RIDGE "
+  },
+  "1398996417": {
+    "debug_name": "planet_106",
+    "name": "BALDRICK PRIME "
+  },
+  "701410047": {
+    "debug_name": "planet_107",
+    "name": "THE WEYR"
+  },
+  "2344219187": {
+    "debug_name": "planet_108",
+    "name": "KUPER "
+  },
+  "1496025116": {
+    "debug_name": "planet_109",
+    "name": "OSLO STATION "
+  },
+  "696145979": {
+    "debug_name": "planet_110",
+    "name": "P\u00c3\u0096PLI IX "
+  },
+  "435094671": {
+    "debug_name": "planet_111",
+    "name": "GUNVALD "
+  },
+  "2131959183": {
+    "debug_name": "planet_112",
+    "name": "DOLPH "
+  },
+  "412801448": {
+    "debug_name": "planet_113",
+    "name": "BEKVAM III "
+  },
+  "255676170": {
+    "debug_name": "planet_114",
+    "name": "DUMA TYR "
+  },
+  "2442155408": {
+    "debug_name": "planet_115",
+    "name": "VERNEN WELLS "
+  },
+  "3407029244": {
+    "debug_name": "planet_116",
+    "name": "AESIR PASS "
+  },
+  "975759959": {
+    "debug_name": "planet_117",
+    "name": "AURORA BAY "
+  },
+  "101741274": {
+    "debug_name": "planet_118",
+    "name": "PENTA "
+  },
+  "2654907023": {
+    "debug_name": "planet_119",
+    "name": "GAELLIVARE "
+  },
+  "2580049274": {
+    "debug_name": "planet_120",
+    "name": "VOG-SOJOTH "
+  },
+  "612402065": {
+    "debug_name": "planet_121",
+    "name": "KIRRIK "
+  },
+  "248400433": {
+    "debug_name": "planet_122",
+    "name": "MORTAX PRIME "
+  },
+  "1423930789": {
+    "debug_name": "planet_123",
+    "name": "ADRIAN PRIME"
+  },
+  "429955586": {
+    "debug_name": "planet_124",
+    "name": "PIONEER II "
+  },
+  "137703244": {
+    "debug_name": "planet_125",
+    "name": "THRAXA "
+  },
+  "1156965013": {
+    "debug_name": "planet_126",
+    "name": "SOCORRO III "
+  },
+  "2435651414": {
+    "debug_name": "planet_127",
+    "name": "BORE ROCK "
+  },
+  "2875368439": {
+    "debug_name": "planet_128",
+    "name": "FENRIR III "
+  },
+  "2706883571": {
+    "debug_name": "planet_129",
+    "name": "TURING "
+  },
+  "2003553249": {
+    "debug_name": "planet_130",
+    "name": "ANGEL'S VENTURE "
+  },
+  "2658926073": {
+    "debug_name": "planet_131",
+    "name": "DARIUS II "
+  },
+  "1231076923": {
+    "debug_name": "planet_132",
+    "name": "ACAMAR IV "
+  },
+  "984145086": {
+    "debug_name": "planet_133",
+    "name": "ACHERNAR SECUNDUS "
+  },
+  "3921453955": {
+    "debug_name": "planet_134",
+    "name": "ACHIRD III "
+  },
+  "3215655918": {
+    "debug_name": "planet_135",
+    "name": "ACRAB XI "
+  },
+  "997215371": {
+    "debug_name": "planet_136",
+    "name": "ACRUX IX "
+  },
+  "2282459618": {
+    "debug_name": "planet_137",
+    "name": "ACUBENS PRIME "
+  },
+  "1569522965": {
+    "debug_name": "planet_138",
+    "name": "ADHAFERA SECUNDUS "
+  },
+  "1937725917": {
+    "debug_name": "planet_139",
+    "name": "ADHARA "
+  },
+  "3715077297": {
+    "debug_name": "planet_140",
+    "name": "AFOYAY BAY "
+  },
+  "4017257734": {
+    "debug_name": "planet_141",
+    "name": "AIN-5 "
+  },
+  "641745001": {
+    "debug_name": "planet_142",
+    "name": "ALADFAR CXI "
+  },
+  "1534729714": {
+    "debug_name": "planet_143",
+    "name": "ALAIRT III "
+  },
+  "3213455987": {
+    "debug_name": "planet_144",
+    "name": "ALAMAK VII "
+  },
+  "2830340410": {
+    "debug_name": "planet_145",
+    "name": "ALARAPH "
+  },
+  "1297056046": {
+    "debug_name": "planet_146",
+    "name": "ALATHFAR XI "
+  },
+  "1526977116": {
+    "debug_name": "planet_147",
+    "name": "ANDAR "
+  },
+  "770159872": {
+    "debug_name": "planet_148",
+    "name": "ASPEROTH PRIME "
+  },
+  "232742202": {
+    "debug_name": "planet_149",
+    "name": "BELLATRIX "
+  },
+  "784275392": {
+    "debug_name": "planet_150",
+    "name": "BOTEIN "
+  },
+  "1986037000": {
+    "debug_name": "planet_151",
+    "name": "OSUPSAM "
+  },
+  "2935376141": {
+    "debug_name": "planet_152",
+    "name": "BRINK-2"
+  },
+  "3228999359": {
+    "debug_name": "planet_153",
+    "name": "BUNDA SECUNDUS "
+  },
+  "3482441182": {
+    "debug_name": "planet_154",
+    "name": "CANOPUS "
+  },
+  "3480296110": {
+    "debug_name": "planet_155",
+    "name": "CAPH "
+  },
+  "1043181": {
+    "debug_name": "planet_156",
+    "name": "CASTOR "
+  },
+  "572242261": {
+    "debug_name": "planet_157",
+    "name": "DURGEN "
+  },
+  "1192040123": {
+    "debug_name": "planet_158",
+    "name": "DRAUPNIR "
+  },
+  "457558822": {
+    "debug_name": "planet_159",
+    "name": "MORT "
+  },
+  "2655630774": {
+    "debug_name": "planet_160",
+    "name": "INGMAR "
+  },
+  "36406352": {
+    "debug_name": "planet_161",
+    "name": "CHARA "
+  },
+  "3531149629": {
+    "debug_name": "planet_162",
+    "name": "CHARBAL-VII "
+  },
+  "2007360508": {
+    "debug_name": "planet_163",
+    "name": "CHARON PRIME "
+  },
+  "2564387350": {
+    "debug_name": "planet_164",
+    "name": "RUBICON "
+  },
+  "1159313659": {
+    "debug_name": "planet_165",
+    "name": "ARRAKIS"
+  },
+  "2695598028": {
+    "debug_name": "planet_166",
+    "name": "CHORT BAY "
+  },
+  "1109752394": {
+    "debug_name": "planet_167",
+    "name": "MERCURY "
+  },
+  "4171074231": {
+    "debug_name": "planet_168",
+    "name": "CLASA "
+  },
+  "1096398337": {
+    "debug_name": "planet_169",
+    "name": "CURSA "
+  },
+  "1270268663": {
+    "debug_name": "planet_170",
+    "name": "KADIA "
+  },
+  "575825411": {
+    "debug_name": "planet_171",
+    "name": "DENEB SECUNDUS "
+  },
+  "3031668844": {
+    "debug_name": "planet_172",
+    "name": "ELECTRA BAY "
+  },
+  "3692735566": {
+    "debug_name": "planet_173",
+    "name": "ENULIALE "
+  },
+  "3517952761": {
+    "debug_name": "planet_174",
+    "name": "EPSILON PHOENCIS VI "
+  },
+  "3604506896": {
+    "debug_name": "planet_175",
+    "name": "ERATA PRIME "
+  },
+  "945664053": {
+    "debug_name": "planet_176",
+    "name": "ERRANT "
+  },
+  "356540875": {
+    "debug_name": "planet_177",
+    "name": "ESTANU "
+  },
+  "3087050848": {
+    "debug_name": "planet_178",
+    "name": "FORI PRIME "
+  },
+  "3487417548": {
+    "debug_name": "planet_179",
+    "name": "FURY"
+  },
+  "2036924050": {
+    "debug_name": "planet_180",
+    "name": "GACRUX "
+  },
+  "2254239637": {
+    "debug_name": "planet_181",
+    "name": "GAR HAREN "
+  },
+  "1039531899": {
+    "debug_name": "planet_182",
+    "name": "GATRIA "
+  },
+  "1730968584": {
+    "debug_name": "planet_183",
+    "name": "GEMMA "
+  },
+  "3461540330": {
+    "debug_name": "planet_184",
+    "name": "4546C "
+  },
+  "3671746797": {
+    "debug_name": "planet_185",
+    "name": "HADAR "
+  },
+  "1969390828": {
+    "debug_name": "planet_186",
+    "name": "HAKA "
+  },
+  "3856827013": {
+    "debug_name": "planet_187",
+    "name": "HALDUS "
+  },
+  "386932878": {
+    "debug_name": "planet_188",
+    "name": "HALIES PORT "
+  },
+  "2517847560": {
+    "debug_name": "planet_189",
+    "name": "HERTHON SECUNDUS "
+  },
+  "1581052380": {
+    "debug_name": "planet_190",
+    "name": "HESOE PRIME "
+  },
+  "4182360890": {
+    "debug_name": "planet_191",
+    "name": "HEZE BAY "
+  },
+  "2078192573": {
+    "debug_name": "planet_192",
+    "name": "HORT "
+  },
+  "1722929190": {
+    "debug_name": "planet_193",
+    "name": "HYDROBIUS "
+  },
+  "101839064": {
+    "debug_name": "planet_194",
+    "name": "KARLIA "
+  },
+  "4231826668": {
+    "debug_name": "planet_195",
+    "name": "KARON BAY "
+  },
+  "2563880739": {
+    "debug_name": "planet_196",
+    "name": "KEID "
+  },
+  "1697634205": {
+    "debug_name": "planet_197",
+    "name": "KHANDARK "
+  },
+  "1143730827": {
+    "debug_name": "planet_198",
+    "name": "A"
+  },
+  "1366049074": {
+    "debug_name": "planet_199",
+    "name": "KLAKA 5 "
+  },
+  "4234355218": {
+    "debug_name": "planet_200",
+    "name": "KNETH PORT "
+  },
+  "2097290850": {
+    "debug_name": "planet_201",
+    "name": "KRAZ "
+  },
+  "3764590020": {
+    "debug_name": "planet_202",
+    "name": "KUMA "
+  },
+  "3052439858": {
+    "debug_name": "planet_203",
+    "name": "LASTOFE "
+  },
+  "2845725342": {
+    "debug_name": "planet_204",
+    "name": "LENG SECUNDUS "
+  },
+  "3837447591": {
+    "debug_name": "planet_205",
+    "name": "LESATH "
+  },
+  "1126502547": {
+    "debug_name": "planet_206",
+    "name": "MAIA "
+  },
+  "3244992775": {
+    "debug_name": "planet_207",
+    "name": "REQUIEM"
+  },
+  "1806559160": {
+    "debug_name": "planet_208",
+    "name": "MANTES "
+  },
+  "2831860380": {
+    "debug_name": "planet_209",
+    "name": "ZENITH"
+  },
+  "2016899055": {
+    "debug_name": "planet_210",
+    "name": "MARTALE "
+  },
+  "2071495162": {
+    "debug_name": "planet_211",
+    "name": "MATAR BAY "
+  },
+  "996779072": {
+    "debug_name": "planet_212",
+    "name": "MEISSA "
+  },
+  "1982461871": {
+    "debug_name": "planet_213",
+    "name": "MEKBUDA "
+  },
+  "3161413384": {
+    "debug_name": "planet_214",
+    "name": "MENKENT "
+  },
+  "964201429": {
+    "debug_name": "planet_215",
+    "name": "MERAK "
+  },
+  "319528443": {
+    "debug_name": "planet_216",
+    "name": "MERGA IV "
+  },
+  "1805868079": {
+    "debug_name": "planet_217",
+    "name": "MINCHIR "
+  },
+  "2174989502": {
+    "debug_name": "planet_218",
+    "name": "MINTORIA "
+  },
+  "1125831687": {
+    "debug_name": "planet_219",
+    "name": "MORDIA 9 "
+  },
+  "1316898847": {
+    "debug_name": "planet_220",
+    "name": "NEW WISDOM"
+  },
+  "2595930801": {
+    "debug_name": "planet_221",
+    "name": "NABATEA SECUNDUS "
+  },
+  "1644011282": {
+    "debug_name": "planet_222",
+    "name": "NAVI VII "
+  },
+  "301092871": {
+    "debug_name": "planet_223",
+    "name": "SOLSTHEIM "
+  },
+  "1730154803": {
+    "debug_name": "planet_224",
+    "name": "OROTH "
+  },
+  "1344035939": {
+    "debug_name": "planet_225",
+    "name": "KEPLER PRIME"
+  },
+  "2798506372": {
+    "debug_name": "planet_226",
+    "name": "OVERGOE PRIME "
+  },
+  "2529588949": {
+    "debug_name": "planet_227",
+    "name": "PANDION-XXIV "
+  },
+  "2633633039": {
+    "debug_name": "planet_228",
+    "name": "PARTION "
+  },
+  "3575106066": {
+    "debug_name": "planet_229",
+    "name": "PEACOCK "
+  },
+  "1050117740": {
+    "debug_name": "planet_230",
+    "name": "TATOOINE "
+  },
+  "1272337220": {
+    "debug_name": "planet_231",
+    "name": "PHERKAD SECUNDUS "
+  },
+  "1029706994": {
+    "debug_name": "planet_232",
+    "name": "POLARIS PRIME "
+  },
+  "4039961663": {
+    "debug_name": "planet_233",
+    "name": "POLLUX 31 "
+  },
+  "3290149632": {
+    "debug_name": "planet_234",
+    "name": "PRASA "
+  },
+  "3795087598": {
+    "debug_name": "planet_235",
+    "name": "PROPUS "
+  },
+  "4053031948": {
+    "debug_name": "planet_236",
+    "name": "RAS ALGETHI "
+  },
+  "3659425534": {
+    "debug_name": "planet_237",
+    "name": "RD-4 "
+  },
+  "433678065": {
+    "debug_name": "planet_238",
+    "name": "ROGUE 5 "
+  },
+  "1377257553": {
+    "debug_name": "planet_239",
+    "name": "RIRGA BAY "
+  },
+  "264536752": {
+    "debug_name": "planet_240",
+    "name": "SEASSE "
+  },
+  "3709894755": {
+    "debug_name": "planet_241",
+    "name": "SENGE 23 "
+  },
+  "449319042": {
+    "debug_name": "planet_242",
+    "name": "SETIA "
+  },
+  "1531805760": {
+    "debug_name": "planet_243",
+    "name": "VEYLORA "
+  },
+  "3472221087": {
+    "debug_name": "planet_244",
+    "name": "SIEMNOT "
+  },
+  "31903659": {
+    "debug_name": "planet_245",
+    "name": "SIRIUS "
+  },
+  "728004013": {
+    "debug_name": "planet_246",
+    "name": "SKAT BAY "
+  },
+  "33972203": {
+    "debug_name": "planet_247",
+    "name": "SPHERION "
+  },
+  "3339959103": {
+    "debug_name": "planet_248",
+    "name": "STOR THA PRIME "
+  },
+  "3478070727": {
+    "debug_name": "planet_249",
+    "name": "STOUT "
+  },
+  "1923795699": {
+    "debug_name": "planet_250",
+    "name": "TERMADON "
+  },
+  "2658611086": {
+    "debug_name": "planet_251",
+    "name": "TIBIT "
+  },
+  "2659689769": {
+    "debug_name": "planet_252",
+    "name": "TIEN KWAN "
+  },
+  "1049999007": {
+    "debug_name": "planet_253",
+    "name": "TROOST "
+  },
+  "2216912817": {
+    "debug_name": "planet_254",
+    "name": "UBANEA "
+  },
+  "260933067": {
+    "debug_name": "planet_255",
+    "name": "USTOTU "
+  },
+  "230950549": {
+    "debug_name": "planet_256",
+    "name": "VANDALON IV "
+  },
+  "17046409": {
+    "debug_name": "planet_257",
+    "name": "VARYLIA 5 "
+  },
+  "3825459240": {
+    "debug_name": "planet_258",
+    "name": "WASAT "
+  },
+  "229350423": {
+    "debug_name": "planet_259",
+    "name": "VEGA BAY "
+  },
+  "1554138344": {
+    "debug_name": "planet_260",
+    "name": "WEZEN "
+  },
+  "1826401325": {
+    "debug_name": "planet_261",
+    "name": "VINDEMITARIX PRIME "
+  },
+  "2165203458": {
+    "debug_name": "planet_262",
+    "name": "X-45 "
+  },
+  "714233297": {
+    "debug_name": "planet_263",
+    "name": "YED PRIOR "
+  },
+  "252504470": {
+    "debug_name": "planet_264",
+    "name": "ZEFIA "
+  },
+  "2360232252": {
+    "debug_name": "planet_265",
+    "name": "ZOSMA "
+  },
+  "1524642040": {
+    "debug_name": "planet_266",
+    "name": "ZZANIAH PRIME "
+  },
+  "3789806846": {
+    "debug_name": "planet_267",
+    "name": "SKITTER "
+  },
+  "3809134104": {
+    "debug_name": "planet_268",
+    "name": "EUPHORIA III "
+  },
+  "4020204519": {
+    "debug_name": "planet_269",
+    "name": "DIASPORA X "
+  },
+  "1588671273": {
+    "debug_name": "planet_270",
+    "name": "GEMSTONE BLUFFS "
+  },
+  "843081973": {
+    "debug_name": "planet_271",
+    "name": "ZAGON PRIME "
+  },
+  "3966660905": {
+    "debug_name": "planet_272",
+    "name": "OMICRON "
+  },
+  "3923589145": {
+    "debug_name": "planet_273",
+    "name": "CYBERSTAN "
+  },
+  "2807946366": {
+    "debug_name": "planet_274",
+    "name": "FRONTERIA "
+  },
+  "943068451": {
+    "debug_name": "planet_275",
+    "name": "HETT "
+  },
+  "539364379": {
+    "debug_name": "planet_276",
+    "name": "WORTHY I "
+  },
+  "2994862260": {
+    "debug_name": "planet_277",
+    "name": "KERBIN"
+  },
+  "3757403334": {
+    "debug_name": "planet_278",
+    "name": "LONE "
+  },
+  "3265059383": {
+    "debug_name": "planet_279",
+    "name": "PEONY "
+  },
+  "3148797885": {
+    "debug_name": "planet_280",
+    "name": "CALEFACTORIA "
+  },
+  "1653510998": {
+    "debug_name": "planet_281",
+    "name": "LUXURIANT "
+  },
+  "1231236069": {
+    "debug_name": "planet_282",
+    "name": "SERENDIPITY XI "
+  },
+  "2542431771": {
+    "debug_name": "planet_283",
+    "name": "BANKABILITY "
+  },
+  "563995798": {
+    "debug_name": "planet_284",
+    "name": "ARGENTIS "
+  },
+  "2426410233": {
+    "debug_name": "planet_285",
+    "name": "PROBARE "
+  },
+  "1249196326": {
+    "debug_name": "planet_286",
+    "name": "CYGNIA III "
+  },
+  "1486045487": {
+    "debug_name": "planet_287",
+    "name": "AQUILA MMCMXIV "
+  },
+  "1108826348": {
+    "debug_name": "planet_288",
+    "name": "COLUMBIDAE "
+  },
+  "3544477981": {
+    "debug_name": "planet_289",
+    "name": "PIPIONEM "
+  },
+  "2157554849": {
+    "debug_name": "planet_290",
+    "name": "SUPERIORIA LV "
+  },
+  "2792842826": {
+    "debug_name": "planet_291",
+    "name": "TENDRA"
+  },
+  "3118907831": {
+    "debug_name": "planet_292",
+    "name": "RETRIBUTARY "
+  },
+  "279293045": {
+    "debug_name": "planet_293",
+    "name": "DEFENSIBLE "
+  },
+  "40826223": {
+    "debug_name": "planet_294",
+    "name": "WATCHDOG 5 "
+  },
+  "939299113": {
+    "debug_name": "planet_295",
+    "name": "AQUILA XXXII "
+  },
+  "4060269695": {
+    "debug_name": "planet_296",
+    "name": "ELIGIBLE "
+  },
+  "2437002548": {
+    "debug_name": "planet_297",
+    "name": "PROBABILITY "
+  },
+  "3548580792": {
+    "debug_name": "planet_298",
+    "name": "LINK B "
+  },
+  "1640052698": {
+    "debug_name": "planet_299",
+    "name": "HOPEFUL "
+  },
+  "2995599666": {
+    "debug_name": "planet_300",
+    "name": "FURY "
+  },
+  "662854011": {
+    "debug_name": "planet_301",
+    "name": "ADRENAL 8"
+  },
+  "666353454": {
+    "debug_name": "planet_302",
+    "name": "AETHOS "
+  },
+  "3117259984": {
+    "debug_name": "planet_303",
+    "name": "VENUS "
+  },
+  "3844933373": {
+    "debug_name": "planet_304",
+    "name": "BIG ROCK "
+  },
+  "3060137094": {
+    "debug_name": "planet_305",
+    "name": "WAYWARD"
+  },
+  "1586523119": {
+    "debug_name": "planet_306",
+    "name": "TERRENE "
+  },
+  "3822560341": {
+    "debug_name": "planet_307",
+    "name": "ARABILITY "
+  },
+  "1797727633": {
+    "debug_name": "planet_308",
+    "name": "FAMILY-FRIEND "
+  },
+  "499915819": {
+    "debug_name": "planet_309",
+    "name": "NASCENCE "
+  },
+  "1267519632": {
+    "debug_name": "planet_310",
+    "name": "FLEDGE "
+  },
+  "1344759552": {
+    "debug_name": "planet_311",
+    "name": "SAMMELSURIUM "
+  },
+  "3791008976": {
+    "debug_name": "planet_312",
+    "name": "BALLOT "
+  },
+  "457459722": {
+    "debug_name": "planet_313",
+    "name": "RESILIENCE "
+  },
+  "1556929234": {
+    "debug_name": "planet_314",
+    "name": "GILE "
+  },
+  "694418289": {
+    "debug_name": "planet_315",
+    "name": "CELIA"
+  },
+  "2076606288": {
+    "debug_name": "planet_316",
+    "name": "FRAKENEERIA "
+  },
+  "2127508003": {
+    "debug_name": "planet_317",
+    "name": "SHIRAHAMA "
+  },
+  "90283719": {
+    "debug_name": "planet_318",
+    "name": "ANDWELL "
+  },
+  "357264243": {
+    "debug_name": "planet_319",
+    "name": "LYNX LYNX "
+  },
+  "559027961": {
+    "debug_name": "planet_320",
+    "name": "ALMINA IV "
+  },
+  "312754351": {
+    "debug_name": "planet_321",
+    "name": "AUSPICE "
+  },
+  "3074955678": {
+    "debug_name": "planet_322",
+    "name": "RAYSTING "
+  },
+  "2473967507": {
+    "debug_name": "planet_323",
+    "name": "NOSSER "
+  },
+  "835280806": {
+    "debug_name": "planet_324",
+    "name": "SATELLARIA "
+  },
+  "2459737800": {
+    "debug_name": "planet_325",
+    "name": "DOUBLET II "
+  },
+  "2974582451": {
+    "debug_name": "planet_326",
+    "name": "GENERATION "
+  },
+  "635797345": {
+    "debug_name": "planet_327",
+    "name": "CIVILITY "
+  },
+  "3766232050": {
+    "debug_name": "planet_328",
+    "name": "SCUTUM CANIS LUPUS "
+  },
+  "4225545023": {
+    "debug_name": "planet_329",
+    "name": "LOGISTICAE "
+  },
+  "2956267651": {
+    "debug_name": "planet_330",
+    "name": "STOLTHET "
+  },
+  "4046521716": {
+    "debug_name": "planet_331",
+    "name": "AVILA "
+  },
+  "2872263469": {
+    "debug_name": "planet_332",
+    "name": "MANDILARIA "
+  },
+  "1317273314": {
+    "debug_name": "planet_333",
+    "name": "EMBOLD "
+  },
+  "1367796466": {
+    "debug_name": "planet_334",
+    "name": "BASQUINE VIII "
+  },
+  "925874448": {
+    "debug_name": "planet_335",
+    "name": "LAMBAST "
+  },
+  "1371866141": {
+    "debug_name": "planet_336",
+    "name": "THRASH IV "
+  },
+  "458291410": {
+    "debug_name": "planet_337",
+    "name": "MIQ\u00c3\u0089 "
+  },
+  "4135188973": {
+    "debug_name": "planet_338",
+    "name": "TOR E "
+  },
+  "3625072224": {
+    "debug_name": "planet_339",
+    "name": "PHANTOM 1 "
+  },
+  "792705719": {
+    "debug_name": "planet_340",
+    "name": "SPOYLE "
+  },
+  "4283005796": {
+    "debug_name": "planet_341",
+    "name": "WILE "
+  },
+  "224163544": {
+    "debug_name": "planet_342",
+    "name": "BRILLIANCE "
+  },
+  "642854317": {
+    "debug_name": "planet_343",
+    "name": " -343b "
+  },
+  "957113655": {
+    "debug_name": "planet_344",
+    "name": "PIEA "
+  },
+  "1538639048": {
+    "debug_name": "planet_345",
+    "name": "HUSARIA "
+  },
+  "1260646010": {
+    "debug_name": "planet_346",
+    "name": "OSTEHOVEL "
+  },
+  "1555026222": {
+    "debug_name": "planet_347",
+    "name": "MINERVA "
+  },
+  "2871915822": {
+    "debug_name": "planet_348",
+    "name": "ZYGOS "
+  },
+  "23809574": {
+    "debug_name": "planet_349",
+    "name": "KEPLER-349b "
+  },
+  "1003822495": {
+    "debug_name": "planet_350",
+    "name": "PESTIS "
+  },
+  "1655533806": {
+    "debug_name": "planet_351",
+    "name": "AMITTERE "
+  },
+  "440274794": {
+    "debug_name": "planet_352",
+    "name": "VINGE "
+  },
+  "280001593": {
+    "debug_name": "planet_353",
+    "name": "KEPLER-353b "
+  },
+  "912524883": {
+    "debug_name": "planet_354",
+    "name": "KORV "
+  },
+  "600607323": {
+    "debug_name": "planet_355",
+    "name": "CONLON COLONY "
+  },
+  "3556243646": {
+    "debug_name": "planet_356",
+    "name": "DEECON "
+  },
+  "3512826333": {
+    "debug_name": "planet_357",
+    "name": "SVITJOD "
+  },
+  "2453835909": {
+    "debug_name": "planet_358",
+    "name": "KEPLER-358b "
+  },
+  "4238148929": {
+    "debug_name": "planet_359",
+    "name": "VACCA "
+  },
+  "1597423767": {
+    "debug_name": "planet_360",
+    "name": "OTUR "
+  },
+  "104621771": {
+    "debug_name": "planet_361",
+    "name": "SANGIS "
+  },
+  "36651719": {
+    "debug_name": "planet_362",
+    "name": "SIRIUS II "
+  },
+  "1550292276": {
+    "debug_name": "planet_363",
+    "name": "HAMMARBY "
+  },
+  "2371182145": {
+    "debug_name": "planet_364",
+    "name": "MOMO-1 "
+  },
+  "3781016616": {
+    "debug_name": "planet_365",
+    "name": "LINDOME "
+  },
+  "745407869": {
+    "debug_name": "planet_366",
+    "name": "BOHUS "
+  },
+  "417099853": {
+    "debug_name": "planet_367",
+    "name": "NIBIRU "
+  },
+  "3634094425": {
+    "debug_name": "planet_368",
+    "name": "GUNNAR "
+  },
+  "2281137684": {
+    "debug_name": "planet_369",
+    "name": "ZENITH "
+  },
+  "10324412": {
+    "debug_name": "planet_370",
+    "name": "URECTEM "
+  },
+  "3897302531": {
+    "debug_name": "planet_371",
+    "name": "M\u00c3\u0096NSTER\u00c3\u0085S II "
+  },
+  "1387273604": {
+    "debug_name": "planet_372",
+    "name": "MONHEIM "
+  },
+  "2378790132": {
+    "debug_name": "planet_373",
+    "name": "DUNOONIA "
+  },
+  "3084757731": {
+    "debug_name": "planet_374",
+    "name": "PAYONG "
+  },
+  "1669152006": {
+    "debug_name": "planet_375",
+    "name": "PENNYBRIDGE "
+  },
+  "2198453495": {
+    "debug_name": "planet_376",
+    "name": "UNKNOWN SYSTEM "
+  },
+  "3717376507": {
+    "debug_name": "planet_377",
+    "name": "UNREGISTERED SYSTEM "
+  },
+  "4169407650": {
+    "debug_name": "planet_378",
+    "name": "UNMAPPED SYSTEM "
+  },
+  "3638342106": {
+    "debug_name": "planet_379",
+    "name": "RUINED SYSTEM "
+  },
+  "1321031843": {
+    "debug_name": "planet_380",
+    "name": "ANOMALOUS SYSTEM "
+  },
+  "1557881004": {
+    "debug_name": "planet_381",
+    "name": "CONCEALED SYSTEM "
+  },
+  "4097379787": {
+    "debug_name": "planet_382",
+    "name": "E-710-RICH SYSTEM "
+  },
+  "1606226206": {
+    "debug_name": "planet_383",
+    "name": "ANNIHILATED SYSTEM "
+  },
+  "1406573183": {
+    "debug_name": "planet_384",
+    "name": "VITAL SYSTEM "
+  },
+  "3315509438": {
+    "debug_name": "planet_385",
+    "name": "UNINHABITABLE SYSTEM "
+  },
+  "1413440747": {
+    "debug_name": "planet_generation_testing",
+    "name": "3823174181 "
+  },
+  "1838271887": {
+    "debug_name": "planet_arctic_glacier_base",
+    "name": "1456447933 "
+  },
+  "638110234": {
+    "debug_name": "planet_arctic_glacier_coldrocky",
+    "name": "3845731348 "
+  },
+  "2442303658": {
+    "debug_name": "planet_bug_hiveworld",
+    "name": "1062854722 "
+  },
+  "4125730959": {
+    "debug_name": "planet_desert_magma_base",
+    "name": "732684243 "
+  },
+  "4065501043": {
+    "debug_name": "planet_desert_sandy_acid",
+    "name": "1677458696 "
+  },
+  "726381918": {
+    "debug_name": "planet_desert_sandy_base",
+    "name": "3910357461 "
+  },
+  "1019569949": {
+    "debug_name": "planet_desert_sandy_klen_dahth_2",
+    "name": "SQU'BAI SHRINE "
+  },
+  "1657395632": {
+    "debug_name": "planet_desert_sandy_mineral",
+    "name": "3510879116 "
+  },
+  "3822147543": {
+    "debug_name": "planet_desert_sandy_moon",
+    "name": "2562535002 "
+  },
+  "205330875": {
+    "debug_name": "planet_desert_sandy_spiky",
+    "name": "2878888192 "
+  },
+  "3450067110": {
+    "debug_name": "planet_forest_moor_arid",
+    "name": "2863039880 "
+  },
+  "1389686288": {
+    "debug_name": "planet_forest_moor_base",
+    "name": "592938292 "
+  },
+  "902359892": {
+    "debug_name": "planet_forest_moor_red",
+    "name": "1160562414 "
+  },
+  "584272944": {
+    "debug_name": "planet_forest_moor_tundra",
+    "name": "2888778618 "
+  },
+  "1046304993": {
+    "debug_name": "planet_primordial_01",
+    "name": "563822264 "
+  },
+  "3087944000": {
+    "debug_name": "planet_primordial_base_bug",
+    "name": "MERIDIA "
+  },
+  "1383762373": {
+    "debug_name": "planet_forest_primordial_blue",
+    "name": "382288955 "
+  },
+  "1341206145": {
+    "debug_name": "planet_forest_primordial_dead",
+    "name": "3698893031 "
+  },
+  "752016260": {
+    "debug_name": "planet_forest_primordial_purple",
+    "name": "3730173571 "
+  },
+  "46552461": {
+    "debug_name": "planet_forest_swamp_base",
+    "name": "196805532 "
+  },
+  "2539875090": {
+    "debug_name": "planet_forest_swamp_haunted",
+    "name": "2087568996 "
+  },
+  "1776828403": {
+    "debug_name": "planet_homeworld_superearth",
+    "name": "437720334 "
+  },
+  "1893896155": {
+    "debug_name": "planet_tutorial",
+    "name": "MARS"
+  },
+  "982935642": {
+    "debug_name": "planet_tutorial_02",
+    "name": "UNDISCLOSED LOCATION "
+  }
+}

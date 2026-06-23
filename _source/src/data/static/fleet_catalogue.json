@@ -1,0 +1,212 @@
+{
+  "_schema_doc": [
+    "Author-curated lookup that classifies known galactic effect IDs",
+    "into the fleet vocabulary. Each fleet in HD2's war data is a PAIR",
+    "of effects on a planet: a spawn effect ('X (Enemies)') + a flag",
+    "effect ('X' base name) \u2014 the visible map marker we already render",
+    "via _paint_effect_tags. Both share the base name modulo the",
+    "'(Enemies)' suffix.",
+    "",
+    "TWO effectType variants exist:",
+    "  * type 40 spawn + type 71 flag \u2014 the original subfaction model",
+    "    (PREDATOR / RUPTURE / DRAGONROACHES / HIVE LORDS / JET",
+    "    BRIGADE / INCINERATION CORPS / CYBORGS / MINDLESS MASSES /",
+    "    APPROPRIATORS / DECON DIVISION / ASSIMILATORS).",
+    "  * type 41 spawn + type 41 flag \u2014 the 'rampage' subfactions",
+    "    added later (PANZER DIVISION 2002+2003, STALKER RAMPAGE",
+    "    2004+2005, PHANTOM WINGS 2006+2007). PLUS one flag-only",
+    "    Super Earth entry: SEAF 2001 (no enemy spawn \u2014 Super Earth",
+    "    units don't spawn 'against' the player).",
+    "",
+    "The FleetManager (src/core/fleet_manager.py) walks",
+    "planetActiveEffects, looks each effect ID up here, and groups",
+    "effects sharing a pair_id+planet+faction into a Fleet object.",
+    "Flag-only fleets (e.g. SEAF) are tolerated by the permissive",
+    "detection pass.",
+    "",
+    "ADDING NEW FLEET TYPES IS A DATA-ONLY CHANGE \u2014 no code edits.",
+    "Append a (spawn_id, flag_id) pair with a unique pair_id and the",
+    "matching faction.",
+    "",
+    "Field schema:",
+    "  spawn_effects[<effect_id>] = {",
+    "    faction_id:      int  (1=SE, 2=Terminid, 3=Automaton, 4=Illuminate)",
+    "    pair_id:         str  (binds a spawn to its matching flag)",
+    "    label:           str  (human-readable label for picker UIs)",
+    "    emoji:           str  (OPTIONAL Discord emoji shown for this",
+    "                      subfaction in the bot's Fleet dashboard, e.g.",
+    "                      '<:PRS:1433396632912924682>'. One per pair_id —",
+    "                      put it on the spawn entry (or the flag entry for",
+    "                      flag-only subfactions). Absent/empty = no icon.)",
+    "    requires_effect: int  (OPTIONAL anchor: a NEW fleet of this",
+    "                      subfaction can only be created on a planet that",
+    "                      already has this galactic effect active. Absent",
+    "                      or 0 = no requirement. Create-time only: after",
+    "                      birth the fleet moves freely along supply lines.)",
+    "  }",
+    "  flag_effects[<effect_id>] = {",
+    "    faction_id:      int",
+    "    pair_id:         str  (matches the spawn's pair_id; flag-only",
+    "                      fleets just have no matching spawn entry)",
+    "    emoji:           str  (OPTIONAL; same meaning — used for flag-only",
+    "                      subfactions like SEAF)",
+    "    requires_effect: int  (OPTIONAL; same meaning — used for",
+    "                      flag-only subfactions like SEAF)",
+    "  }"
+  ],
+  "spawn_effects": {
+    "1243": {
+      "faction_id": 2,
+      "pair_id": "bug_predator",
+      "label": "PREDATOR STRAIN",
+      "emoji": "<:PRS:1433396632912924682>"
+    },
+    "1303": {
+      "faction_id": 2,
+      "pair_id": "bug_rupture",
+      "label": "RUPTURE STRAIN",
+      "emoji": "<:RPST:1433395636241432676>"
+    },
+    "1306": {
+      "faction_id": 2,
+      "pair_id": "bug_dragonroaches",
+      "label": "DRAGONROACHES",
+      "emoji": "<:DGRC:1433396592836087869>"
+    },
+    "1307": {
+      "faction_id": 2,
+      "pair_id": "bug_hivelords",
+      "label": "HIVE LORDS",
+      "emoji": "<a:HVLR:1430405000349094008>"
+    },
+    "1202": {
+      "faction_id": 3,
+      "pair_id": "bot_jet_brigade",
+      "label": "THE JET BRIGADE",
+      "emoji": "<:JBG:1433397113831817258>",
+      "requires_effect": 1239
+    },
+    "1248": {
+      "faction_id": 3,
+      "pair_id": "bot_incineration",
+      "label": "THE INCINERATION CORPS",
+      "emoji": "<:INC:1430317932805754972>",
+      "requires_effect": 1239
+    },
+    "1360": {
+      "faction_id": 3,
+      "pair_id": "bot_cyborgs",
+      "label": "CYBORGS",
+      "emoji": "<:CYBORGS_2:1468838016742068244>",
+      "requires_effect": 1239
+    },
+    "1377": {
+      "faction_id": 4,
+      "pair_id": "illu_mindless",
+      "label": "MINDLESS MASSES",
+      "emoji": ""
+    },
+    "1380": {
+      "faction_id": 4,
+      "pair_id": "illu_appropriators",
+      "label": "APPROPRIATORS",
+      "emoji": "<:AP:1484679532450549891>"
+    },
+    "2010": {
+      "faction_id": 3,
+      "pair_id": "bot_decon",
+      "label": "DECON DIVISION",
+      "emoji": ""
+    },
+    "2013": {
+      "faction_id": 4,
+      "pair_id": "illu_assimilators",
+      "label": "ASSIMILATORS",
+      "emoji": "<:2012:1507917832795721758>",
+      "requires_effect": 2014
+    },
+    "2002": {
+      "faction_id": 3,
+      "pair_id": "bot_panzer",
+      "label": "PANZER DIVISION",
+      "emoji": "<:panzer:1507491787764400239>",
+      "requires_effect": 1239
+    },
+    "2004": {
+      "faction_id": 2,
+      "pair_id": "bug_stalker",
+      "label": "STALKER RAMPAGE",
+      "emoji": ""
+    },
+    "2006": {
+      "faction_id": 4,
+      "pair_id": "illu_phantom",
+      "label": "PHANTOM WINGS",
+      "emoji": ""
+    }
+  },
+  "flag_effects": {
+    "1245": {
+      "faction_id": 2,
+      "pair_id": "bug_predator"
+    },
+    "1310": {
+      "faction_id": 2,
+      "pair_id": "bug_rupture"
+    },
+    "1309": {
+      "faction_id": 2,
+      "pair_id": "bug_dragonroaches"
+    },
+    "1308": {
+      "faction_id": 2,
+      "pair_id": "bug_hivelords"
+    },
+    "1203": {
+      "faction_id": 3,
+      "pair_id": "bot_jet_brigade"
+    },
+    "1249": {
+      "faction_id": 3,
+      "pair_id": "bot_incineration"
+    },
+    "1361": {
+      "faction_id": 3,
+      "pair_id": "bot_cyborgs"
+    },
+    "1378": {
+      "faction_id": 4,
+      "pair_id": "illu_mindless"
+    },
+    "1379": {
+      "faction_id": 4,
+      "pair_id": "illu_appropriators"
+    },
+    "2011": {
+      "faction_id": 3,
+      "pair_id": "bot_decon"
+    },
+    "2012": {
+      "faction_id": 4,
+      "pair_id": "illu_assimilators"
+    },
+    "2001": {
+      "faction_id": 1,
+      "pair_id": "se_seaf",
+      "label": "SEAF",
+      "emoji": "<:SEAF:1506468708342562908>"
+    },
+    "2003": {
+      "faction_id": 3,
+      "pair_id": "bot_panzer"
+    },
+    "2005": {
+      "faction_id": 2,
+      "pair_id": "bug_stalker"
+    },
+    "2007": {
+      "faction_id": 4,
+      "pair_id": "illu_phantom"
+    }
+  }
+}

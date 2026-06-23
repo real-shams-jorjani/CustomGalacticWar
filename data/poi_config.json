@@ -1,0 +1,29 @@
+{
+  "_comment": "POINTS OF INTEREST shown on the war map (icons next to campaign nameplates and zoomed-in planet names). This is a HAND-CURATED list, NOT auto-detected: 'effectType 71' is too broad (it also contains enemy strains, black holes, map markers and holidays), and some POIs (e.g. Molecular Refinement Nexus) aren't type 71 at all. Edit 'poi_effect_ids' (keyed by galacticEffectId) to control exactly which effects are treated as POIs, then reload the page (no re-bake needed). '_names' and '_candidates_not_included' are reference-only and ignored by the renderer.",
+  "poi_effect_ids": [1197, 1198, 1206, 1232, 1234, 1236, 1239, 1268, 1282, 1324, 1333, 1342, 1353, 2014],
+  "_names": {
+    "1197": "Xenoentomology Center",
+    "1198": "Deep Mantle Forge Complex",
+    "1206": "Terminid Research Preserve",
+    "1232": "Factory Hub",
+    "1234": "Center of Science",
+    "1236": "Center for Civilian Surveillance and Safety",
+    "1239": "Jet Brigade Factories",
+    "1268": "Deep Space Detection Grid",
+    "1282": "Helldiver Training Facilities",
+    "1324": "Ultramafic Mine",
+    "1333": "E-711 Extraction Facility",
+    "1342": "Center for the Confinement of Dissidence",
+    "1353": "Data Center",
+    "2014": "Molecular Refinement Nexus"
+  },
+  "_candidates_not_included": {
+    "1287": "New Hope City",
+    "1291": "New Aspiration City",
+    "1292": "New Yearning City",
+    "1304": "Outpost Alpha",
+    "1344": "Pandora Base",
+    "1295": "Tyranny Park 2",
+    "1286": "Hope Construction Site"
+  }
+}

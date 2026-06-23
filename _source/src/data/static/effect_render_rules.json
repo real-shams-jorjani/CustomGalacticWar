@@ -1,0 +1,115 @@
+{
+
+  "1177": { "type": "black_hole", "color": "#FFB000" },
+  "1352": { "type": "black_hole", "color": "#FFB000" },
+  "1228": { "type": "black_hole", "color": "#A640FF" },
+  "1229": { "type": "black_hole", "color": "#A640FF" },
+  "1230": { "type": "black_hole", "color": "#A640FF" },
+
+  "1186": {
+    "type": "gloom",
+    "color": "#DFAB20",
+    "density": 5,
+    "scale": 0.25,
+    "opacity": 0.15
+  },
+  "1187": {
+    "type": "gloom",
+    "color": "#DFAB20",
+    "density": 15,
+    "scale": 0.3,
+    "opacity": 0.25
+  },
+  "1188": {
+    "type": "gloom",
+    "color": "#DFAB20",
+    "density": 25,
+    "scale": 0.4,
+    "opacity": 0.3,
+    "foreground": true
+  },
+  "1373": {
+    "type": "vortex",
+    "asset": "overlays/vortex_purple.png",
+    "density": 10,
+    "scale": 0.26
+  },
+  "1374": {
+    "type": "vortex",
+    "asset": "overlays/vortex_purple.png",
+    "density": 16,
+    "scale": 0.33
+  },
+  "1375": {
+    "type": "vortex",
+    "asset": "overlays/vortex_purple.png",
+    "density": 22,
+    "scale": 0.4
+  },
+  "1376": {
+    "type": "void", 
+    "texture": "overlays/fog_void.png", 
+    "color": "#a124e3",
+    "z_layer": 10
+  },
+  "1203": {
+    "type": "fleet_pawn",
+    "faction_id": 3
+  },
+  "1249": {
+    "type": "fleet_pawn",
+    "faction_id": 3
+  },
+  "1245": {
+    "type": "fleet_pawn",
+    "faction_id": 2
+  },
+  "1310": {
+    "type": "fleet_pawn",
+    "faction_id": 2
+  },
+  "1308": {
+    "type": "fleet_pawn",
+    "faction_id": 2
+  },
+  "1309": {
+    "type": "fleet_pawn",
+    "faction_id": 2
+  },
+  "1379": {
+    "type": "fleet_pawn",
+    "faction_id": 4
+  },
+  "1378": {
+    "type": "fleet_pawn",
+    "faction_id": 4
+  },
+  "1361": {
+    "type": "fleet_pawn",
+    "faction_id": 3
+  },
+  "2001": {
+    "type": "fleet_pawn",
+    "faction_id": 1
+  },
+  "2003": {
+    "type": "fleet_pawn",
+    "faction_id": 3
+  },
+  "2005": {
+    "type": "fleet_pawn",
+    "faction_id": 2
+  },
+  "2007": {
+    "type": "fleet_pawn",
+    "faction_id": 4
+  },
+  "2011": {
+    "type": "fleet_pawn",
+    "faction_id": 3
+  },
+  "2012": {
+    "type": "fleet_pawn",
+    "faction_id": 4
+  }
+}

@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CGW Lore Editor</title>
+  <link rel="icon" href="img/favicon.png" />
+  <!-- the site's stylesheet gives us the keyart backdrop, fonts, CSS variables, .btn styles and
+       the .poi card styles, so this tool looks like the rest of WarForge and the live preview is
+       1:1 with the real POINTS OF INTEREST section on the map. -->
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    /* ============================================================
+       LORE EDITOR — WarForge frosted-glass command console.
+       Panels are translucent + backdrop-blurred so the site's keyart
+       (body::before, from styles.css) frosts through them. Yellow (--cta)
+       is the chrome accent; cyan (--accent) marks the live map preview.
+       ============================================================ */
+    .le-body { margin: 0; min-height: 100vh; display: flex; flex-direction: column;
+      background: transparent;                 /* let the keyart show through for the frost */
+      color: var(--text); font-family: var(--font); font-size: 15px;
+      text-transform: none; letter-spacing: 0.02em; }
+    .le-body .btn { text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; }
+    .le-body ::selection { background: rgba(255,233,0,0.28); }
+
+    /* shared frosted-panel recipe (corner brackets + scanlines via ::before/::after) */
+    .le-frost { position: relative;
+      background: linear-gradient(180deg, rgba(18,22,29,0.66), rgba(10,13,18,0.74));
+      backdrop-filter: blur(15px) saturate(1.15); -webkit-backdrop-filter: blur(15px) saturate(1.15);
+      border: 1px solid color-mix(in srgb, var(--br, var(--cta)) 30%, transparent);
+      box-shadow: 0 0 0 1px #000, 0 18px 48px rgba(0,0,0,0.6),
+                  inset 0 0 36px color-mix(in srgb, var(--br, var(--cta)) 4%, transparent); }
+    .le-cnr::before { content: ""; position: absolute; inset: 7px; pointer-events: none; z-index: 4; opacity: 0.6;
+      filter: drop-shadow(0 0 3px color-mix(in srgb, var(--br, var(--cta)) 70%, transparent));
+      background:
+        linear-gradient(var(--br,var(--cta)),var(--br,var(--cta))) 0 0/14px 2px no-repeat,    linear-gradient(var(--br,var(--cta)),var(--br,var(--cta))) 0 0/2px 14px no-repeat,
+        linear-gradient(var(--br,var(--cta)),var(--br,var(--cta))) 100% 0/14px 2px no-repeat,  linear-gradient(var(--br,var(--cta)),var(--br,var(--cta))) 100% 0/2px 14px no-repeat,
+        linear-gradient(var(--br,var(--cta)),var(--br,var(--cta))) 0 100%/14px 2px no-repeat,  linear-gradient(var(--br,var(--cta)),var(--br,var(--cta))) 0 100%/2px 14px no-repeat,
+        linear-gradient(var(--br,var(--cta)),var(--br,var(--cta))) 100% 100%/14px 2px no-repeat,linear-gradient(var(--br,var(--cta)),var(--br,var(--cta))) 100% 100%/2px 14px no-repeat; }
+    .le-scan::after { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+      background: repeating-linear-gradient(0deg, rgba(0,0,0,0.10) 0 1px, transparent 1px 3px);
+      mix-blend-mode: multiply; opacity: 0.5; }
+
+    /* ---------- top command bar ---------- */
+    .le-top { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; flex-wrap: wrap; gap: 20px;
+      padding: 11px 22px;
+      background: linear-gradient(90deg, rgba(28,32,40,0.86), rgba(13,18,24,0.84));
+      backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2);
+      border-bottom: 2px solid var(--cta);
+      box-shadow: 0 6px 26px rgba(0,0,0,0.5), 0 0 16px rgba(255,233,0,0.16); }
+    .le-mark { display: flex; align-items: center; gap: 12px; }
+    .le-mark .skull { width: 30px; height: 30px; flex: none; }
+    .le-brand { font-family: var(--head); font-weight: 700; font-size: 19px; letter-spacing: 0.16em;
+      color: var(--cta); line-height: 1.05; text-transform: uppercase; }
+    .le-brand span { display: block; font-size: 9px; letter-spacing: 0.24em; color: var(--text-dim); font-weight: 400; margin-top: 3px; }
+    .le-planet { display: flex; flex-direction: column; gap: 4px; }
+    .le-planet > span { font-size: 9px; letter-spacing: 0.2em; color: var(--muted); text-transform: uppercase; }
+    .le-planet input { width: 300px; }
+    .le-msg { margin-left: auto; font-size: 11px; letter-spacing: 0.06em; color: var(--text-dim); text-transform: uppercase;
+      padding: 6px 13px; border: 1px solid rgba(120,140,155,0.22); border-left: 2px solid var(--muted);
+      background: rgba(8,12,17,0.5); white-space: nowrap; }
+    .le-msg.ok { color: var(--equip); border-left-color: var(--equip); }
+    .le-msg.err { color: var(--hd-danger); border-left-color: var(--hd-danger); }
+
+    /* ---------- inputs (frosted dark fields) ---------- */
+    .le-body input[type=text], .le-body textarea, .le-body select {
+      background: rgba(8,12,17,0.66); border: 1px solid rgba(120,140,155,0.22); color: var(--text);
+      padding: 8px 11px; font-family: var(--font); font-size: 13px; text-transform: none; letter-spacing: 0.02em;
+      border-radius: 0; box-sizing: border-box; transition: border-color .15s, box-shadow .15s; }
+    .le-body input[type=text]:focus, .le-body textarea:focus, .le-body select:focus {
+      outline: none; border-color: var(--cta); box-shadow: 0 0 0 1px var(--cta), 0 0 12px rgba(255,233,0,0.22); }
+    .le-body textarea { resize: vertical; min-height: 64px; line-height: 1.5; }
+
+    /* ---------- main: two frosted panels ---------- */
+    .le-main { flex: 1; display: grid; grid-template-columns: minmax(440px, 1fr) minmax(380px, 580px);
+      gap: 16px; padding: 16px; min-height: 0; }
+    .le-panel { overflow: hidden; min-height: 0; }
+    .le-preview { --br: var(--accent); }          /* the live map preview reads in holographic cyan */
+    .le-scroll { height: 100%; overflow: auto; padding: 20px; position: relative; z-index: 2;
+      display: flex; flex-direction: column; gap: 18px; scrollbar-width: thin; scrollbar-color: rgba(255,233,0,0.3) transparent; }
+    .le-scroll::-webkit-scrollbar { width: 9px; }
+    .le-scroll::-webkit-scrollbar-thumb { background: rgba(255,233,0,0.25); }
+    .le-preview .le-scroll { scrollbar-color: rgba(70,164,255,0.35) transparent; }
+    .le-preview .le-scroll::-webkit-scrollbar-thumb { background: rgba(70,164,255,0.3); }
+
+    /* section headers w/ hazard-stripe tab */
+    .le-h { font-family: var(--head); font-size: 12px; letter-spacing: 0.18em; color: var(--text-dim);
+      text-transform: uppercase; display: flex; align-items: center; gap: 11px;
+      padding-bottom: 9px; border-bottom: 1px solid rgba(120,140,155,0.16); }
+    .le-h::before { content: ""; width: 22px; height: 12px; flex: none;
+      background: repeating-linear-gradient(45deg, var(--br,var(--cta)) 0 3px, transparent 3px 7px); }
+    .le-h .le-h-act { margin-left: auto; }
+
+    /* ---------- entries list ---------- */
+    .le-entries { display: flex; flex-direction: column; gap: 12px; }
+    #le-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+    #le-list li { display: flex; align-items: center; gap: 10px; padding: 10px 13px;
+      background: rgba(17,22,29,0.6); border: 1px solid rgba(120,140,155,0.16); border-left: 3px solid rgba(120,140,155,0.3);
+      cursor: pointer; transition: border-color .14s, background .14s, transform .08s; }
+    #le-list li:hover { background: rgba(24,31,40,0.7); border-left-color: var(--cta); transform: translateX(2px); }
+    #le-list li.cur { border-color: var(--cta); border-left-width: 3px; background: rgba(34,32,12,0.55);
+      box-shadow: inset 0 0 16px rgba(255,233,0,0.06); }
+    #le-list li b { flex: 1; font-size: 13px; color: #eaf3fa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #le-list li small { font-size: 9px; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; }
+    .le-del { background: rgba(8,12,17,0.5); border: 1px solid rgba(255,90,90,0.4); color: var(--hd-danger);
+      padding: 4px 9px; cursor: pointer; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; transition: all .14s; }
+    .le-del:hover { background: var(--hd-danger); color: #101010; box-shadow: 0 0 12px rgba(255,90,90,0.4); }
+    .le-empty-hint { font-size: 12px; color: var(--muted); text-transform: none; padding: 4px 0; }
+
+    /* ---------- form ---------- */
+    .le-form { display: none; flex-direction: column; gap: 16px; }
+    .le-form.on { display: flex; }
+    .le-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+    .le-field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+    .le-field > label { font-size: 9px; letter-spacing: 0.16em; color: var(--muted); text-transform: uppercase; }
+    .le-icon-row { display: flex; align-items: center; gap: 8px; }
+    .le-icon-row input { flex: 1; }
+    .le-icon-prev { width: 36px; height: 36px; flex: none; border: 1px solid rgba(120,140,155,0.22);
+      background: rgba(8,12,17,0.66); object-fit: contain; padding: 5px; }
+
+    /* color swatch palette (replaces the native OS color dialog) */
+    .le-swatches { display: flex; gap: 7px; flex-wrap: wrap; align-items: center; }
+    .le-sw { width: 25px; height: 25px; flex: none; border: 2px solid rgba(255,255,255,0.16); cursor: pointer;
+      padding: 0; border-radius: 0; transition: transform .1s, box-shadow .12s; }
+    .le-sw:hover { transform: scale(1.14); }
+    .le-sw.on { border-color: #fff; box-shadow: 0 0 0 1px #000, 0 0 9px currentColor; }
+    .le-sw-hex { width: 92px !important; text-transform: uppercase; }
+
+    /* ---------- body builder ---------- */
+    .le-parts { display: flex; flex-direction: column; gap: 11px; }
+    .le-part { border: 1px solid rgba(120,140,155,0.16); border-left: 3px solid var(--cta);
+      background: rgba(17,22,29,0.55); padding: 11px; display: flex; flex-direction: column; gap: 8px; }
+    .le-part-bar { display: flex; align-items: center; gap: 8px; }
+    .le-part-bar .le-ptype { font-size: 9px; letter-spacing: 0.16em; color: var(--cta); font-weight: 700; text-transform: uppercase; }
+    .le-part-bar .le-pbtns { margin-left: auto; display: flex; gap: 4px; }
+    .le-iconbtn { background: rgba(8,12,17,0.6); border: 1px solid rgba(120,140,155,0.25); color: var(--text-dim);
+      width: 27px; height: 25px; cursor: pointer; font-size: 12px; line-height: 1; transition: all .12s; }
+    .le-iconbtn:hover { border-color: var(--cta); color: var(--cta); }
+    .le-fmt { display: flex; gap: 5px; }
+    .le-fmt button { background: rgba(8,12,17,0.6); border: 1px solid rgba(120,140,155,0.25); color: var(--text-dim);
+      padding: 3px 10px; cursor: pointer; font-size: 12px; transition: all .12s; }
+    .le-fmt button:hover { border-color: var(--cta); color: var(--cta); }
+    .le-fmt b, .le-fmt i { font-style: normal; }
+    .le-add-row { display: flex; gap: 9px; }
+    .le-add-row button { flex: 1; background: rgba(17,22,29,0.4); border: 1px dashed rgba(140,160,175,0.4);
+      color: var(--text-dim); padding: 10px; cursor: pointer; font-family: var(--font); font-size: 12px;
+      letter-spacing: 0.08em; text-transform: uppercase; transition: all .14s; }
+    .le-add-row button:hover { border-color: var(--cta); color: var(--cta); border-style: solid; background: rgba(24,31,40,0.6); }
+    .le-tip { font-size: 11px; color: var(--muted); text-transform: none; line-height: 1.6; }
+    .le-tip code { color: var(--cta); background: rgba(255,233,0,0.08); padding: 1px 6px; }
+
+    /* ---------- footer ---------- */
+    .le-foot { position: sticky; bottom: 0; z-index: 30; display: flex; align-items: center; gap: 12px; padding: 13px 22px;
+      background: linear-gradient(0deg, rgba(13,18,24,0.9), rgba(13,18,24,0.78));
+      backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2);
+      border-top: 2px solid var(--cta); box-shadow: 0 -6px 26px rgba(0,0,0,0.5); }
+    .le-foot .le-hint { margin-left: auto; font-size: 11px; color: var(--muted); text-transform: none; }
+    .le-foot .le-hint code { color: var(--text-dim); background: rgba(255,255,255,0.06); padding: 1px 5px; }
+
+    /* ---------- toast ---------- */
+    .le-toast { position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%) translateY(16px);
+      padding: 12px 22px; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text);
+      background: linear-gradient(180deg, rgba(20,24,31,0.92), rgba(12,15,20,0.94));
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,233,0,0.4); border-left: 3px solid var(--cta);
+      box-shadow: 0 14px 44px rgba(0,0,0,0.6), 0 0 16px rgba(255,233,0,0.18);
+      opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; z-index: 300; }
+    .le-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .le-toast.ok  { border-left-color: var(--equip);   box-shadow: 0 14px 44px rgba(0,0,0,0.6), 0 0 16px rgba(78,224,119,0.25); }
+    .le-toast.err { border-left-color: var(--hd-danger);box-shadow: 0 14px 44px rgba(0,0,0,0.6), 0 0 16px rgba(255,90,90,0.25); }
+
+    /* ---------- link modal (replaces window.prompt) ---------- */
+    .le-modal-bk { position: fixed; inset: 0; z-index: 250; display: none; align-items: center; justify-content: center;
+      background: rgba(4,7,11,0.62); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+    .le-modal-bk.on { display: flex; }
+    .le-modal { position: relative; width: 460px; max-width: 90vw; padding: 24px;
+      background: linear-gradient(180deg, rgba(20,25,32,0.94), rgba(11,15,20,0.96));
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      border: 2px solid color-mix(in srgb, var(--cta) 80%, #fff);
+      box-shadow: 0 0 0 1px #000, 0 28px 72px rgba(0,0,0,0.7), 0 0 20px rgba(255,233,0,0.28); }
+    .le-modal h3 { font-family: var(--head); font-size: 14px; letter-spacing: 0.16em; color: var(--cta);
+      text-transform: uppercase; margin: 0 0 6px; }
+    .le-modal p { font-size: 11px; color: var(--muted); text-transform: none; margin: 0 0 16px; }
+    .le-modal input { width: 100%; margin-bottom: 18px; }
+    .le-modal-btns { display: flex; gap: 10px; justify-content: flex-end; }
+
+    @media (max-width: 900px) {
+      .le-main { grid-template-columns: 1fr; }
+      .le-planet input { width: 220px; }
+      .le-msg { margin-left: 0; }
+    }
+  </style>
+</head>
+<body class="le-body">
+  <header class="le-top">
+    <div class="le-mark">
+      <span class="skull" aria-hidden="true"></span>
+      <div class="le-brand">LORE EDITOR<span>CUSTOM GALACTIC WAR &middot; POINTS OF INTEREST</span></div>
+    </div>
+    <label class="le-planet"><span>Select Planet</span>
+      <input id="le-planet" list="le-planets" placeholder="Search by name or #index…" autocomplete="off" />
+      <datalist id="le-planets"></datalist>
+    </label>
+    <span id="le-status" class="le-msg">Booting…</span>
+  </header>
+
+  <main class="le-main">
+    <section class="le-panel le-frost le-cnr le-scan le-edit">
+      <div class="le-scroll">
+        <div class="le-entries">
+          <div class="le-h">Entries <button class="btn le-h-act" id="le-new" disabled>+ New Entry</button></div>
+          <ul id="le-list"></ul>
+          <div class="le-empty-hint" id="le-pick-hint">Pick a planet above to author its intel.</div>
+        </div>
+
+        <form class="le-form" id="le-form" autocomplete="off">
+          <div class="le-h">Entry</div>
+          <div class="le-grid">
+            <div class="le-field"><label>Category</label><input type="text" id="f-category" placeholder="MAJOR POINT OF INTEREST" /></div>
+            <div class="le-field"><label>Date (top-right)</label><input type="text" id="f-date" placeholder="29.04.2184" /></div>
+          </div>
+          <div class="le-field"><label>Title</label><input type="text" id="f-title" placeholder="OBELISK OF MANAGED DEMOCRACY" /></div>
+          <div class="le-grid">
+            <div class="le-field"><label>Icon</label>
+              <div class="le-icon-row">
+                <input type="text" id="f-icon" list="le-icons" placeholder="major_order" />
+                <img class="le-icon-prev" id="f-icon-prev" alt="" />
+              </div>
+              <datalist id="le-icons"></datalist>
+            </div>
+            <div class="le-field"><label>Status Tag</label><input type="text" id="f-status" placeholder="SECURED" /></div>
+          </div>
+          <div class="le-field"><label>Status Color</label>
+            <div class="le-swatches" id="f-swatches">
+              <input type="text" class="le-sw-hex" id="f-statuscolor" value="#6fe994" maxlength="9" spellcheck="false" />
+            </div>
+          </div>
+
+          <div class="le-h">Body</div>
+          <div class="le-parts" id="le-parts"></div>
+          <div class="le-add-row">
+            <button type="button" data-add="text">+ Text</button>
+            <button type="button" data-add="image">+ Image</button>
+            <button type="button" data-add="quote">+ Quote</button>
+          </div>
+          <div class="le-tip">Inline markup in text &amp; captions: <code>**bold**</code> &nbsp; <code>*italic*</code> &nbsp; <code>[c=#FFE900]highlight[/c]</code> &nbsp; <code>[link=https://…]label[/link]</code></div>
+        </form>
+      </div>
+    </section>
+
+    <section class="le-panel le-frost le-cnr le-scan le-preview">
+      <div class="le-scroll">
+        <div class="le-h">Live Preview &mdash; planet inspect screen</div>
+        <div class="lore-inner" id="le-prev"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="le-foot">
+    <button class="btn accent" id="le-save">Save to lore.json</button>
+    <button class="btn" id="le-download">Download</button>
+    <button class="btn" id="le-copy">Copy JSON</button>
+    <span class="le-hint">Save writes <code>data/lore.json</code> directly (via serve.py). Reload the map to see changes.</span>
+  </footer>
+
+  <!-- in-page link inserter (replaces window.prompt) -->
+  <div class="le-modal-bk" id="le-linkbk" aria-hidden="true">
+    <div class="le-modal le-cnr" role="dialog" aria-modal="true" aria-label="Insert link">
+      <h3>Insert Link</h3>
+      <p>The selected text becomes the link label. Enter the destination URL.</p>
+      <input type="text" id="le-linkurl" placeholder="https://…" spellcheck="false" />
+      <div class="le-modal-btns">
+        <button class="btn ghost" id="le-linkcancel" type="button">Cancel</button>
+        <button class="btn accent" id="le-linkins" type="button">Insert</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="le-toast" id="le-toast" role="status" aria-live="polite"></div>
+
+  <script>
+  (function () {
+    "use strict";
+    var $ = function (s) { return document.querySelector(s); };
+
+    /* ---- render functions copied 1:1 from js/map.js so the preview matches the site exactly ---- */
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+    function safeUrl(u) { return /^https?:\/\//i.test(u || "") ? esc(u) : "#"; }
+    function safeImg(u) { u = String(u || "").trim(); if (/^https?:\/\//i.test(u)) return esc(u); if (/^(img\/|\.\.?\/|\/)[\w./%\- ]*$/i.test(u)) return esc(u); return ""; }
+    function loreInline(str) {
+      var s = esc(str);
+      s = s.replace(/\[link=([^\]]+)\]([\s\S]*?)\[\/link\]/g, function (m, u, t) { return '<a href="' + safeUrl(u) + '" target="_blank" rel="noopener">' + t + "</a>"; });
+      s = s.replace(/\[c=(#[0-9a-fA-F]{3,8})\]([\s\S]*?)\[\/c\]/g, function (m, c, t) { return '<span style="color:' + c + '">' + t + "</span>"; });
+      s = s.replace(/\*\*([\s\S]+?)\*\*/g, "<b>$1</b>");
+      s = s.replace(/(^|[^*])\*([^*][\s\S]*?)\*/g, "$1<i>$2</i>");
+      return s;
+    }
+    var loreIcon = function (n) { return "img/icons/" + esc(n) + ".png"; };
+    function poiPart(b) {
+      switch (b && b.type) {
+        case "text": return '<p class="poi-p">' + loreInline(b.text) + "</p>";
+        case "image": return '<figure class="poi-img"><img src="' + safeImg(b.url) + '" alt="" loading="lazy" onerror="this.closest(\'.poi-img\').classList.add(\'img-fail\')">' + (b.caption ? "<figcaption>" + loreInline(b.caption) + "</figcaption>" : "") + "</figure>";
+        case "quote": return '<blockquote class="poi-q">' + loreInline(b.text) + (b.by ? "<cite>" + esc(b.by) + "</cite>" : "") + "</blockquote>";
+        default: return "";
+      }
+    }
+    function poiCard(e) {
+      var sc = /^#[0-9a-fA-F]{3,8}$/.test(e.statusColor || "") ? e.statusColor : "#ff5a5a";
+      var h = '<div class="poi"><div class="poi-head">';
+      if (e.icon) h += '<img class="poi-ic" src="' + loreIcon(e.icon) + '" alt="">';
+      h += '<div class="poi-htext">';
+      if (e.category) h += '<div class="poi-cat">' + esc(e.category) + "</div>";
+      h += '<div class="poi-title">' + esc(e.title || "(untitled)") + "</div></div>";
+      if (e.date) h += '<div class="poi-date">' + esc(e.date) + "</div>";
+      h += "</div>";
+      if (e.status) h += '<div class="poi-status" style="color:' + sc + ";border-color:" + sc + '">' + esc(e.status) + "</div>";
+      if (Array.isArray(e.body)) h += '<div class="poi-body">' + e.body.map(poiPart).join("") + "</div>";
+      return h + "</div>";
+    }
+
+    /* ---- state ---- */
+    var ICONS = ["major_order", "campaign_high_priority", "campaign_defense", "campaign_liberation", "campaign_recon", "campaign_claim", "campaign_battle_of_super_earth", "invasion", "attacking", "fac_superearth", "fac_terminid", "fac_automaton", "fac_illuminate", "botstronghold", "bugstronghold", "squidstronghold", "region_city", "region_megacity", "region_settlement", "region_town", "region_factory", "fleet", "lock", "players", "tag_predator"];
+    /* status-tag swatches (hex + label) — clicking one sets the status color, no native OS dialog */
+    var COLORS = [["#6fe994", "Secured"], ["#4EE077", "Liberated"], ["#FFB900", "Warning"], ["#ff5a5a", "Danger / lost"], ["#46a4ff", "Super Earth"], ["#FFE900", "Directive"], ["#CD8AE9", "Illuminate"], ["#b7bbc4", "Neutral"]];
+    var PLANETS = [], byName = {}, byIdx = {};
+    var LORE = { _format: {} };   // full lore.json object (preserve _format)
+    var curIdx = null;            // selected planet index (string)
+    var curEntry = null;          // entry being edited (a ref inside LORE[curIdx].poi)
+
+    function planetList() { return (curIdx != null && LORE[curIdx] && LORE[curIdx].poi) || []; }
+
+    /* ---- load ---- */
+    function J(u, fb) { return fetch(u, { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : fb; }).catch(function () { return fb; }); }
+    Promise.all([J("data/planets.json", []), J("data/lore.json", { _format: {} })]).then(function (res) {
+      PLANETS = res[0] || [];
+      LORE = res[1] && typeof res[1] === "object" ? res[1] : { _format: {} };
+      PLANETS.forEach(function (p) { byName[(p.name || "").toUpperCase()] = p; byIdx[String(p.i)] = p; });
+      var dl = $("#le-planets");
+      PLANETS.slice().sort(function (a, b) { return (a.name || "").localeCompare(b.name || ""); })
+        .forEach(function (p) { var o = document.createElement("option"); o.value = (p.name || ("PLANET " + p.i)) + " (#" + p.i + ")"; dl.appendChild(o); });
+      var di = $("#le-icons"); ICONS.forEach(function (n) { var o = document.createElement("option"); o.value = n; di.appendChild(o); });
+      buildSwatches();
+      msg("Loaded " + PLANETS.length + " planets", "ok");
+    });
+
+    function msg(t, cls) { var e = $("#le-status"); e.textContent = t; e.className = "le-msg" + (cls ? " " + cls : ""); }
+
+    var toastT = null;
+    function toast(t, cls) {
+      var el = $("#le-toast"); el.textContent = t; el.className = "le-toast" + (cls ? " " + cls : "");
+      void el.offsetWidth; el.classList.add("show");
+      clearTimeout(toastT); toastT = setTimeout(function () { el.classList.remove("show"); }, 3200);
+    }
+
+    /* ---- planet selection ---- */
+    $("#le-planet").addEventListener("change", function () {
+      var v = this.value.trim(); if (!v) return;
+      var m = v.match(/#(\d+)\s*\)?\s*$/);
+      var p = m ? byIdx[m[1]] : byName[v.toUpperCase()];
+      if (!p) { msg("No planet matches “" + v + "”", "err"); return; }
+      selectPlanet(String(p.i));
+    });
+    function selectPlanet(idx) {
+      curIdx = idx; curEntry = null;
+      $("#le-new").disabled = false;
+      $("#le-pick-hint").style.display = "none";
+      $("#le-form").classList.remove("on");
+      var p = byIdx[idx];
+      msg((p ? p.name : "PLANET") + "  #" + idx + "  —  " + planetList().length + " entry(s)", "");
+      refreshList(); refreshPreview();
+    }
+
+    /* ---- entries list ---- */
+    function refreshList() {
+      var ul = $("#le-list"); ul.innerHTML = "";
+      var list = planetList();
+      if (!list.length) { ul.innerHTML = '<div class="le-empty-hint">No entries yet. Click <b>+ New Entry</b>.</div>'; return; }
+      list.forEach(function (e, i) {
+        var li = document.createElement("li");
+        if (e === curEntry) li.className = "cur";
+        li.innerHTML = '<b>' + esc(e.title || "(untitled)") + "</b><small>" + esc(e.category || "") + "</small>";
+        var del = document.createElement("button"); del.className = "le-del"; del.textContent = "Delete";
+        del.addEventListener("click", function (ev) { ev.stopPropagation(); list.splice(i, 1); if (curEntry === e) { curEntry = null; $("#le-form").classList.remove("on"); } refreshList(); refreshPreview(); });
+        li.addEventListener("click", function () { editEntry(e); });
+        li.appendChild(del); ul.appendChild(li);
+      });
+    }
+
+    $("#le-new").addEventListener("click", function () {
+      if (curIdx == null) return;
+      if (!LORE[curIdx]) LORE[curIdx] = { poi: [] };
+      if (!LORE[curIdx].poi) LORE[curIdx].poi = [];
+      var e = { category: "", title: "", icon: "", date: "", status: "", statusColor: "#6fe994", body: [{ type: "text", text: "" }] };
+      LORE[curIdx].poi.push(e); editEntry(e);
+    });
+
+    /* ---- form <-> entry ---- */
+    function editEntry(e) {
+      curEntry = e;
+      $("#le-form").classList.add("on");
+      $("#f-category").value = e.category || "";
+      $("#f-title").value = e.title || "";
+      $("#f-icon").value = e.icon || "";
+      $("#f-date").value = e.date || "";
+      $("#f-status").value = e.status || "";
+      var col = /^#[0-9a-fA-F]{3,8}$/.test(e.statusColor || "") ? e.statusColor : "#6fe994";
+      $("#f-statuscolor").value = col; syncSwatch(col);
+      iconPrev();
+      if (!Array.isArray(e.body)) e.body = [];
+      renderParts();
+      refreshList(); refreshPreview();
+    }
+    function bindField(id, key) {
+      $(id).addEventListener("input", function () { if (!curEntry) return; curEntry[key] = this.value; refreshList(); refreshPreview(); });
+    }
+    bindField("#f-category", "category"); bindField("#f-title", "title"); bindField("#f-date", "date"); bindField("#f-status", "status");
+    $("#f-icon").addEventListener("input", function () { if (!curEntry) return; curEntry.icon = this.value.trim(); iconPrev(); refreshPreview(); });
+    function iconPrev() { var v = $("#f-icon").value.trim(); var im = $("#f-icon-prev"); if (v) { im.src = "img/icons/" + v + ".png"; im.style.visibility = "visible"; } else { im.removeAttribute("src"); im.style.visibility = "hidden"; } }
+
+    /* ---- status color: swatch palette + hex field (no native color dialog) ---- */
+    function buildSwatches() {
+      var wrap = $("#f-swatches"), hex = $("#f-statuscolor");
+      COLORS.forEach(function (c) {
+        var b = document.createElement("button"); b.type = "button"; b.className = "le-sw";
+        b.style.background = c[0]; b.style.color = c[0]; b.title = c[1] + " (" + c[0] + ")";
+        b.setAttribute("data-c", c[0].toLowerCase());
+        b.addEventListener("click", function () { setColor(c[0]); });
+        wrap.insertBefore(b, hex);                 // chips first, hex field last
+      });
+      hex.addEventListener("input", function () {
+        var v = this.value.trim(); if (curEntry) curEntry.statusColor = v; syncSwatch(v); refreshPreview();
+      });
+    }
+    function setColor(c) { $("#f-statuscolor").value = c; if (curEntry) curEntry.statusColor = c; syncSwatch(c); refreshPreview(); }
+    function syncSwatch(c) { c = (c || "").toLowerCase(); Array.prototype.forEach.call(document.querySelectorAll("#f-swatches .le-sw"), function (s) { s.classList.toggle("on", s.getAttribute("data-c") === c); }); }
+
+    /* ---- body parts ---- */
+    function renderParts() {
+      var wrap = $("#le-parts"); wrap.innerHTML = "";
+      if (!curEntry) return;
+      curEntry.body.forEach(function (b, i) { wrap.appendChild(partRow(b, i)); });
+    }
+    function partRow(b, i) {
+      var row = document.createElement("div"); row.className = "le-part";
+      var bar = document.createElement("div"); bar.className = "le-part-bar";
+      bar.innerHTML = '<span class="le-ptype">' + b.type.toUpperCase() + "</span>";
+      var btns = document.createElement("div"); btns.className = "le-pbtns";
+      btns.appendChild(iconBtn("↑", function () { move(i, -1); }));
+      btns.appendChild(iconBtn("↓", function () { move(i, 1); }));
+      var del = iconBtn("✕", function () { curEntry.body.splice(i, 1); renderParts(); refreshPreview(); }); del.style.borderColor = "rgba(255,90,90,0.4)"; del.style.color = "#ff7676";
+      btns.appendChild(del); bar.appendChild(btns); row.appendChild(bar);
+
+      if (b.type === "text" || b.type === "quote") {
+        row.appendChild(fmtToolbar(function () { return ta; }));
+        var ta = document.createElement("textarea"); ta.value = b.text || ""; ta.placeholder = b.type === "quote" ? "A memorable line." : "Body copy…";
+        ta.addEventListener("input", function () { b.text = this.value; refreshPreview(); }); row.appendChild(ta);
+        if (b.type === "quote") { var by = mkInput(b.by || "", "Attribution (optional)"); by.addEventListener("input", function () { b.by = this.value; refreshPreview(); }); row.appendChild(by); }
+      } else if (b.type === "image") {
+        var url = mkInput(b.url || "", "https://image-url.jpg"); url.addEventListener("input", function () { b.url = this.value.trim(); refreshPreview(); }); row.appendChild(url);
+        var cap = mkInput(b.caption || "", "Caption (optional)"); cap.addEventListener("input", function () { b.caption = this.value; refreshPreview(); }); row.appendChild(cap);
+      }
+      return row;
+    }
+    function mkInput(val, ph) { var inp = document.createElement("input"); inp.type = "text"; inp.value = val; inp.placeholder = ph; return inp; }
+    function iconBtn(txt, fn) { var b = document.createElement("button"); b.type = "button"; b.className = "le-iconbtn"; b.textContent = txt; b.addEventListener("click", fn); return b; }
+    function move(i, d) { var j = i + d; var arr = curEntry.body; if (j < 0 || j >= arr.length) return; var t = arr[i]; arr[i] = arr[j]; arr[j] = t; renderParts(); refreshPreview(); }
+    function fmtToolbar(getTa) {
+      var bar = document.createElement("div"); bar.className = "le-fmt";
+      function btn(label, before, after, kind) {
+        var b = document.createElement("button"); b.type = "button"; b.innerHTML = label;
+        b.addEventListener("click", function () { wrapSel(getTa(), before, after, kind); });
+        return b;
+      }
+      bar.appendChild(btn("<b>B</b>", "**", "**"));
+      bar.appendChild(btn("<i>I</i>", "*", "*"));
+      bar.appendChild(btn("<span style='color:#FFE900'>C</span>", "[c=#FFE900]", "[/c]"));
+      bar.appendChild(btn("Link", "[link=URL]", "[/link]", "link"));
+      return bar;
+    }
+    function wrapSel(ta, before, after, kind) {
+      var s = ta.selectionStart, e = ta.selectionEnd, val = ta.value, sel = val.slice(s, e) || (kind === "link" ? "label" : "text");
+      function apply(bef) {
+        ta.value = val.slice(0, s) + bef + sel + after + val.slice(e);
+        ta.dispatchEvent(new Event("input"));
+        ta.focus(); ta.selectionStart = s + bef.length; ta.selectionEnd = s + bef.length + sel.length;
+      }
+      if (kind === "link") { linkModal().then(function (u) { if (u) apply("[link=" + u + "]"); }); return; }
+      apply(before);
+    }
+    Array.prototype.forEach.call(document.querySelectorAll(".le-add-row button"), function (b) {
+      b.addEventListener("click", function () {
+        if (!curEntry) return;
+        var t = b.getAttribute("data-add");
+        curEntry.body.push(t === "image" ? { type: "image", url: "", caption: "" } : t === "quote" ? { type: "quote", text: "", by: "" } : { type: "text", text: "" });
+        renderParts(); refreshPreview();
+      });
+    });
+
+    /* ---- link modal (replaces window.prompt) ---- */
+    function linkModal() {
+      return new Promise(function (resolve) {
+        var bk = $("#le-linkbk"), inp = $("#le-linkurl");
+        inp.value = "https://"; bk.classList.add("on");
+        setTimeout(function () { inp.focus(); inp.select(); }, 30);
+        function done(val) { bk.classList.remove("on"); cleanup(); resolve(val); }
+        function ins() { var u = inp.value.trim(); done(u && u !== "https://" ? u : null); }
+        function cancel() { done(null); }
+        function key(ev) { if (ev.key === "Enter") { ev.preventDefault(); ins(); } else if (ev.key === "Escape") { cancel(); } }
+        function bkClick(ev) { if (ev.target === bk) cancel(); }
+        function cleanup() { $("#le-linkins").removeEventListener("click", ins); $("#le-linkcancel").removeEventListener("click", cancel); inp.removeEventListener("keydown", key); bk.removeEventListener("click", bkClick); }
+        $("#le-linkins").addEventListener("click", ins); $("#le-linkcancel").addEventListener("click", cancel); inp.addEventListener("keydown", key); bk.addEventListener("click", bkClick);
+      });
+    }
+
+    /* ---- preview (all entries for the planet, like the real POI section) ---- */
+    function refreshPreview() {
+      var box = $("#le-prev"), list = planetList();
+      if (!list.length) { box.innerHTML = '<div class="lore-empty">No points of interest on record for this world.</div>'; return; }
+      box.innerHTML = list.map(poiCard).join("");
+    }
+
+    /* ---- save / export ---- */
+    function cleanLore() {
+      var out = {}; if (LORE._format) out._format = LORE._format;
+      Object.keys(LORE).forEach(function (k) {
+        if (k === "_format") return;
+        var e = LORE[k]; if (e && e.poi && e.poi.length) out[k] = { poi: e.poi };
+      });
+      return out;
+    }
+    $("#le-save").addEventListener("click", function () {
+      var body = JSON.stringify(cleanLore(), null, 2);
+      fetch("/save/lore.json", { method: "POST", body: body }).then(function (r) {
+        if (r.ok) toast("Saved to data/lore.json — reload the map", "ok"); else r.text().then(function (t) { toast("Save failed: " + t + " — use Download", "err"); });
+      }).catch(function () { toast("Save endpoint unavailable — use Download (are you serving via serve.py?)", "err"); });
+    });
+    $("#le-download").addEventListener("click", function () {
+      var blob = new Blob([JSON.stringify(cleanLore(), null, 2)], { type: "application/json" });
+      var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "lore.json"; a.click();
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000); toast("Downloaded — move it to data/lore.json", "");
+    });
+    $("#le-copy").addEventListener("click", function () {
+      var t = JSON.stringify(cleanLore(), null, 2);
+      (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function () { toast("Copied JSON to clipboard", "ok"); }).catch(function () { toast("Copy failed — use Download", "err"); });
+    });
+  })();
+  </script>
+</body>
+</html>

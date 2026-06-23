@@ -1,0 +1,15 @@
+# Consistent LF line endings across platforms; auto-detect binary files.
+* text=auto eol=lf
+
+# Binary assets — never touch line endings.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.webp binary
+*.otf  binary
+*.ttf  binary
+*.woff binary
+*.woff2 binary
+*.zip  binary

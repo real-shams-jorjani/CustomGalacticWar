@@ -1,0 +1,14 @@
+{
+  "_doc": "Super Earth dispatch ACCOUNTS — the social 'handles' dispatches post from. GM-managed: the WarForge dispatch composer adds custom 'fake accounts' here, and the website feed (web-sample/fetch_map.py -> data/map.json) + the Discord embeds both read this file. icon = a ministry key with an SVG under assets/icons/ministries (and web-sample/img/ministries), or '' for a generated monogram avatar.",
+  "accounts": [
+    { "id": "truth",        "name": "Ministry of Truth",        "handle": "@SE_Truth",       "icon": "truth",        "accent": "#FE90F5", "verified": true, "bio": "Official broadcasts of Super Earth. Only the truth, always." },
+    { "id": "defense",      "name": "Ministry of Defense",      "handle": "@SE_Defense",     "icon": "defense",      "accent": "#3AA0FF", "verified": true, "bio": "Strategic command & the Helldiver corps. Deploy, citizen." },
+    { "id": "intelligence", "name": "Ministry of Intelligence", "handle": "@SE_Intel",       "icon": "",             "accent": "#23C7C7", "verified": true, "bio": "Eyes on every front. If you see something, report it." },
+    { "id": "science",      "name": "Ministry of Science",      "handle": "@SE_Science",     "icon": "science",      "accent": "#2ECC71", "verified": true, "bio": "Progress through Managed Democracy. Results pending." },
+    { "id": "expansion",    "name": "Ministry of Expansion",    "handle": "@SE_Expansion",   "icon": "expansion",    "accent": "#FFE100", "verified": true, "bio": "New worlds for a free galaxy. The frontier is calling." },
+    { "id": "unity",        "name": "Ministry of Unity",        "handle": "@SE_Unity",       "icon": "unity",        "accent": "#FF8C42", "verified": true, "bio": "One people. One purpose. One Super Earth." },
+    { "id": "humanity",     "name": "Ministry of Humanity",     "handle": "@SE_Humanity",    "icon": "humanity",     "accent": "#9AE6B4", "verified": true, "bio": "For the welfare and morale of every loyal citizen." },
+    { "id": "prosperity",   "name": "Ministry of Prosperity",   "handle": "@SE_Prosperity",  "icon": "prosperity",   "accent": "#E0B341", "verified": true, "bio": "Liberty is the best economy. Spend it freely." },
+    { "id": "employment",   "name": "Ministry of Employment",   "handle": "@SE_Employment",  "icon": "",             "accent": "#C0A0FF", "verified": true, "bio": "Your contract is your privilege. Terms are final." }
+  ]
+}

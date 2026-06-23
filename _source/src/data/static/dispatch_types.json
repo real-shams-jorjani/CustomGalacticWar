@@ -1,0 +1,79 @@
+[
+  {
+    "key": "STRATEGIC_UPDATE",
+    "name": "STRATEGIC UPDATE",
+    "order": 0,
+    "accent": "#3AA0FF",
+    "icon": "",
+    "title_template": "STRATEGIC UPDATE // {sector}",
+    "body_template": "{fleet} is advancing on {planet}.\n{faction} pressure across {sector} is rising.",
+    "tokens": ["sector", "fleet", "planet", "faction"],
+    "banner_url": ""
+  },
+  {
+    "key": "HIGH_PRIORITY_ALERT",
+    "name": "HIGH PRIORITY ALERT",
+    "order": 1,
+    "accent": "#FF3B30",
+    "icon": "",
+    "title_template": "HIGH PRIORITY ALERT // {planet}",
+    "body_template": "An immediate {enemy} threat has struck {planet}.\nWithout intervention, it falls.",
+    "tokens": ["planet", "enemy"],
+    "banner_url": ""
+  },
+  {
+    "key": "MAJOR_ORDER",
+    "name": "MAJOR ORDER",
+    "order": 2,
+    "accent": "#FFE100",
+    "icon": "",
+    "title_template": "MAJOR ORDER // {planet}",
+    "body_template": "Liberate {planet} and break the {enemy} advance before {deadline}.\nReward: {reward}.",
+    "tokens": ["planet", "enemy", "deadline", "reward"],
+    "banner_url": ""
+  },
+  {
+    "key": "OPERATION_SUCCESS",
+    "name": "OPERATION SUCCESS",
+    "order": 3,
+    "accent": "#2ECC71",
+    "icon": "",
+    "title_template": "OPERATION SUCCESS // {planet}",
+    "body_template": "{planet} is secured. {faction} forces have broken the enemy hold.",
+    "tokens": ["planet", "faction"],
+    "banner_url": ""
+  },
+  {
+    "key": "OPERATION_FAILURE",
+    "name": "OPERATION FAILURE",
+    "order": 4,
+    "accent": "#C0392B",
+    "icon": "",
+    "title_template": "OPERATION FAILURE // {planet}",
+    "body_template": "{planet} has fallen to {enemy} forces.\n{sector} is exposed. Regroup and counter-attack.",
+    "tokens": ["planet", "enemy", "sector"],
+    "banner_url": ""
+  },
+  {
+    "key": "INTEL_REPORT",
+    "name": "INTEL REPORT",
+    "order": 5,
+    "accent": "#23C7C7",
+    "icon": "",
+    "title_template": "INTEL REPORT // {planet}",
+    "body_template": "Survey teams on {planet} report {enemy} activity that defies current models.\nAnalysis ongoing; caution advised.",
+    "tokens": ["planet", "enemy"],
+    "banner_url": ""
+  },
+  {
+    "key": "PROPAGANDA_BROADCAST",
+    "name": "PROPAGANDA BROADCAST",
+    "order": 6,
+    "accent": "#FE90F5",
+    "icon": "",
+    "title_template": "MINISTRY OF TRUTH // BROADCAST",
+    "body_template": "The cowardly {enemy} flee before us on {planet}.\nFor Super Earth, for Managed Democracy!",
+    "tokens": ["enemy", "planet"],
+    "banner_url": ""
+  }
+]

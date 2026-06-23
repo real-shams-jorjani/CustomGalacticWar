@@ -1,0 +1,5 @@
+{
+  "_comment": "Per-planet star overrides for the war-map nodes. Key = planet index (e.g. \"42\") OR the planet's UPPER-CASE name (e.g. \"SIEMNOT\"). Any field may be omitted. Fields: type = single|binary|trinary ; color = #hex ; scale = ~0.5-2 ; brightness = ~0.5-1.5. Unconfigured planets get a deterministic varied default. The two underscore keys below are ignored examples — copy the shape, then add real entries.",
+  "_example_SIEMNOT": { "type": "binary", "color": "#bcc8ff", "scale": 1.2, "brightness": 1.1 },
+  "_example_42": { "type": "trinary", "color": "#ff9a6a" }
+}

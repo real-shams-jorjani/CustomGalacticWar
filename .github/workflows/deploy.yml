@@ -1,0 +1,43 @@
+name: Deploy site (bake + publish)
+
+# STATIC-HOST path only: re-bake the live war data and republish to GitHub Pages on a schedule,
+# on push, and on demand. (The ALWAYS-ON path doesn't need this -- serve.py re-bakes every 30s
+# itself. See DEPLOY.md.)
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    # GitHub's cron floor is ~5 min and can lag to ~15 under load -> static path is NOT true 30s.
+    - cron: "*/5 * * * *"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let an in-flight publish finish; queue the newest run, drop stale queued ones.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # Pulls holotable via urllib (no pip deps) + assembles dist/. Needs _source/ committed.
+      - name: Bake data + build dist/
+        run: python build.py
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - id: deploy
+        uses: actions/deploy-pages@v4
