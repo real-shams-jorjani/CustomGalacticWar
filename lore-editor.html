@@ -190,9 +190,52 @@
       .le-planet input { width: 220px; }
       .le-msg { margin-left: 0; }
     }
+    /* ---- holotable access gate ---- */
+    .le-login { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; padding: 24px;
+      background: radial-gradient(120% 90% at 50% 28%, rgba(20,42,58,0.55), rgba(4,7,12,0.93) 70%), #04070c; }
+    .le-login.done { display: none; }
+    .le-login-card { position: relative; width: 380px; max-width: 92vw; padding: 32px 30px 24px; text-align: center;
+      background: linear-gradient(180deg, rgba(18,24,32,0.93), rgba(9,13,19,0.97));
+      border: 1.5px solid color-mix(in srgb, var(--cta) 65%, #2a3540);
+      box-shadow: 0 0 0 1px #000, 0 30px 80px rgba(0,0,0,0.75), 0 0 26px rgba(255,233,0,0.14); }
+    .le-auth-skull { display: block; width: 86px; height: 86px; margin: 0 auto 14px;
+      background: var(--cta);
+      -webkit-mask: url('img/skull.png') center / contain no-repeat;
+      mask: url('img/skull.png') center / contain no-repeat;
+      filter: drop-shadow(0 0 10px rgba(255,233,0,0.5)); animation: leskull 3.2s ease-in-out infinite; }
+    @keyframes leskull { 0%,100% { opacity: .82; } 50% { opacity: 1; } }
+    .le-auth-title { font-family: var(--head); font-size: 19px; letter-spacing: 0.18em; color: var(--cta); text-transform: uppercase; }
+    .le-auth-sub { font-family: var(--head); font-size: 10px; letter-spacing: 0.2em; color: var(--muted); text-transform: uppercase; margin: 4px 0 22px; }
+    .le-auth-field { display: block; text-align: left; margin: 0 0 14px; }
+    .le-auth-field > span { display: block; font-family: var(--head); font-size: 10px; letter-spacing: 0.16em; color: var(--muted); text-transform: uppercase; margin-bottom: 5px; }
+    .le-auth-field input { width: 100%; }
+    #le-auth-user { color: var(--muted); letter-spacing: 0.34em; opacity: 0.7; cursor: not-allowed; }
+    .le-auth-go { width: 100%; margin-top: 4px; }
+    .le-auth-msg { font-family: var(--head); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-top: 14px; min-height: 13px; }
+    .le-auth-msg.ok { color: #6fe994; }
+    .le-auth-msg.err { color: #ff5a5a; }
+    .le-login.verifying .le-auth-msg { animation: leblink 0.8s steps(2) infinite; }
+    @keyframes leblink { 50% { opacity: .4; } }
+    .le-auth-hint { font-size: 10px; line-height: 1.5; color: var(--muted); text-transform: none; margin-top: 16px; opacity: 0.8; }
   </style>
 </head>
 <body class="le-body">
+  <div id="le-login" class="le-login">
+    <div class="le-login-card le-frost le-cnr le-scan">
+      <span class="skull le-auth-skull" aria-hidden="true"></span>
+      <div class="le-auth-title">SUPER EARTH COMMAND</div>
+      <div class="le-auth-sub">Lore Terminal &middot; Restricted Access</div>
+      <label class="le-auth-field"><span>Operator</span>
+        <input id="le-auth-user" type="text" value="**********" readonly tabindex="-1" aria-label="Operator (classified)" />
+      </label>
+      <label class="le-auth-field"><span>Clearance Code</span>
+        <input id="le-auth-pass" type="password" placeholder="paste access token" autocomplete="off" spellcheck="false" />
+      </label>
+      <button class="btn accent le-auth-go" id="le-auth-go" type="button">Establish Uplink</button>
+      <div class="le-auth-msg" id="le-auth-msg">Awaiting clearance code, Helldiver.</div>
+      <div class="le-auth-hint">GitHub fine-grained token (Contents: read &amp; write). Stored only in this browser.</div>
+    </div>
+  </div>
   <header class="le-top">
     <div class="le-mark">
       <span class="skull" aria-hidden="true"></span>
@@ -261,7 +304,8 @@
     <button class="btn accent" id="le-save">Save to lore.json</button>
     <button class="btn" id="le-download">Download</button>
     <button class="btn" id="le-copy">Copy JSON</button>
-    <span class="le-hint">Save writes <code>data/lore.json</code> directly (via serve.py). Reload the map to see changes.</span>
+    <button class="btn ghost" id="le-logout" type="button">Disconnect</button>
+    <span class="le-hint">Save commits <code>data/lore.json</code> to the repo &mdash; the site updates in ~1&ndash;2 min. Download/Copy work as a fallback.</span>
   </footer>
 
   <!-- in-page link inserter (replaces window.prompt) -->
@@ -283,6 +327,48 @@
   (function () {
     "use strict";
     var $ = function (s) { return document.querySelector(s); };
+
+    /* ---- holotable access gate + repo save (GitHub Contents API) ---- */
+    var REPO = "real-shams-jorjani/CustomGalacticWar", BRANCH = "main", LORE_PATH = "data/lore.json", TOKEN_KEY = "cgw_gh_token";
+    var IS_LOCAL = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) || location.protocol === "file:";
+    function ghHeaders(tok) { return { "Authorization": "Bearer " + tok, "Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" }; }
+    function ghToken() { try { return localStorage.getItem(TOKEN_KEY) || ""; } catch (e) { return ""; } }
+    function b64(str) { return btoa(unescape(encodeURIComponent(str))); }
+    function verifyToken(tok) {
+      return fetch("https://api.github.com/repos/" + REPO + "/contents/" + LORE_PATH + "?ref=" + BRANCH, { headers: ghHeaders(tok), cache: "no-store" })
+        .then(function (r) { return r.ok; });
+    }
+    function commitLore(tok, jsonStr) {
+      var api = "https://api.github.com/repos/" + REPO + "/contents/" + LORE_PATH;
+      return fetch(api + "?ref=" + BRANCH, { headers: ghHeaders(tok), cache: "no-store" })
+        .then(function (r) { if (r.ok) return r.json(); if (r.status === 404) return { sha: null }; return r.json().then(function (e) { throw new Error(e.message || ("HTTP " + r.status)); }); })
+        .then(function (meta) {
+          var payload = { message: "Lore update via editor", content: b64(jsonStr), branch: BRANCH };
+          if (meta && meta.sha) payload.sha = meta.sha;
+          return fetch(api, { method: "PUT", headers: ghHeaders(tok), body: JSON.stringify(payload) });
+        })
+        .then(function (r) { if (!r.ok) return r.json().then(function (e) { throw new Error(e.message || ("HTTP " + r.status)); }); return r.json(); });
+    }
+    function authMsg(t, cls) { var e = $("#le-auth-msg"); if (e) { e.textContent = t; e.className = "le-auth-msg" + (cls ? " " + cls : ""); } }
+    function unlock() { var lg = $("#le-login"); if (lg) lg.classList.add("done"); document.body.classList.add("authed"); }
+    function doAuth() {
+      var tok = ($("#le-auth-pass").value || "").trim();
+      if (!tok) { authMsg("Enter your clearance code", "err"); return; }
+      authMsg("Establishing uplink…", ""); $("#le-login").classList.add("verifying");
+      verifyToken(tok).then(function (ok) {
+        $("#le-login").classList.remove("verifying");
+        if (ok) { try { localStorage.setItem(TOKEN_KEY, tok); } catch (e) {} authMsg("Uplink established", "ok"); setTimeout(unlock, 550); }
+        else { authMsg("Access denied — token invalid or lacks repo access", "err"); }
+      }).catch(function () { $("#le-login").classList.remove("verifying"); authMsg("Uplink failed — check your connection", "err"); });
+    }
+    (function gate() {
+      var FORCE_GATE = /[?&]gate=1\b/.test(location.search);   // dev: append ?gate=1 to preview the gate on localhost
+      if ((IS_LOCAL && !FORCE_GATE) || ghToken()) { unlock(); }   // local dev machine, or already authenticated -> straight in
+      var go = $("#le-auth-go"), pw = $("#le-auth-pass"), lo = $("#le-logout");
+      if (go) go.addEventListener("click", doAuth);
+      if (pw) pw.addEventListener("keydown", function (e) { if (e.key === "Enter") doAuth(); });
+      if (lo) lo.addEventListener("click", function () { try { localStorage.removeItem(TOKEN_KEY); } catch (e) {} location.reload(); });
+    })();
 
     /* ---- render functions copied 1:1 from js/map.js so the preview matches the site exactly ---- */
     function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
@@ -530,10 +616,17 @@
       return out;
     }
     $("#le-save").addEventListener("click", function () {
-      var body = JSON.stringify(cleanLore(), null, 2);
-      fetch("/save/lore.json", { method: "POST", body: body }).then(function (r) {
-        if (r.ok) toast("Saved to data/lore.json — reload the map", "ok"); else r.text().then(function (t) { toast("Save failed: " + t + " — use Download", "err"); });
-      }).catch(function () { toast("Save endpoint unavailable — use Download (are you serving via serve.py?)", "err"); });
+      var jsonStr = JSON.stringify(cleanLore(), null, 2), tok = ghToken();
+      if (tok) {   // hosted: commit straight to the repo via the GitHub Contents API
+        toast("Committing to repo…", "");
+        commitLore(tok, jsonStr)
+          .then(function () { toast("Saved to repo — live on the site in ~1–2 min", "ok"); })
+          .catch(function (err) { toast("Save failed: " + (err.message || err) + " — use Download", "err"); });
+        return;
+      }
+      fetch("/save/lore.json", { method: "POST", body: jsonStr }).then(function (r) {   // local dev (serve.py)
+        if (r.ok) toast("Saved to data/lore.json (local) — reload the map", "ok"); else r.text().then(function (t) { toast("Save failed: " + t + " — use Download", "err"); });
+      }).catch(function () { toast("No token set and no local server — use Download, or reload to enter a token", "err"); });
     });
     $("#le-download").addEventListener("click", function () {
       var blob = new Blob([JSON.stringify(cleanLore(), null, 2)], { type: "application/json" });
