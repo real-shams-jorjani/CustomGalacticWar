@@ -856,6 +856,12 @@ body.on-war .ticker, body.on-war footer { display: none; }
   background: #1b2027; border: 1px solid #2c333c; padding: 3px 8px; }
 .pc-haz .haz img { width: 15px; height: 15px; object-fit: contain; }
 
+/* ENEMY FORCES PRESENT — faction-coloured subfaction names, 2-up */
+.dsr-forces { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px; }
+.dsr-forces li { position: relative; padding-left: 14px; font-size: 12px; letter-spacing: 0.03em; font-weight: 700;
+  color: var(--fac, #cdd8de); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dsr-forces li::before { content: "\2022"; position: absolute; left: 2px; color: var(--fac, #cdd8de); }
+
 .pc-card { background: #1b2027; border-left: 3px solid #3a444e; padding: 9px 11px; margin-bottom: 9px; }
 .pc-card-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
 .pc-card-name { color: #e8eef2; font-size: 14px; display: inline-flex; align-items: center; min-width: 0; }

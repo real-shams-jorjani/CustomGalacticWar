@@ -1857,8 +1857,9 @@
     h += `<div class="dsr-specgrid">${resSpec}${specRibbon(p)}</div>`;
     h += `</div></div>`;
 
-    const env = dashEnv(p), sup = dashSupply(p), reg = dashRegions(p), cam = dashCampaign(p);
+    const env = dashEnv(p), sup = dashSupply(p), reg = dashRegions(p), cam = dashCampaign(p), forces = dashForces(p);
     const cards = [];
+    if (forces) cards.push(`<div class="dsr-sec"><div class="wf-card-h">ENEMY FORCES PRESENT</div>${forces}</div>`);
     if (env) cards.push(`<div class="dsr-sec"><div class="wf-card-h">ENVIRONMENT</div>${env}</div>`);
     if (reg) cards.push(`<div class="dsr-sec"><div class="wf-card-h">${(p.regions ? p.regions.length + " " : "") + "REGIONS"}</div>${reg}</div>`);
     if (sup) cards.push(`<div class="dsr-sec"><div class="wf-card-h">SUPPLY NETWORK</div>${sup}</div>`);
@@ -1922,6 +1923,12 @@
     return h;
   }
   function dashEnv(p) { const cl = (p.climate || []).concat(p.env || []); return cl.length ? `<div class="pc-haz">${cl.map(hazTag).join("")}</div>` : ""; }
+  // ENEMY FORCES PRESENT — the subfaction names active on the planet (faction-coloured), shown on
+  // the inspect screen in place of the (disabled) live fleet tracker.
+  function dashForces(p) {
+    if (!p.forces || !p.forces.length) return "";
+    return `<ul class="dsr-forces">` + p.forces.map((f) => `<li style="--fac:${facColor(f.f)}">${esc(f.n)}</li>`).join("") + `</ul>`;
+  }
   function dashSupply(p) {
     const adj = p.adj || []; let h = "";
     if (adj.length) h += adj.map((a) => { const c = facColor(a.owner); return `<div class="pc-adj"><span class="dot" style="background:${c};box-shadow:0 0 6px ${c}"></span><span class="pc-adj-name">${a.name}</span><span class="pc-adj-fac" style="color:${c}">${facName(a.owner)}</span></div>`; }).join("");

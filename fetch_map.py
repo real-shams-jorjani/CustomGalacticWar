@@ -848,11 +848,13 @@ def build():
     eff_by_planet = collections.defaultdict(list)
     fx_by_planet = collections.defaultdict(dict)        # pidx -> {fx_type: {c, s, d, o, fg}}
     seen_eff = collections.defaultdict(set)
-    # Subfaction presence: a planet's active type-71 FLAG effects (from the fleet catalogue)
-    # -> the factions with an ambient subfaction there. The site shows these as placeholder
-    # fleet markers (the live fleet roster needs the editor export holotable doesn't serve).
-    flag_cat = _load_fleet_catalogue().get("flag", {})
+    # Subfaction presence (from the fleet catalogue): a planet's active FLAG effects -> the
+    # factions with an ambient subfaction there (placeholder fleet markers); SPAWN effects ->
+    # the subfaction NAMES shown as "ENEMY FORCES PRESENT" on the inspect screen.
+    _cat = _load_fleet_catalogue()
+    flag_cat, spawn_cat = _cat.get("flag", {}), _cat.get("spawn", {})
     subfac_by_planet = collections.defaultdict(set)
+    forces_by_planet = collections.defaultdict(dict)        # pidx -> {label: faction_id}
     for ent in st.get("planetActiveEffects", []) or []:
         pidx, eid = ent.get("index"), ent.get("galacticEffectId")
         try:
@@ -863,6 +865,10 @@ def build():
             _ff = flag_cat[_eid_i].get("faction")
             if _ff in (1, 2, 3, 4):
                 subfac_by_planet[pidx].add(int(_ff))
+        if _eid_i is not None:
+            _sp = spawn_cat.get(_eid_i)
+            if _sp and _sp.get("label"):
+                forces_by_planet[pidx][_sp["label"]] = int(_sp.get("faction") or 0)
         rule = fx_rules.get(str(eid)) if isinstance(fx_rules, dict) else None
         if rule and rule.get("type") in _FX_DEFAULT:
             ft = rule["type"]
@@ -913,6 +919,9 @@ def build():
         sf = subfac_by_planet.get(p["i"])
         if sf:
             p["subfac"] = sorted(sf)                    # factions with a type-71 flag here
+        fr = forces_by_planet.get(p["i"])
+        if fr:
+            p["forces"] = [{"n": lbl, "f": fac} for lbl, fac in sorted(fr.items())]   # enemy forces present (subfaction names)
         if p["i"] in mo_targets:
             p["mo"] = True
         # active defense/claim event — the double-stacked race bar's data
