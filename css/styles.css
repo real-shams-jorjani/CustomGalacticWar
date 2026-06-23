@@ -1338,6 +1338,15 @@ body.on-war .ticker, body.on-war footer { display: none; }
   .poi-sech { padding: 9px 60px; font-size: 12px; }
   .poi-sech::before, .poi-sech::after { width: 52px; }
 
+  /* Inspect dashboard: the 360px+1fr split squeezes the intel column to ~0 on a phone.
+     Stack it into one scrolling column, cards single-file, with a sticky tab bar. */
+  .wf-dash-body { display: block; overflow-y: auto; overflow-x: hidden; }
+  .dsr-identity, .dsr-right { overflow: visible; min-height: 0; }
+  .dsr-right { margin-top: 11px; }
+  .dsr-tabs { position: sticky; top: 0; z-index: 3; background: #0c1015; padding: 2px 0; }
+  .dsr-panel { height: auto; }
+  .dsr-panel .dsr-intel { height: auto; grid-template-columns: 1fr; overflow: visible; }
+
   .map-controls { gap: 8px; }
   .map-controls button { width: 44px; height: 40px; }
 }
