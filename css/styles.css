@@ -710,6 +710,22 @@ body.on-war .ticker, body.on-war footer { display: none; }
 .dsr-intel .dsr-sec { min-height: 0; overflow: auto; }
 .dsr-intel .dsr-sec.span2 { grid-column: 1 / -1; }
 
+/* Inspect dashboard — stylized, faction-accented intel tabs (right column) */
+.dsr-right { display: flex; flex-direction: column; min-height: 0; gap: 10px; }
+.dsr-tabs { flex: none; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+.dsr-tabs::-webkit-scrollbar { width: 0; height: 0; display: none; }
+.dsr-tab { flex: none; font-family: 'FS Sinclair', 'Swiss 721 Extended', sans-serif; font-size: 13px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; color: #8aa0ad; background: linear-gradient(180deg, #1a2128, #12171d);
+  border: 1px solid #283039; border-bottom: 2px solid #2a333c; padding: 9px 17px 8px; cursor: pointer; white-space: nowrap;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 9px) 100%, 0 100%); transition: color .12s ease, border-color .12s ease, background .12s ease; }
+.dsr-tab:hover { color: #cfe0ea; }
+.dsr-tab.on { color: #fff; background: linear-gradient(180deg, #212b34, #161c23); border-bottom-color: var(--fac);
+  box-shadow: inset 0 -2px 0 var(--fac), 0 0 12px -3px var(--fac); }
+.dsr-panels { flex: 1 1 auto; min-height: 0; position: relative; }
+.dsr-panel { display: none; height: 100%; }
+.dsr-panel.on { display: block; }
+.dsr-panel .dsr-intel { height: 100%; }
+
 .dsr-globe { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
   padding: 14px 0 6px; border: 1px solid #232b34; border-left: 3px solid var(--fac);
   background: radial-gradient(circle at 50% 104px, color-mix(in srgb, var(--fac) 16%, transparent), transparent 150px), #11161d; }

@@ -1926,15 +1926,24 @@
     h += `</div></div>`;
 
     const env = dashEnv(p), sup = dashSupply(p), reg = dashRegions(p), cam = dashCampaign(p), forces = dashForces(p);
-    const cards = [];
-    if (forces) cards.push(`<div class="dsr-sec"><div class="wf-card-h">ENEMY FORCES PRESENT</div>${forces}</div>`);
-    if (env) cards.push(`<div class="dsr-sec"><div class="wf-card-h">ENVIRONMENT</div>${env}</div>`);
-    if (reg) cards.push(`<div class="dsr-sec"><div class="wf-card-h">${(p.regions ? p.regions.length + " " : "") + "REGIONS"}</div>${reg}</div>`);
-    if (sup) cards.push(`<div class="dsr-sec"><div class="wf-card-h">SUPPLY NETWORK</div>${sup}</div>`);
-    if (cam) cards.push(`<div class="dsr-sec"><div class="wf-card-h">CAMPAIGN</div>${cam}</div>`);
-    cards.push(`<div class="dsr-sec dsr-poi"><div class="wf-card-h">POINTS OF INTEREST</div><div class="lore-inner">${renderLore(p)}</div></div>`);
-    if (cards.length % 2 === 1) cards[cards.length - 1] = cards[cards.length - 1].replace('class="dsr-sec', 'class="dsr-sec span2');
-    h += `<div class="dsr-intel">${cards.join("")}</div>`;
+    const sec = (title, body, cls) => `<div class="dsr-sec${cls ? " " + cls : ""}"><div class="wf-card-h">${title}</div>${body}</div>`;
+    const grid = (arr) => { if (arr.length % 2 === 1) arr[arr.length - 1] = arr[arr.length - 1].replace('class="dsr-sec', 'class="dsr-sec span2'); return `<div class="dsr-intel">${arr.join("")}</div>`; };
+    // Intel split into stylized tabs; only tabs that have content appear, first is active by default.
+    const tabs = [];
+    const sitrep = [];
+    if (cam) sitrep.push(sec("CAMPAIGN", cam));
+    if (sup) sitrep.push(sec("SUPPLY NETWORK", sup));
+    if (env) sitrep.push(sec("ENVIRONMENT", env));
+    if (sitrep.length) tabs.push({ id: "sitrep", label: "SITREP", body: grid(sitrep) });
+    const force = [];
+    if (forces) force.push(sec("ENEMY FORCES PRESENT", forces));
+    if (reg) force.push(sec((p.regions ? p.regions.length + " " : "") + "REGIONS", reg));
+    if (force.length) tabs.push({ id: "forces", label: "FORCES", body: grid(force) });
+    tabs.push({ id: "intel", label: "INTEL", body: grid([sec("POINTS OF INTEREST", `<div class="lore-inner">${renderLore(p)}</div>`, "dsr-poi")]) });
+    h += `<div class="dsr-right">` +
+      `<div class="dsr-tabs" role="tablist">` + tabs.map((t, i) => `<button class="dsr-tab${i === 0 ? " on" : ""}" data-tab="${t.id}" role="tab" aria-selected="${i === 0 ? "true" : "false"}">${t.label}</button>`).join("") + `</div>` +
+      `<div class="dsr-panels">` + tabs.map((t, i) => `<div class="dsr-panel${i === 0 ? " on" : ""}" data-panel="${t.id}">${t.body}</div>`).join("") + `</div>` +
+      `</div>`;
     h += `</div></div>`;
     return h;
   }
@@ -2062,6 +2071,15 @@
   function renderConsole() {
     consoleEl.innerHTML = buildDashboard(consoleState.p);
     consoleEl.querySelector("#pc-close").onclick = closeConsole;
+    const tabBtns = consoleEl.querySelectorAll(".dsr-tab");
+    const showTab = (id) => {
+      consoleState.tab = id;
+      tabBtns.forEach((x) => { const on = x.getAttribute("data-tab") === id; x.classList.toggle("on", on); x.setAttribute("aria-selected", on ? "true" : "false"); });
+      consoleEl.querySelectorAll(".dsr-panel").forEach((pn) => pn.classList.toggle("on", pn.getAttribute("data-panel") === id));
+    };
+    tabBtns.forEach((b) => { b.onclick = () => showTab(b.getAttribute("data-tab")); });
+    // restore the tab the user was on across the 30s live re-render (if it still exists)
+    if (consoleState.tab && consoleEl.querySelector('.dsr-tab[data-tab="' + consoleState.tab + '"]')) showTab(consoleState.tab);
     paintGlanceBars();
     paintGlobeFx(typeof performance !== "undefined" ? performance.now() : 0);
   }
