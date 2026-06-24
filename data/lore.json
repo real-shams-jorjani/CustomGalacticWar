@@ -60,8 +60,40 @@
             "text": "This is where [c=#FFE900]all operations[/c] regarding the**[c=#fa58c2] Ministry of Truth[/c]** originate from; where all citizens are given [c=#FFE900]the unshakeable truth about Super Earth[/c] and the galaxy it holds dear."
           },
           {
+            "type": "image",
+            "url": "",
+            "caption": ""
+          },
+          {
             "type": "text",
             "text": "If this planet were to fall to the enemy; only Lady Liberty herself knows what [c=#FFE900]horrendous lies they would tell our citizens[/c], and the consequences of our Way of Life's[c=#FFE900] rapid destabilization.[/c]"
+          }
+        ]
+      }
+    ]
+  },
+  "146": {
+    "poi": [
+      {
+        "category": "MAJOR POINT OF INTEREST",
+        "title": "FRACTURED PLANET",
+        "icon": "players",
+        "date": "",
+        "status": "DESECRATING",
+        "statusColor": "#ff5a5a",
+        "body": [
+          {
+            "type": "text",
+            "text": "All that remains after it was destroyed [c=#FFE900]following a catastrophic incident[/c] during the First Galactic War."
+          },
+          {
+            "type": "image",
+            "url": "https://helldivers.wiki.gg/images/Fractured_Planet_Header.png?d87631",
+            "caption": "***Whatever happened to this planet has been lost to time, due to our inability to recover any important evidence before the explosion.***"
+          },
+          {
+            "type": "text",
+            "text": "Now; over a century later, the [c=#ff5a5a]Automatons[/c] dare to [c=#FFE900]desecrate this planet's corpse[/c] for what little remains."
           }
         ]
       }
