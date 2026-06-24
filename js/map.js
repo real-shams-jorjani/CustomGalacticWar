@@ -23,6 +23,24 @@
   let renderDpr = 1, interacting = false, interactTimer = null;
   const INTERACT_DPR = 1;
   const RMOTION = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // Low-graphics mode: strips visual fluff (starfield, nebula, haze, parallax, glows, 3D depth, and
+  // particle/VFX intensity) while keeping all functionality. Default LOW on phones, HIGH on desktop
+  // (incl. "request desktop site", which reports a wide viewport); a stored choice overrides.
+  const GFX_STORED = (function () { try { return !!localStorage.getItem("cgw_gfx"); } catch (e) { return false; } })();
+  function wantLowGfx() { return (window.innerWidth || document.documentElement.clientWidth || 9999) <= 820; }
+  let LOWFX = GFX_STORED ? (function () { try { return localStorage.getItem("cgw_gfx") === "low"; } catch (e) { return false; } })() : wantLowGfx();
+  try { document.documentElement.classList.toggle("lowfx", LOWFX); } catch (e) {}
+  function setGfx(low, persist) {
+    LOWFX = !!low;
+    if (persist !== false) { try { localStorage.setItem("cgw_gfx", LOWFX ? "low" : "high"); } catch (e) {} }
+    document.documentElement.classList.toggle("lowfx", LOWFX);
+    Array.prototype.forEach.call(document.querySelectorAll("#map-layers button[data-gfx]"), (b) => b.classList.toggle("on", (b.getAttribute("data-gfx") === "low") === LOWFX));
+    staticKey = ""; if (window.__mapRender) window.__mapRender(performance.now());
+  }
+  window.__setGfx = setGfx;
+  // Until the user makes a manual choice, track the device default across viewport changes -- this also
+  // makes "request desktop site" (which widens the viewport past 820) flip to High, as requested.
+  window.addEventListener("resize", function () { try { if (localStorage.getItem("cgw_gfx")) return; } catch (e) {} const wl = wantLowGfx(); if (wl !== LOWFX) setGfx(wl, false); });
   const ZMIN = 0.35, ZMAX = 9;
 
   let _c = 1, _s = 0, _scale = 0.25, elevK = 1;
@@ -37,7 +55,7 @@
   }
   function project(wx, wy, elev) {
     let px = wx - cam.x, py = wy - cam.y;
-    if (elev) { const mag = elev * elevK * (1 - cam.pitch) / cam.pitch; px += -_s * mag; py += -_c * mag; }
+    if (elev && !LOWFX) { const mag = elev * elevK * (1 - cam.pitch) / cam.pitch; px += -_s * mag; py += -_c * mag; }
     const rx = px * _c - py * _s;
     let ry = (px * _s + py * _c) * cam.pitch;
     let x = cvW / 2 + rx * _scale, y = cvH / 2 + ry * _scale;
@@ -574,6 +592,14 @@
     _nebM = M; _nebW = W; _nebH = H;
   }
   function drawBackdrop(c, ts) {
+    if (LOWFX) {   // flat dark base + a faint static grid; no stars / nebula / haze / parallax / glow
+      c.fillStyle = "#060a12"; c.fillRect(0, 0, cvW, cvH);
+      c.strokeStyle = "rgba(70,205,240,0.045)"; c.lineWidth = 1;
+      const gs = 56;
+      for (let x = (cvW / 2) % gs; x < cvW; x += gs) { c.beginPath(); c.moveTo(x, 0); c.lineTo(x, cvH); c.stroke(); }
+      for (let y = (cvH / 2) % gs; y < cvH; y += gs) { c.beginPath(); c.moveTo(0, y); c.lineTo(cvW, y); c.stroke(); }
+      return;
+    }
     if (_starsKey !== cvW + "x" + cvH) { _starsKey = cvW + "x" + cvH; buildStars(); }
     const ox = cam.x, oy = cam.y, mv = RMOTION, R = Math.max(cvW, cvH);
 
@@ -1363,7 +1389,7 @@
 
       const rest = hasVoid ? fx.filter((f) => f.t !== "void") : fx;
       if (rest.length && !(e.sx < -R * 1.6 || e.sx > W + R * 1.6 || e.sy < -R * 1.6 || e.sy > H + R * 1.6)) {
-        window.EnvFX.draw(ctx, rest, e.sx, e.sy, R, ts, RMOTION, interacting, e.p.i);
+        window.EnvFX.draw(ctx, rest, e.sx, e.sy, R, ts, RMOTION, interacting || LOWFX, e.p.i);
       }
     }
     drawVoidOutline(ts);
@@ -1394,7 +1420,7 @@
     const cell = e.voidCell, col = (e.p.fx.find((f) => f.t === "void") || {}).c || "#A124E3";
     if (!cell || cell.length < 3) {
       const R = 19 * Math.min(2.5, Math.max(0.85, Math.sqrt(cam.zoom)));
-      window.EnvFX.draw(ctx, [{ t: "void", c: col }], e.sx, e.sy, R, ts, RMOTION, interacting, e.p.i);
+      window.EnvFX.draw(ctx, [{ t: "void", c: col }], e.sx, e.sy, R, ts, RMOTION, interacting || LOWFX, e.p.i);
       return;
     }
     const W = cv.width / dpr, H = cv.height / dpr;
@@ -1406,17 +1432,19 @@
     ctx.beginPath(); ctx.moveTo(pp[0].x, pp[0].y); for (let i = 1; i < pp.length; i++) ctx.lineTo(pp[i].x, pp[i].y); ctx.closePath();
     ctx.clip();   // clip only - the union boundary is stroked once in drawVoidOutline (no internal seams)
     const o = project(0, 0, 0);   // anchor the field pattern to the map so it doesn't swim when panning
-    window.EnvFX.voidFieldRect(ctx, Math.max(0, x0), Math.max(0, y0), Math.min(W, x1), Math.min(H, y1), col, ts, RMOTION, interacting, o.x, o.y);
+    window.EnvFX.voidFieldRect(ctx, Math.max(0, x0), Math.max(0, y0), Math.min(W, x1), Math.min(H, y1), col, ts, RMOTION, interacting || LOWFX, o.x, o.y);
     ctx.restore();
   }
 
   function drawDynamic(ts) {
 
-    const o = project(0, 0, 0), breathe = 0.85 + 0.15 * Math.sin(ts / 900), R = 30 * Math.sqrt(cam.zoom) * breathe;
-    const g = ctx.createRadialGradient(o.x, o.y, 0, o.x, o.y, R);
-    g.addColorStop(0, "rgba(210,245,255,0.92)"); g.addColorStop(0.18, "rgba(120,210,240,0.5)"); g.addColorStop(0.5, "rgba(0,160,210,0.18)"); g.addColorStop(1, "rgba(0,120,180,0)");
-    ctx.save(); ctx.globalCompositeOperation = "lighter"; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(o.x, o.y, R, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = "rgba(235,250,255,0.95)"; ctx.beginPath(); ctx.arc(o.x, o.y, Math.max(2.2, 3 * Math.sqrt(cam.zoom)), 0, Math.PI * 2); ctx.fill(); ctx.restore();
+    if (!LOWFX) {
+      const o = project(0, 0, 0), breathe = 0.85 + 0.15 * Math.sin(ts / 900), R = 30 * Math.sqrt(cam.zoom) * breathe;
+      const g = ctx.createRadialGradient(o.x, o.y, 0, o.x, o.y, R);
+      g.addColorStop(0, "rgba(210,245,255,0.92)"); g.addColorStop(0.18, "rgba(120,210,240,0.5)"); g.addColorStop(0.5, "rgba(0,160,210,0.18)"); g.addColorStop(1, "rgba(0,120,180,0)");
+      ctx.save(); ctx.globalCompositeOperation = "lighter"; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(o.x, o.y, R, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "rgba(235,250,255,0.95)"; ctx.beginPath(); ctx.arc(o.x, o.y, Math.max(2.2, 3 * Math.sqrt(cam.zoom)), 0, Math.PI * 2); ctx.fill(); ctx.restore();
+    }
 
     drawSectorFX(ctx, ts);
 
@@ -1432,22 +1460,24 @@
         cg.addColorStop(0, hexA(col, 0.12)); cg.addColorStop(1, hexA(col, 0.55));
         ctx.strokeStyle = cg; ctx.lineWidth = 4.5; ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
         ctx.strokeStyle = hexA(col, 0.7); ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
-        const PULSES = 3, tail = Math.min(len * 0.45, 64);
-        for (let i = 0; i < PULSES; i++) {
-          const t = RMOTION ? (i + 0.5) / PULSES : ((ts / 2600) + i / PULSES) % 1;
-          const hx = ax + dx * t, hy = ay + dy * t, tl = tail * Math.min(1, t * 5);
-          const tg = ctx.createLinearGradient(hx - ux * tl, hy - uy * tl, hx, hy);
-          tg.addColorStop(0, hexA(col, 0)); tg.addColorStop(1, "rgba(255,255,255,0.9)");
-          ctx.strokeStyle = tg; ctx.lineWidth = 2.3; ctx.beginPath(); ctx.moveTo(hx - ux * tl, hy - uy * tl); ctx.lineTo(hx, hy); ctx.stroke();
-          ctx.fillStyle = "rgba(255,255,255,0.95)"; ctx.beginPath(); ctx.arc(hx, hy, 2.1, 0, Math.PI * 2); ctx.fill();
+        if (!LOWFX) {   // moving conduit pulses + endpoint glow are fluff -> keep the bare lines in low mode
+          const PULSES = 3, tail = Math.min(len * 0.45, 64);
+          for (let i = 0; i < PULSES; i++) {
+            const t = RMOTION ? (i + 0.5) / PULSES : ((ts / 2600) + i / PULSES) % 1;
+            const hx = ax + dx * t, hy = ay + dy * t, tl = tail * Math.min(1, t * 5);
+            const tg = ctx.createLinearGradient(hx - ux * tl, hy - uy * tl, hx, hy);
+            tg.addColorStop(0, hexA(col, 0)); tg.addColorStop(1, "rgba(255,255,255,0.9)");
+            ctx.strokeStyle = tg; ctx.lineWidth = 2.3; ctx.beginPath(); ctx.moveTo(hx - ux * tl, hy - uy * tl); ctx.lineTo(hx, hy); ctx.stroke();
+            ctx.fillStyle = "rgba(255,255,255,0.95)"; ctx.beginPath(); ctx.arc(hx, hy, 2.1, 0, Math.PI * 2); ctx.fill();
+          }
+          const ip = RMOTION ? 0.6 : 0.5 + 0.5 * Math.sin(ts / 680 + ai);
+          ctx.fillStyle = hexA(col, 0.12 + 0.13 * ip); ctx.beginPath(); ctx.arc(bx, by, 4.5 + 2.5 * ip, 0, Math.PI * 2); ctx.fill();
         }
-        const ip = RMOTION ? 0.6 : 0.5 + 0.5 * Math.sin(ts / 680 + ai);
-        ctx.fillStyle = hexA(col, 0.12 + 0.13 * ip); ctx.beginPath(); ctx.arc(bx, by, 4.5 + 2.5 * ip, 0, Math.PI * 2); ctx.fill();
       });
       ctx.restore();
     }
 
-    if (LAYERS.supply && !interacting && !RMOTION && SE_LINKS.length) {
+    if (LAYERS.supply && !interacting && !RMOTION && !LOWFX && SE_LINKS.length) {
       const W = cv.width / dpr, H = cv.height / dpr;
       ctx.save(); ctx.globalCompositeOperation = "lighter"; ctx.fillStyle = "#9be6ff";
       for (let k = 0, drawn = 0; k < SE_LINKS.length && drawn < 44; k += 2) {
@@ -1716,6 +1746,12 @@
         if (window.__mapRender) window.__mapRender(performance.now());
       };
     });
+    Array.prototype.forEach.call(document.querySelectorAll("#map-layers button[data-gfx]"), (b) => {
+      b.classList.toggle("on", (b.getAttribute("data-gfx") === "low") === LOWFX);
+      b.onclick = () => setGfx(b.getAttribute("data-gfx") === "low");
+    });
+    // Re-derive the device default once the viewport has settled (no stored choice yet); don't persist.
+    if (!GFX_STORED) { const wantLow = wantLowGfx(); if (wantLow !== LOWFX) setGfx(wantLow, false); }
     const lbtn = document.getElementById("layers-btn"), lpanel = document.getElementById("map-layers");
     if (lbtn && lpanel) {
       lbtn.onclick = (e) => { e.stopPropagation(); const open = lpanel.classList.toggle("open"); lbtn.classList.toggle("open", open); lbtn.setAttribute("aria-expanded", open ? "true" : "false"); };

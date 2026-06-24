@@ -1771,6 +1771,12 @@ html { scroll-padding-bottom: calc(var(--hud-h) + 8px); }
 #galaxy-map { position: relative; z-index: 1; }
 .starfield { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
 .starfield .sf { position: absolute; inset: 0; }
+
+/* Low-graphics mode: drop the DOM-side fluff (starfield, holo scanlines). The canvas effects are
+   gated in map.js; this just removes the overlay elements behind/over the map. */
+.lowfx .starfield, .lowfx .holo-fx { display: none !important; }
+.ml-gfx { display: flex; gap: 6px; margin-bottom: 6px; }
+.ml-gfx button { flex: 1; }
 .sf1 { background-image:
     radial-gradient(1px 1px at 18% 31%, rgba(255,255,255,0.7), transparent),
     radial-gradient(1px 1px at 68% 61%, rgba(180,230,255,0.6), transparent),

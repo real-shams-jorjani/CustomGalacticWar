@@ -143,7 +143,12 @@
           </div>
           <!-- display-layer toggles: hide/show map elements -->
           <button class="map-layers-btn" id="layers-btn" title="Display layers" aria-expanded="false" aria-controls="map-layers">LAYERS</button>
-          <div class="map-layers" id="map-layers" aria-label="Display layers">
+          <div class="map-layers" id="map-layers" aria-label="Map settings">
+            <div class="ml-head">Graphics</div>
+            <div class="ml-gfx">
+              <button type="button" data-gfx="high">High</button>
+              <button type="button" data-gfx="low">Low</button>
+            </div>
             <div class="ml-head">Display Layers</div>
             <button data-layer="sectors" class="on">Sectors</button>
             <button data-layer="supply" class="on">Supply Lines</button>
