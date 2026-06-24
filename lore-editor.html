@@ -528,7 +528,7 @@
 
     /* Galaxy map panel: the real interactive map embedded (own pan/zoom/controls kept, site chrome
        stripped). Clicking a planet in it selects that planet in the editor, and vice-versa. */
-    var MINI_ZOOM = 0.9, miniInit = false, mapSyncing = false;
+    var MINI_ZOOM = 0.9, miniInit = false, mapSyncing = false, loreMarks = {};
     function miniWin() { try { var f = $("#le-mini-frame"); return f && f.contentWindow; } catch (e) { return null; } }
     function miniInjectCSS() {
       try {
@@ -544,13 +544,23 @@
         (doc.head || doc.documentElement).appendChild(st);
       } catch (e) {}
     }
+    function miniUpdateMarks() {
+      loreMarks = {};
+      for (var k in LORE) { if (k === "_format") continue; var e = LORE[k]; if (e && e.poi && e.poi.length) loreMarks[k] = e.poi.length; }
+      var w = miniWin(); if (w) { try { w.__loreMarks = loreMarks; } catch (e) {} }
+    }
     function miniInitMap() {
       var w = miniWin();
       if (!(w && w.__test && typeof w.__test.birdseye === "function")) return false;
       try {
         if (w.__mapResize) w.__mapResize();
-        if (!miniInit) { w.__test.birdseye(MINI_ZOOM); miniInit = true; }   // open top-down + fitted, then leave it to the user
+        if (!miniInit) {
+          w.__test.birdseye(MINI_ZOOM);   // open top-down + fitted, then leave it to the user
+          if (w.__test.setLayers) w.__test.setLayers({ attacks: false, objectives: false, subfactions: false });   // editor map: hide attacks / campaigns / fleets
+          miniInit = true;
+        }
         w.__onPlanetSelect = function (i) { if (mapSyncing) return; var p = byIdx[String(i)]; if (p) choosePlanet(p, true); };
+        w.__loreMarks = loreMarks;
       } catch (e) {}
       return true;
     }
@@ -562,8 +572,8 @@
     }
     (function () {
       var f = $("#le-mini-frame"); if (!f) return;
-      f.addEventListener("load", function () { miniInjectCSS(); miniInitMap(); });
-      setInterval(function () { miniInjectCSS(); miniInitMap(); }, 900);
+      f.addEventListener("load", function () { miniInjectCSS(); miniInitMap(); miniUpdateMarks(); });
+      setInterval(function () { miniInjectCSS(); miniInitMap(); miniUpdateMarks(); }, 900);
     })();
     function syncSelection() {
       var sel = $("#le-map-sel"), p = (curIdx != null ? byIdx[curIdx] : null);
@@ -582,6 +592,7 @@
 
     /* ---- entries list ---- */
     function refreshList() {
+      miniUpdateMarks();
       var ul = $("#le-list"); ul.innerHTML = "";
       var list = planetList();
       if (!list.length) { ul.innerHTML = '<div class="le-empty-hint">No entries yet. Click <b>+ New Entry</b>.</div>'; return; }

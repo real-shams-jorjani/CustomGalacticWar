@@ -1331,6 +1331,12 @@
 
     DEFENSE_MARKS.forEach((e) => drawQuestMark(c, e.sx, e.sy, facColor(e.p.ev.race), "DEFEND", 0.16));
   }
+  // Embedder hook (lore editor): a green diamond + entry-count on planets that have lore, driven by
+  // window.__loreMarks = { planetIndex: count }. Unset on the public site, so this is a no-op there.
+  function drawLoreMarks(c) {
+    const marks = window.__loreMarks; if (!marks) return;
+    for (const k in marks) { const n = marks[k]; if (!n) continue; const e = byIndex[k]; if (e) drawQuestMark(c, e.sx, e.sy, "#5ce372", "" + n, 0.18); }
+  }
 
   function drawEnvFX(ts) {
     if (!FX_MARKS.length || !window.EnvFX) return;
@@ -1459,6 +1465,7 @@
     drawPlanetDots(ctx, ts);
     if (LAYERS.objectives) drawPlanetRings(ctx);   // campaign threat + liberation-progress rings
     if (LAYERS.objectives) drawObjectives(ctx);
+    if (window.__loreMarks) drawLoreMarks(ctx);
     if (LAYERS.objectives && DSS) drawDSSMark(ctx, ts);
     if (FLEETS_ENABLED) drawFleetPawns(ctx, ts);
     drawSubfactions(ctx, ts);
@@ -2268,6 +2275,7 @@
     // Flat top-down view of the whole galaxy, centred, optionally stripped to a clean "minimap" look
     // (used by the lore editor's locator). pitch=1 is fully top-down in this projection.
     birdseye: (z, mini) => { cam.x = 0; cam.y = 0; cam.zoom = z || 0.9; cam.pitch = 1; cam.rot = 0; camAnim = null; if (mini) { LAYERS.text = false; LAYERS.effects = false; LAYERS.attacks = false; LAYERS.subfactions = false; } syncCam(); staticKey = ""; if (window.__mapRender) window.__mapRender(performance.now()); return true; },
+    setLayers: (o) => { if (o) { for (const k in o) { if (k in LAYERS) LAYERS[k] = !!o[k]; } } staticKey = ""; if (window.__mapRender) window.__mapRender(performance.now()); return true; },
 
     perf() {
       const N = 90; let i = 0, t0 = performance.now(), worst = 0, prev = t0;
