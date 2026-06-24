@@ -689,10 +689,14 @@ body.on-war .ticker, body.on-war footer { display: none; }
 .dsr-vitals .wf-tl { color: #C8E3EF; } .dsr-vitals .wf-tr, .dsr-vitals .wf-tres b { color: #FFEF00; }
 
 .wf-dash-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 12px; align-content: start; align-items: start; }
-.wf-card { background: linear-gradient(180deg, #171c24, #12161c); border: 1px solid #283039; border-top: 2px solid color-mix(in srgb, var(--fac) 55%, #283039); padding: 11px 13px; }
-.wf-card-h { position: relative; font-size: 11px; color: #8aa6b2; letter-spacing: 0.09em; padding: 0 0 7px 10px;
-  border-bottom: 1px solid rgba(70,164,255,0.27); margin-bottom: 10px; }
-.wf-card-h::before { content: ""; position: absolute; left: 0; top: 1px; width: 3px; height: 11px; background: #46a4ff; box-shadow: 0 0 5px rgba(70,164,255,0.6); }
+.wf-card { position: relative; background: linear-gradient(180deg, #171c24, #12161c); border: 1px solid #283039; border-top: 2px solid color-mix(in srgb, var(--fac) 55%, #283039); padding: 11px 13px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.38), inset 0 0 24px color-mix(in srgb, var(--fac, #46a4ff) 5%, transparent); }
+.wf-card-h { display: flex; align-items: center; gap: 9px; font-size: 11px; color: #9fb8c4; letter-spacing: 0.13em;
+  text-transform: uppercase; padding: 0 0 7px 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--fac, #46a4ff) 26%, rgba(70,164,255,0.18)); margin-bottom: 10px; }
+.wf-card-h::before { content: ""; flex: none; width: 18px; height: 11px;
+  background: repeating-linear-gradient(45deg, var(--fac, #46a4ff) 0 3px, transparent 3px 6px);
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--fac, #46a4ff) 55%, transparent)); }
 .wf-card .pc-grid { margin-top: 2px; }
 .pc-subh { font-size: 10.5px; color: #7f93a0; letter-spacing: 0.08em; margin: 12px 0 6px; }
 .pc-subh.atk { color: #ff8a8a; }
@@ -705,9 +709,9 @@ body.on-war .ticker, body.on-war footer { display: none; }
 .dsr-identity { display: flex; flex-direction: column; gap: 14px; min-height: 0; overflow: auto; scrollbar-width: none; }
 .dsr-identity::-webkit-scrollbar { width: 0; height: 0; }
 
-.dsr-intel { display: grid; grid-template-columns: repeat(2, 1fr); grid-auto-rows: 1fr; gap: 14px; min-height: 0; overflow: auto; scrollbar-width: none; }
+.dsr-intel { display: grid; grid-template-columns: repeat(2, 1fr); grid-auto-rows: min-content; align-content: start; gap: 14px; min-height: 0; overflow: auto; scrollbar-width: none; }
 .dsr-intel::-webkit-scrollbar { width: 0; height: 0; }
-.dsr-intel .dsr-sec { min-height: 0; overflow: auto; }
+.dsr-intel .dsr-sec { min-height: 0; overflow: hidden; }
 .dsr-intel .dsr-sec.span2 { grid-column: 1 / -1; }
 
 /* Inspect dashboard — segmented HUD-bar intel tabs (right column): one unified bar split into hard
@@ -762,8 +766,23 @@ body.on-war .ticker, body.on-war footer { display: none; }
 .dsr-spec b { font-family: var(--head, 'Swiss 721 Extended'), sans-serif; font-size: 15px; color: #eaf3fa; letter-spacing: 0.02em; }
 .dsr-spec-badges { display: flex; align-items: center; gap: 7px; padding: 0 16px; margin-left: auto; }
 
-.dsr-sec { background: linear-gradient(180deg, #151a21, #11151b); border: 1px solid #283039;
-  border-top: 2px solid color-mix(in srgb, var(--fac) 50%, #283039); padding: 12px 14px; }
+.dsr-sec { position: relative; background: linear-gradient(180deg, #151a21, #11151b); border: 1px solid #283039;
+  border-top: 2px solid color-mix(in srgb, var(--fac) 50%, #283039); padding: 12px 14px;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.4), inset 0 0 26px color-mix(in srgb, var(--fac, #46a4ff) 5%, transparent); }
+
+/* HUD corner brackets — port of the lore-editor's framed-panel language (.le-cnr) onto
+   the inspect cards. Dropped in low-gfx (below) so that mode stays flat. */
+.dsr-sec::after, .wf-card::after {
+  content: ""; position: absolute; inset: 5px; pointer-events: none; z-index: 4; opacity: 0.4;
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--fac, #46a4ff) 60%, transparent));
+  background:
+    linear-gradient(var(--fac,#46a4ff),var(--fac,#46a4ff)) 0 0/11px 2px no-repeat,
+    linear-gradient(var(--fac,#46a4ff),var(--fac,#46a4ff)) 0 0/2px 11px no-repeat,
+    linear-gradient(var(--fac,#46a4ff),var(--fac,#46a4ff)) 100% 100%/11px 2px no-repeat,
+    linear-gradient(var(--fac,#46a4ff),var(--fac,#46a4ff)) 100% 100%/2px 11px no-repeat; }
+/* low-gfx: flat cards, no brackets / depth glow */
+.lowfx .dsr-sec::after, .lowfx .wf-card::after { display: none; }
+.lowfx .dsr-sec, .lowfx .wf-card { box-shadow: none; }
 .dsr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 14px; align-items: start; }
 @media (prefers-reduced-motion: reduce) { .dsr-ret { animation: none; } }
 
