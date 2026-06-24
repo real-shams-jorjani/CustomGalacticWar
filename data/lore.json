@@ -75,10 +75,10 @@
   "146": {
     "poi": [
       {
-        "category": "PLANETARY REMNANTS",
+        "category": "MAJOR POINT OF INTEREST",
         "title": "FRACTURED PLANET",
         "icon": "players",
-        "date": "20.07.2077",
+        "date": "",
         "status": "DESECRATING",
         "statusColor": "#ff5a5a",
         "body": [
@@ -94,6 +94,60 @@
           {
             "type": "text",
             "text": "Now; over a century later, the [c=#ff5a5a]Automatons[/c] dare to [c=#FFE900]desecrate this planet's corpse[/c] for what little remains."
+          }
+        ]
+      }
+    ]
+  },
+  "225": {
+    "poi": [
+      {
+        "category": "PLANETARY REMAINS",
+        "title": "FRACTURED PLANET",
+        "icon": "players",
+        "date": "",
+        "status": "MOURNING",
+        "statusColor": "#46a4ff",
+        "body": [
+          {
+            "type": "text",
+            "text": "All that remains of [c=#FFE900]CELIA[/c] following a tragic, unavoidable incident during the  [c=#FFE900]First Galactic War[/c]."
+          },
+          {
+            "type": "image",
+            "url": "https://helldivers.wiki.gg/images/Fractured_Planet_Header.png?d87631",
+            "caption": ""
+          },
+          {
+            "type": "text",
+            "text": "Its remains stay safe here, under the control of the ever-loving [c=#FFE900]SUPER EARTH[/c]."
+          }
+        ]
+      }
+    ]
+  },
+  "245": {
+    "poi": [
+      {
+        "category": "PLANETARY REMNANTS",
+        "title": "FRACTURED PLANET",
+        "icon": "players",
+        "date": "28.02.2065",
+        "status": "WARPING",
+        "statusColor": "#CD8AE9",
+        "body": [
+          {
+            "type": "text",
+            "text": "This is all that remains of Seasse after it was exploded following a tragic, unavoidable incident following the First Galactic War."
+          },
+          {
+            "type": "image",
+            "url": "https://helldivers.wiki.gg/images/Fractured_Planet_Header.png?d87631",
+            "caption": "***Whatever happened to this planet has been lost to time, due to our inability to recover any important evidence before the explosion.***"
+          },
+          {
+            "type": "text",
+            "text": "It is unknown what the Illuminate plan to do with the remains of this planet. But we must not let curiosity or fear take hold of us. Their plans must be stopped, whatever the cost may be."
           }
         ]
       }
