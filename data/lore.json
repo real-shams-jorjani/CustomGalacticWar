@@ -75,10 +75,10 @@
   "146": {
     "poi": [
       {
-        "category": "MAJOR POINT OF INTEREST",
+        "category": "PLANETARY REMNANTS",
         "title": "FRACTURED PLANET",
         "icon": "players",
-        "date": "",
+        "date": "29.07.2077",
         "status": "DESECRATING",
         "statusColor": "#ff5a5a",
         "body": [
@@ -94,33 +94,6 @@
           {
             "type": "text",
             "text": "Now; over a century later, the [c=#ff5a5a]Automatons[/c] dare to [c=#FFE900]desecrate this planet's corpse[/c] for what little remains."
-          }
-        ]
-      }
-    ]
-  },
-  "245": {
-    "poi": [
-      {
-        "category": "PLANETARY REMNANTS",
-        "title": "FRACTURED PLANET",
-        "icon": "players",
-        "date": "28.02.2065",
-        "status": "WARPING",
-        "statusColor": "#CD8AE9",
-        "body": [
-          {
-            "type": "text",
-            "text": "This is all that remains of Seasse after it was exploded following a tragic, unavoidable incident following the First Galactic War."
-          },
-          {
-            "type": "image",
-            "url": "https://helldivers.wiki.gg/images/Fractured_Planet_Header.png?d87631",
-            "caption": "***Whatever happened to this planet has been lost to time, due to our inability to recover any important evidence before the explosion.***"
-          },
-          {
-            "type": "text",
-            "text": "It is unknown what the Illuminate plan to do with the remains of this planet. But we must not let curiosity or fear take hold of us. Their plans must be stopped, whatever the cost may be."
           }
         ]
       }
