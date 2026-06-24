@@ -1,4 +1,32 @@
 {
+  "0": {
+    "poi": [
+      {
+        "category": "[MAJOR INFRASTRUCTURE]",
+        "title": "SUPER EARTH SATCOM ARRAY",
+        "icon": "fac_superearth",
+        "date": "",
+        "status": "MONITORING",
+        "statusColor": "#46a4ff",
+        "body": [
+          {
+            "type": "text",
+            "text": "The Super Earth Satellite Array represents the pinnacle of deep space observation tools and research. Without these vital eyes in orbit, your holotable would look vastly different."
+          },
+          {
+            "type": "image",
+            "url": "https://cdn.discordapp.com/attachments/1460340406792360099/1519065592328618155/STATION82FEED.png?ex=6a3cdc54&is=6a3b8ad4&hm=33506cb23819c22069753dbc96ae407af454d295c53e69da40f1e6e25e7d0baf",
+            "caption": "One of many in the grid, Station 82 has been used as a stand-in for it's sibling station, station 81 after a recent outage due to solar activity."
+          },
+          {
+            "type": "quote",
+            "text": "Our eye in the sky.",
+            "by": " An anonymous engineer known as 'Datablock' involved in the development of the revolutionary 'Ground-To-Orbit' uplink technology."
+          }
+        ]
+      }
+    ]
+  },
   "90": {
     "poi": [
       {
