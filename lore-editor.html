@@ -73,7 +73,7 @@
     .le-body textarea { resize: vertical; min-height: 64px; line-height: 1.5; }
 
     /* ---------- main: two frosted panels ---------- */
-    .le-main { flex: 1; display: grid; grid-template-columns: minmax(440px, 1fr) minmax(380px, 580px);
+    .le-main { flex: 1; display: grid; grid-template-columns: minmax(300px, 1fr) minmax(360px, 1.1fr) minmax(300px, 1fr);
       gap: 16px; padding: 16px; min-height: 0; }
     .le-panel { overflow: hidden; min-height: 0; }
     .le-preview { --br: var(--accent); }          /* the live map preview reads in holographic cyan */
@@ -187,6 +187,7 @@
 
     @media (max-width: 900px) {
       .le-main { grid-template-columns: 1fr; }
+      .le-map { height: 46vh; }
       .le-planet input { width: 220px; }
       .le-msg { margin-left: 0; }
     }
@@ -231,20 +232,15 @@
     .le-opt-meta { font-size: 10px; letter-spacing: 0.06em; color: var(--muted); flex: none; }
     .le-opt-empty { padding: 12px; font-size: 12px; color: var(--muted); }
 
-    /* ---- floating locator minimap: the real map, bird's-eye, click to select ---- */
-    .le-mini { position: fixed; right: 14px; bottom: 14px; z-index: 80; width: 240px; max-width: 44vw;
-      background: rgba(8,12,18,0.94); border: 1px solid color-mix(in srgb, var(--cta) 40%, #2a3540); box-shadow: 0 16px 40px rgba(0,0,0,0.6); }
-    .le-mini-head { display: flex; align-items: center; justify-content: space-between; padding: 5px 5px 5px 9px;
-      font-family: var(--head); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cta); border-bottom: 1px solid #1c2530; }
-    .le-mini-head button { background: none; border: 0; color: var(--muted); font-size: 16px; line-height: 1; cursor: pointer; padding: 0 6px; }
-    .le-mini-head button:hover { color: var(--cta); }
-    .le-mini-frame-wrap { position: relative; width: 100%; aspect-ratio: 1 / 1; overflow: hidden; background: #04070c; }
-    .le-mini-frame-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; pointer-events: none; display: block; }
-    #le-mini-ov { position: absolute; inset: 0; width: 100%; height: 100%; cursor: crosshair; }
-    .le-mini-cap { padding: 5px 8px; font-family: var(--head); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); text-align: center; }
-    .le-mini-cap b { color: var(--cta); }
-    .le-mini.min .le-mini-frame-wrap, .le-mini.min .le-mini-cap { display: none; }
-    @media (max-width: 600px) { .le-mini { width: 168px; right: 8px; bottom: 8px; } }
+    /* ---- galaxy map panel: a primary, interactive part of the editor ---- */
+    .le-map { display: flex; flex-direction: column; background: rgba(8,12,18,0.55); }
+    .le-map-head { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 12px;
+      font-family: var(--head); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cta); border-bottom: 1px solid #1c2530; }
+    .le-map-sel { font-size: 10px; letter-spacing: 0.06em; color: var(--muted); text-transform: none; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .le-map-sel b { color: #e6eef4; }
+    .le-map-frame { position: relative; flex: 1 1 auto; min-height: 0; background: #04070c; }
+    .le-map-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
+    .le-map-hint { flex: none; padding: 5px 10px; font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); text-align: center; border-top: 1px solid #1c2530; }
   </style>
 </head>
 <body class="le-body">
@@ -279,6 +275,13 @@
   </header>
 
   <main class="le-main">
+    <section class="le-panel le-map">
+      <div class="le-map-head"><span>Galaxy Map</span><span class="le-map-sel" id="le-map-sel">No planet selected</span></div>
+      <div class="le-map-frame">
+        <iframe id="le-mini-frame" src="index.html#war" title="Galaxy map" scrolling="no"></iframe>
+      </div>
+      <div class="le-map-hint">Click a planet to edit its lore</div>
+    </section>
     <section class="le-panel le-frost le-cnr le-scan le-edit">
       <div class="le-scroll">
         <div class="le-entries">
@@ -349,15 +352,6 @@
         <button class="btn accent" id="le-linkins" type="button">Insert</button>
       </div>
     </div>
-  </div>
-
-  <div class="le-mini" id="le-mini">
-    <div class="le-mini-head"><span>Galaxy Locator</span><button type="button" id="le-mini-min" aria-label="Hide minimap" title="Hide / show">&ndash;</button></div>
-    <div class="le-mini-frame-wrap">
-      <iframe id="le-mini-frame" src="index.html#war" title="Galaxy locator" scrolling="no"></iframe>
-      <canvas id="le-mini-ov"></canvas>
-    </div>
-    <div class="le-mini-cap" id="le-mini-cap">Tap a planet to select it</div>
   </div>
 
   <div class="le-toast" id="le-toast" role="status" aria-live="polite"></div>
@@ -506,10 +500,11 @@
       });
     }
     function closeCombo() { var pop = $("#le-planet-pop"); if (pop) pop.hidden = true; var inp = $("#le-planet"); if (inp) inp.setAttribute("aria-expanded", "false"); comboActive = -1; }
-    function choosePlanet(p) {
+    function choosePlanet(p, fromMap) {
       if (!p) return;
       lastChosenLabel = planetLabel(p); $("#le-planet").value = lastChosenLabel;
       closeCombo(); selectPlanet(String(p.i));
+      if (!fromMap) miniReflect(p.i);   // reflect a search/keyboard pick onto the map (map clicks skip this)
     }
     function comboNav(d) {
       var pop = $("#le-planet-pop"); if (pop.hidden || !comboItems.length) return;
@@ -531,15 +526,15 @@
       document.addEventListener("click", function (e) { if (!e.target.closest(".le-combo")) closeCombo(); });
     }
 
-    /* Floating locator: the REAL galaxy map, chrome stripped, locked to a flat bird's-eye view,
-       with a click overlay so you can pick planets straight off it. */
-    var MINI_ZOOM = 0.82, miniReady = false;
+    /* Galaxy map panel: the real interactive map embedded (own pan/zoom/controls kept, site chrome
+       stripped). Clicking a planet in it selects that planet in the editor, and vice-versa. */
+    var MINI_ZOOM = 0.9, miniInit = false, mapSyncing = false;
     function miniWin() { try { var f = $("#le-mini-frame"); return f && f.contentWindow; } catch (e) { return null; } }
     function miniInjectCSS() {
       try {
         var doc = $("#le-mini-frame").contentDocument; if (!doc || doc.getElementById("le-mini-iso")) return;
         var st = doc.createElement("style"); st.id = "le-mini-iso";
-        st.textContent = "header,.topbar,footer,#map-loader,.holo-fx,.map-controls,.map-layers-btn,#map-layers,#planet-console,#map-tip,.map-fleets,.section-head{display:none!important}" +
+        st.textContent = "header,.topbar,footer,#map-loader,#planet-console,.map-fleets,.section-head{display:none!important}" +
           "html,body{margin:0!important;padding:0!important;overflow:hidden!important;background:#04070c!important}" +
           "html,body,#views,.view,#galaxy{transform:none!important;filter:none!important;perspective:none!important;contain:none!important;will-change:auto!important}" +
           "#views>.view:not([data-view=war]){display:none!important}" +
@@ -549,56 +544,31 @@
         (doc.head || doc.documentElement).appendChild(st);
       } catch (e) {}
     }
-    function miniSetView() {
+    function miniInitMap() {
       var w = miniWin();
       if (!(w && w.__test && typeof w.__test.birdseye === "function")) return false;
-      try { if (w.__mapResize) w.__mapResize(); w.__test.birdseye(MINI_ZOOM, true); } catch (e) {}
-      miniReady = true; miniDrawHi(); return true;
+      try {
+        if (w.__mapResize) w.__mapResize();
+        if (!miniInit) { w.__test.birdseye(MINI_ZOOM); miniInit = true; }   // open top-down + fitted, then leave it to the user
+        w.__onPlanetSelect = function (i) { if (mapSyncing) return; var p = byIdx[String(i)]; if (p) choosePlanet(p, true); };
+      } catch (e) {}
+      return true;
     }
-    function miniPos(idx) { var w = miniWin(); try { return (w && w.__test) ? w.__test.pos(Number(idx)) : null; } catch (e) { return null; } }
-    function miniDrawHi() {
-      var ov = $("#le-mini-ov"); if (!ov) return;
-      var wrap = ov.parentElement, r = wrap.getBoundingClientRect();
-      if (ov.width !== Math.round(r.width) || ov.height !== Math.round(r.height)) { ov.width = Math.round(r.width); ov.height = Math.round(r.height); }
-      var g = ov.getContext("2d"); g.clearRect(0, 0, ov.width, ov.height);
-      if (curIdx == null) return;
-      var p = miniPos(curIdx); if (!p) return;
-      var col = facCol(byIdx[curIdx] ? byIdx[curIdx].owner : 0);
-      g.strokeStyle = col; g.lineWidth = 2; g.beginPath(); g.arc(p.sx, p.sy, 7, 0, 6.2832); g.stroke();
-      g.strokeStyle = "rgba(255,255,255,0.65)"; g.lineWidth = 1;
-      g.beginPath();
-      g.moveTo(p.sx - 12, p.sy); g.lineTo(p.sx - 4, p.sy); g.moveTo(p.sx + 4, p.sy); g.lineTo(p.sx + 12, p.sy);
-      g.moveTo(p.sx, p.sy - 12); g.lineTo(p.sx, p.sy - 4); g.moveTo(p.sx, p.sy + 4); g.lineTo(p.sx, p.sy + 12);
-      g.stroke();
-    }
-    function miniHit(ev) {
-      var w = miniWin(); if (!w || !w.__test) return;
-      var ov = $("#le-mini-ov"), r = ov.getBoundingClientRect();
-      var cx = (ev.clientX - r.left) * (ov.width / r.width), cy = (ev.clientY - r.top) * (ov.height / r.height);
-      var best = null, bd = 1e9;
-      for (var i = 0; i < PLANETS.length; i++) {
-        var p = PLANETS[i], q = miniPos(p.i); if (!q) continue;
-        var dx = q.sx - cx, dy = q.sy - cy, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = p; }
-      }
-      if (best && bd < 400) choosePlanet(best);
+    function miniReflect(i) {
+      var w = miniWin(); if (!w || !w.__test || typeof w.__test.click !== "function") return;
+      mapSyncing = true;
+      try { w.__test.click(Number(i)); } catch (e) {}
+      setTimeout(function () { mapSyncing = false; }, 80);
     }
     (function () {
       var f = $("#le-mini-frame"); if (!f) return;
-      f.addEventListener("load", function () { miniInjectCSS(); miniSetView(); });
-      setInterval(function () { miniInjectCSS(); miniSetView(); }, 800);
-      var ov = $("#le-mini-ov"); if (ov) ov.addEventListener("click", miniHit);
-      var mb = $("#le-mini-min");
-      if (mb) mb.addEventListener("click", function () {
-        var m = $("#le-mini"); if (!m) return;
-        var min = m.classList.toggle("min"); this.textContent = min ? "+" : "–";
-        if (!min) setTimeout(function () { var w = miniWin(); if (w && w.__mapResize) w.__mapResize(); miniSetView(); }, 60);
-      });
+      f.addEventListener("load", function () { miniInjectCSS(); miniInitMap(); });
+      setInterval(function () { miniInjectCSS(); miniInitMap(); }, 900);
     })();
     function syncSelection() {
-      var cap = $("#le-mini-cap"), p = (curIdx != null ? byIdx[curIdx] : null);
-      if (cap) cap.innerHTML = p ? ("<b>" + esc(p.name || ("PLANET " + p.i)) + "</b> &middot; sector " + esc(String(p.sector))) : "Tap a planet to select it";
+      var sel = $("#le-map-sel"), p = (curIdx != null ? byIdx[curIdx] : null);
+      if (sel) sel.innerHTML = p ? ("<b>" + esc(p.name || ("PLANET " + p.i)) + "</b> &middot; sector " + esc(String(p.sector))) : "No planet selected";
       if (p) { lastChosenLabel = planetLabel(p); $("#le-planet").value = lastChosenLabel; }
-      miniDrawHi();
     }
     function selectPlanet(idx) {
       curIdx = idx; curEntry = null;

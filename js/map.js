@@ -1803,6 +1803,7 @@
     selected = p.i; hovered = null; hideCompact(); hideFleetCard();
     animateCam({ x: byIndex[p.i].wx, y: byIndex[p.i].wy, zoom: Math.max(cam.zoom, 2.6) }, 600);
     openConsole(p);
+    if (window.__onPlanetSelect) { try { window.__onPlanetSelect(p.i); } catch (e) {} }   // lets an embedder (lore editor) sync selection
   }
 
   const FAC_ICON = { 1: "fac_superearth", 2: "fac_terminid", 3: "fac_automaton", 4: "fac_illuminate" };
