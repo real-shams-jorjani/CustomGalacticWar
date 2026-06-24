@@ -105,7 +105,7 @@
         "category": "PLANETARY REMAINS",
         "title": "FRACTURED PLANET",
         "icon": "players",
-        "date": "",
+        "date": "28.02.2065",
         "status": "MOURNING",
         "statusColor": "#46a4ff",
         "body": [
@@ -116,7 +116,7 @@
           {
             "type": "image",
             "url": "https://helldivers.wiki.gg/images/Fractured_Planet_Header.png?d87631",
-            "caption": ""
+            "caption": "***Whatever happened to this planet has been lost to time, due to our inability to recover important evidence before the explosion.***"
           },
           {
             "type": "text",
