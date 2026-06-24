@@ -45,6 +45,33 @@
       }
     ]
   },
+  "90": {
+    "poi": [
+      {
+        "category": "PLANETARY IMPLOSION",
+        "title": "CONVENTIONAL BLACK HOLE",
+        "icon": "",
+        "date": "08.06.2081",
+        "status": "COLLAPSED",
+        "statusColor": "#6fe994",
+        "body": [
+          {
+            "type": "text",
+            "text": "This planet somehow collapsed into a black hole during a [c=#FFE900]counter-offensive to crush the Terminid scourge[/c] once and for all.\n"
+          },
+          {
+            "type": "image",
+            "url": "https://helldivers.wiki.gg/images/Conventional_Black_Hole_Header.png?c84cf0",
+            "caption": "***Brilliance was once a major hub for Super Earth's young scientists.. could that have something to do with the incident?***"
+          },
+          {
+            "type": "text",
+            "text": "A few years later, [c=#FFE900]BRILLIANCE consumed an entirely separate star system[/c], leaving naught but rubble."
+          }
+        ]
+      }
+    ]
+  },
   "91": {
     "poi": [
       {
