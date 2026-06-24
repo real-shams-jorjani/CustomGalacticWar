@@ -90,9 +90,3 @@ function markUrgency() {
 }
 markUrgency();
 setInterval(markUrgency, 1000);
-
-(function () {
-  if (!tickEl) return;
-  const orig = tickEl;
-  setInterval(() => { orig.classList.add("bump"); setTimeout(() => orig.classList.remove("bump"), 160); }, 1000);
-})();
