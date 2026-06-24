@@ -79,7 +79,15 @@
         "body": [
           {
             "type": "text",
-            "text": "A [c=#FFE900]maximum security Freedom Camp[/c]; supplied only with the latest and [c=#FFE900]most effective re-education techniques[/c] to make sure that [c=#FFE900]all dissidents[/c] that pass through here are sufficiently shown the light of liberty.\nAdditionally, this serves as an important hub for the **[c=#93e8e6]Ministry of Unity[/c]** in this sector.\nIn accordance with the **2188 \"Freedom Derangement Syndrome\" Act**, all dissidents must be given [c=#FFE900]5 months' worth of psychiatric visits[/c] to ensure that no obstacle; human or alien, shall prevent all those under Super Earth to rediscover her light.\n\nIn unfortunate turn of events, Camp Creek has now found itself chained to the illegal occupation of the **[c=#ff5a5a]Cyborg Legion[/c]**, and now they are undoubtedly corrupting the minds of those poor dissidents stuck there."
+            "text": "A [c=#FFE900]maximum security Freedom Camp[/c]; supplied only with the latest and [c=#FFE900]most effective re-education techniques[/c] to make sure that [c=#FFE900]all dissidents[/c] that pass through here are sufficiently shown the light of liberty.\nAdditionally, this serves as an important hub for the **[c=#93e8e6]Ministry of Unity[/c]** in this sector."
+          },
+          {
+            "type": "text",
+            "text": "In accordance with the **2188 \"Freedom Derangement Syndrome\" Act**, all dissidents must be given [c=#FFE900]5 months' worth of psychiatric visits[/c] to ensure that no obstacle; human or alien, shall prevent all those under Super Earth to rediscover her light."
+          },
+          {
+            "type": "text",
+            "text": "In unfortunate turn of events, Camp Creek has now found itself chained to the illegal occupation of the **[c=#ff5a5a]Cyborg Legion[/c]**, and now they are undoubtedly corrupting the minds of those poor dissidents stuck there."
           }
         ]
       }
