@@ -231,17 +231,20 @@
     .le-opt-meta { font-size: 10px; letter-spacing: 0.06em; color: var(--muted); flex: none; }
     .le-opt-empty { padding: 12px; font-size: 12px; color: var(--muted); }
 
-    /* ---- locator minimap ---- */
-    .le-mini { position: sticky; top: 0; z-index: 5; margin: 0 0 12px; padding: 8px; background: rgba(8,12,18,0.7); border: 1px solid #232c37; }
-    .le-mini-frame-wrap { position: relative; width: 100%; height: 180px; overflow: hidden; border: 1px solid #1c2530; background: #04070c; }
+    /* ---- floating locator minimap: the real map, bird's-eye, click to select ---- */
+    .le-mini { position: fixed; right: 14px; bottom: 14px; z-index: 80; width: 240px; max-width: 44vw;
+      background: rgba(8,12,18,0.94); border: 1px solid color-mix(in srgb, var(--cta) 40%, #2a3540); box-shadow: 0 16px 40px rgba(0,0,0,0.6); }
+    .le-mini-head { display: flex; align-items: center; justify-content: space-between; padding: 5px 5px 5px 9px;
+      font-family: var(--head); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cta); border-bottom: 1px solid #1c2530; }
+    .le-mini-head button { background: none; border: 0; color: var(--muted); font-size: 16px; line-height: 1; cursor: pointer; padding: 0 6px; }
+    .le-mini-head button:hover { color: var(--cta); }
+    .le-mini-frame-wrap { position: relative; width: 100%; aspect-ratio: 1 / 1; overflow: hidden; background: #04070c; }
     .le-mini-frame-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; pointer-events: none; display: block; }
-    .le-mini-cross { position: absolute; left: 50%; top: 50%; width: 22px; height: 22px; transform: translate(-50%, -50%); pointer-events: none; opacity: 0; transition: opacity .25s; }
-    .le-mini.located .le-mini-cross { opacity: 1; }
-    .le-mini-cross::before, .le-mini-cross::after { content: ""; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); border-radius: 50%; }
-    .le-mini-cross::before { width: 22px; height: 22px; border: 1.5px solid var(--cta); box-shadow: 0 0 8px var(--cta); }
-    .le-mini-cross::after { width: 5px; height: 5px; background: var(--cta); box-shadow: 0 0 6px var(--cta); }
-    .le-mini-cap { margin-top: 6px; font-family: var(--head); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); text-align: center; }
+    #le-mini-ov { position: absolute; inset: 0; width: 100%; height: 100%; cursor: crosshair; }
+    .le-mini-cap { padding: 5px 8px; font-family: var(--head); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); text-align: center; }
     .le-mini-cap b { color: var(--cta); }
+    .le-mini.min .le-mini-frame-wrap, .le-mini.min .le-mini-cap { display: none; }
+    @media (max-width: 600px) { .le-mini { width: 168px; right: 8px; bottom: 8px; } }
   </style>
 </head>
 <body class="le-body">
@@ -278,13 +281,6 @@
   <main class="le-main">
     <section class="le-panel le-frost le-cnr le-scan le-edit">
       <div class="le-scroll">
-        <div class="le-mini" id="le-mini">
-          <div class="le-mini-frame-wrap">
-            <iframe id="le-mini-frame" src="index.html#war" title="Galaxy locator" scrolling="no"></iframe>
-            <span class="le-mini-cross" aria-hidden="true"></span>
-          </div>
-          <div class="le-mini-cap" id="le-mini-cap">Select a planet to locate it</div>
-        </div>
         <div class="le-entries">
           <div class="le-h">Entries <button class="btn le-h-act" id="le-new" disabled>+ New Entry</button></div>
           <ul id="le-list"></ul>
@@ -353,6 +349,15 @@
         <button class="btn accent" id="le-linkins" type="button">Insert</button>
       </div>
     </div>
+  </div>
+
+  <div class="le-mini" id="le-mini">
+    <div class="le-mini-head"><span>Galaxy Locator</span><button type="button" id="le-mini-min" aria-label="Hide minimap" title="Hide / show">&ndash;</button></div>
+    <div class="le-mini-frame-wrap">
+      <iframe id="le-mini-frame" src="index.html#war" title="Galaxy locator" scrolling="no"></iframe>
+      <canvas id="le-mini-ov"></canvas>
+    </div>
+    <div class="le-mini-cap" id="le-mini-cap">Tap a planet to select it</div>
   </div>
 
   <div class="le-toast" id="le-toast" role="status" aria-live="polite"></div>
@@ -526,9 +531,9 @@
       document.addEventListener("click", function (e) { if (!e.target.closest(".le-combo")) closeCombo(); });
     }
 
-    /* The locator is the REAL galaxy map embedded in a frame, with all site chrome stripped via
-       injected CSS, driven by the map's own panTo() to centre on the planet being edited. */
-    var MINI_ZOOM = 3.0, miniPending = null;
+    /* Floating locator: the REAL galaxy map, chrome stripped, locked to a flat bird's-eye view,
+       with a click overlay so you can pick planets straight off it. */
+    var MINI_ZOOM = 0.82, miniReady = false;
     function miniWin() { try { var f = $("#le-mini-frame"); return f && f.contentWindow; } catch (e) { return null; } }
     function miniInjectCSS() {
       try {
@@ -536,39 +541,64 @@
         var st = doc.createElement("style"); st.id = "le-mini-iso";
         st.textContent = "header,.topbar,footer,#map-loader,.holo-fx,.map-controls,.map-layers-btn,#map-layers,#planet-console,#map-tip,.map-fleets,.section-head{display:none!important}" +
           "html,body{margin:0!important;padding:0!important;overflow:hidden!important;background:#04070c!important}" +
+          "html,body,#views,.view,#galaxy{transform:none!important;filter:none!important;perspective:none!important;contain:none!important;will-change:auto!important}" +
           "#views>.view:not([data-view=war]){display:none!important}" +
-          ".view[data-view=war]{display:block!important;position:fixed!important;inset:0!important;margin:0!important;padding:0!important}" +
-          ".view[data-view=war]>*:not(#galaxy){display:none!important}" +
-          "#galaxy{position:fixed!important;inset:0!important;margin:0!important;padding:0!important}" +
-          ".galaxy-wrap{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;margin:0!important}" +
+          ".view[data-view=war]{display:block!important}" +
+          ".galaxy-wrap{position:fixed!important;top:0!important;left:0!important;width:100vw!important;height:100vh!important;margin:0!important}" +
           "#galaxy-map{width:100%!important;height:100%!important;display:block!important}";
         (doc.head || doc.documentElement).appendChild(st);
-        var w = miniWin(); if (w && w.__mapResize) w.__mapResize();
       } catch (e) {}
     }
-    function miniTryLocate(idx) {
+    function miniSetView() {
       var w = miniWin();
-      if (w && w.__test && typeof w.__test.panTo === "function") {
-        try { if (w.__test.panTo(Number(idx), MINI_ZOOM)) { var m = $("#le-mini"); if (m) m.classList.add("located"); return true; } } catch (e) {}
-      }
-      return false;
+      if (!(w && w.__test && typeof w.__test.birdseye === "function")) return false;
+      try { if (w.__mapResize) w.__mapResize(); w.__test.birdseye(MINI_ZOOM, true); } catch (e) {}
+      miniReady = true; miniDrawHi(); return true;
     }
-    function miniLocate(idx) {
-      var m = $("#le-mini");
-      if (idx == null) { if (m) m.classList.remove("located"); miniPending = null; return; }
-      miniPending = idx;
-      if (miniTryLocate(idx)) miniPending = null;
+    function miniPos(idx) { var w = miniWin(); try { return (w && w.__test) ? w.__test.pos(Number(idx)) : null; } catch (e) { return null; } }
+    function miniDrawHi() {
+      var ov = $("#le-mini-ov"); if (!ov) return;
+      var wrap = ov.parentElement, r = wrap.getBoundingClientRect();
+      if (ov.width !== Math.round(r.width) || ov.height !== Math.round(r.height)) { ov.width = Math.round(r.width); ov.height = Math.round(r.height); }
+      var g = ov.getContext("2d"); g.clearRect(0, 0, ov.width, ov.height);
+      if (curIdx == null) return;
+      var p = miniPos(curIdx); if (!p) return;
+      var col = facCol(byIdx[curIdx] ? byIdx[curIdx].owner : 0);
+      g.strokeStyle = col; g.lineWidth = 2; g.beginPath(); g.arc(p.sx, p.sy, 7, 0, 6.2832); g.stroke();
+      g.strokeStyle = "rgba(255,255,255,0.65)"; g.lineWidth = 1;
+      g.beginPath();
+      g.moveTo(p.sx - 12, p.sy); g.lineTo(p.sx - 4, p.sy); g.moveTo(p.sx + 4, p.sy); g.lineTo(p.sx + 12, p.sy);
+      g.moveTo(p.sx, p.sy - 12); g.lineTo(p.sx, p.sy - 4); g.moveTo(p.sx, p.sy + 4); g.lineTo(p.sx, p.sy + 12);
+      g.stroke();
+    }
+    function miniHit(ev) {
+      var w = miniWin(); if (!w || !w.__test) return;
+      var ov = $("#le-mini-ov"), r = ov.getBoundingClientRect();
+      var cx = (ev.clientX - r.left) * (ov.width / r.width), cy = (ev.clientY - r.top) * (ov.height / r.height);
+      var best = null, bd = 1e9;
+      for (var i = 0; i < PLANETS.length; i++) {
+        var p = PLANETS[i], q = miniPos(p.i); if (!q) continue;
+        var dx = q.sx - cx, dy = q.sy - cy, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = p; }
+      }
+      if (best && bd < 400) choosePlanet(best);
     }
     (function () {
       var f = $("#le-mini-frame"); if (!f) return;
-      f.addEventListener("load", function () { miniInjectCSS(); if (miniPending != null && miniTryLocate(miniPending)) miniPending = null; });
-      setInterval(function () { miniInjectCSS(); if (miniPending != null && miniTryLocate(miniPending)) miniPending = null; }, 700);
+      f.addEventListener("load", function () { miniInjectCSS(); miniSetView(); });
+      setInterval(function () { miniInjectCSS(); miniSetView(); }, 800);
+      var ov = $("#le-mini-ov"); if (ov) ov.addEventListener("click", miniHit);
+      var mb = $("#le-mini-min");
+      if (mb) mb.addEventListener("click", function () {
+        var m = $("#le-mini"); if (!m) return;
+        var min = m.classList.toggle("min"); this.textContent = min ? "+" : "–";
+        if (!min) setTimeout(function () { var w = miniWin(); if (w && w.__mapResize) w.__mapResize(); miniSetView(); }, 60);
+      });
     })();
     function syncSelection() {
       var cap = $("#le-mini-cap"), p = (curIdx != null ? byIdx[curIdx] : null);
-      if (cap) cap.innerHTML = p ? ("<b>" + esc(p.name || ("PLANET " + p.i)) + "</b> &middot; sector " + esc(String(p.sector))) : "Select a planet to locate it";
+      if (cap) cap.innerHTML = p ? ("<b>" + esc(p.name || ("PLANET " + p.i)) + "</b> &middot; sector " + esc(String(p.sector))) : "Tap a planet to select it";
       if (p) { lastChosenLabel = planetLabel(p); $("#le-planet").value = lastChosenLabel; }
-      miniLocate(curIdx);
+      miniDrawHi();
     }
     function selectPlanet(idx) {
       curIdx = idx; curEntry = null;

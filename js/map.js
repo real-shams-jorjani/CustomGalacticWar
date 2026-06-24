@@ -2264,6 +2264,9 @@
     zoomStep: (d) => { cam.zoom = Math.max(ZMIN, Math.min(ZMAX, cam.zoom * (1 + (d == null ? 0.06 : d)))); if (window.__mapRender) window.__mapRender(performance.now()); return cam.zoom; },
     setMO: (m) => { DATA.majorOrder = m; renderMO(); return true; },
     panTo: (i, z) => { const e = byIndex[i]; if (!e) return false; cam.x = e.wx; cam.y = e.wy; cam.zoom = z || 6; syncCam(); staticKey = ""; if (window.__mapRender) window.__mapRender(performance.now()); return true; },
+    // Flat top-down view of the whole galaxy, centred, optionally stripped to a clean "minimap" look
+    // (used by the lore editor's locator). pitch=1 is fully top-down in this projection.
+    birdseye: (z, mini) => { cam.x = 0; cam.y = 0; cam.zoom = z || 0.9; cam.pitch = 1; cam.rot = 0; camAnim = null; if (mini) { LAYERS.text = false; LAYERS.effects = false; LAYERS.attacks = false; LAYERS.subfactions = false; } syncCam(); staticKey = ""; if (window.__mapRender) window.__mapRender(performance.now()); return true; },
 
     perf() {
       const N = 90; let i = 0, t0 = performance.now(), worst = 0, prev = t0;
