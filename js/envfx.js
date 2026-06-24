@@ -101,62 +101,69 @@ window.EnvFX = (function () {
     ctx.beginPath(); ctx.arc(sx, sy, hrp, 0, TAU); ctx.stroke(); ctx.restore();
   }
 
+  // Void blob, rendered in the same circular "voxel cell" style as gloom / black holes: a churning
+  // field of cells on a violet -> void -> hot-magenta ramp, with a Cyberpunk "Blackwall" red/cyan
+  // chromatic split on the hottest cells.
   function fieldVoid(ctx, sx, sy, R, c, ts, rm, simple) {
-    const STEP = 4;
-    ctx.save(); ctx.globalCompositeOperation = "lighter";
-    for (let gx = -R; gx <= R; gx += STEP) {
-      const col = (gx * 0.5) | 0, drag = h1(col), torn = h1(col + 40);
-      const streak = rm ? 1 : 1 + drag * 8;
-      const flick = (!rm && Math.sin(col * 7 + ts / 150) < -0.3) ? 0.22 : 1;
-      const xoff = torn > 0.86 ? (h1(col + 7) - 0.5) * 9 : 0;
-      for (let gy = -R; gy <= R; gy += STEP) {
+    const B = newBuckets(NB), STEP = 4, t = rm ? 0 : ts * 0.0008;
+    const base = "#2a0b4a", mid = c || "#A124E3", hot = "#ff5ce0";
+    const glitch = [];
+    for (let gy = -R; gy <= R; gy += STEP) {
+      for (let gx = -R; gx <= R; gx += STEP) {
         const nx = gx / R, ny = gy / R, d = Math.hypot(nx, ny);
-        if (d > 1.04) continue;
-        const band = 0.5 + 0.5 * Math.sin(gy * 0.3 + col);
-        let b = (0.3 + 0.7 * band) * (1 - d * 0.55) * flick; b = b < 0 ? 0 : b > 1 ? 1 : b;
-        if (b < 0.08) continue;
-        ctx.globalAlpha = 0.2 + 0.6 * b; ctx.fillStyle = b > 0.82 ? "#fff" : c;
-        ctx.fillRect(sx + gx + xoff - 0.9, sy + gy, 1.8, 1.5 + streak * b);
+        if (d > 1.06) continue;
+        const a = Math.atan2(ny, nx), edge = 1 - Math.pow(Math.min(1, d), 2.2);
+        let n = 0.5 + 0.5 * Math.sin(gx * 0.16 + t * 3 + a) * Math.cos(gy * 0.15 - t * 2.4);
+        n += 0.35 * (0.5 + 0.5 * Math.sin((gx - gy) * 0.3 - t * 4));
+        let b = edge * (0.34 + 0.55 * n);
+        if (!rm && Math.sin(h1((gx * 0.5) | 0) * 30 + ts * 0.012) < -0.4) b *= 0.3;
+        b = b < 0 ? 0 : b > 1 ? 1 : b;
+        addDot(B, NB, sx + gx, sy + gy, b, b > 0.64 ? 1.8 : 1.35);
+        if (!rm && b > 0.82) glitch.push(sx + gx, sy + gy, b);
       }
     }
-    if (!rm) {
-      const ty = sy - R + ((ts * 0.12) % (2 * R));
-      ctx.globalAlpha = 0.28; ctx.fillStyle = GR; ctx.fillRect(sx - R, ty, 2 * R, 1.6);
-      ctx.fillStyle = GC; ctx.fillRect(sx - R, ty + 2.5, 2 * R * (0.4 + 0.5 * h1((ts / 200) | 0)), 1.2);
+    ctx.save(); ctx.globalCompositeOperation = "lighter";
+    paintBuckets(ctx, B, NB, (k) => ({ c: k > 0.9 ? "#ffd9fb" : k > 0.72 ? hot : k > 0.45 ? mid : base, a: 0.16 + 0.6 * k }));
+    for (let i = 0; i < glitch.length; i += 3) {
+      ctx.globalAlpha = 0.18 * glitch[i + 2]; ctx.fillStyle = GR; ctx.beginPath(); ctx.arc(glitch[i] - 2, glitch[i + 1], 1.5, 0, TAU); ctx.fill();
+      ctx.fillStyle = GC; ctx.beginPath(); ctx.arc(glitch[i] + 2, glitch[i + 1], 1.5, 0, TAU); ctx.fill();
     }
     ctx.restore();
   }
 
-  // Cyberpunk 2077 "Blackwall" look: vertical data-streak columns with chromatic (red/cyan) RGB
-  // split on the bright cores. phaseX/phaseY anchor the pattern to the map so it stops "swimming"
-  // against the region edge when you pan, and the per-column dim is a slow shimmer rather than the
-  // old hard strobe (which read as wonky in motion).
+  // WarForge-style void field rendered as the same circular "voxel cells" we use for gloom / black
+  // holes: a churning cell field on a violet -> void -> hot-magenta ramp, with a Cyberpunk "Blackwall"
+  // red/cyan chromatic split on the hottest cells. phaseX/phaseY anchor the cells to the map so the
+  // pattern doesn't swim against the region edge when you pan.
   function voidFieldRect(ctx, x0, y0, x1, y1, c, ts, rm, simple, phaseX, phaseY) {
     phaseX = phaseX || 0; phaseY = phaseY || 0;
-    const STEP = simple ? 6 : 4;
-    ctx.save(); ctx.globalCompositeOperation = "lighter";
-    for (let gx = x0; gx <= x1; gx += STEP) {
-      const col = ((gx - phaseX) * 0.5) | 0, drag = h1(col), torn = h1(col + 40);
-      const streak = rm ? 1 : 1 + drag * 7;
-      const dimCol = rm ? 1 : 0.5 + 0.5 * (0.5 + 0.5 * Math.sin(col * 1.7 + ts / 900));
-      const xoff = (!rm && torn > 0.9) ? (h1(col + 7) - 0.5) * 7 : 0;
-      for (let gy = y0; gy <= y1; gy += STEP) {
-        const band = 0.5 + 0.5 * Math.sin((gy - phaseY) * 0.28 + col);
-        let b = (0.3 + 0.7 * band) * dimCol; b = b < 0 ? 0 : b > 1 ? 1 : b;
-        if (b < 0.1) continue;
-        const hgt = 1.5 + streak * b, bx = gx + xoff;
-        if (!rm && b > 0.62) {
-          ctx.globalAlpha = 0.16 * b; ctx.fillStyle = GR; ctx.fillRect(bx - 2.2, gy, 1.6, hgt);
-          ctx.globalAlpha = 0.16 * b; ctx.fillStyle = GC; ctx.fillRect(bx + 1.0, gy, 1.6, hgt);
-        }
-        ctx.globalAlpha = 0.18 + 0.55 * b; ctx.fillStyle = b > 0.85 ? "#fff" : c;
-        ctx.fillRect(bx - 0.9, gy, 1.8, hgt);
+    const B = newBuckets(NB), STEP = simple ? 6 : 5, t = rm ? 0 : ts * 0.00045;
+    const base = "#2a0b4a", mid = c || "#A124E3", hot = "#ff5ce0";
+    const glitch = [];
+    for (let gy = y0; gy <= y1; gy += STEP) {
+      for (let gx = x0; gx <= x1; gx += STEP) {
+        const ux = (gx - phaseX) * 0.06, uy = (gy - phaseY) * 0.06;
+        let n = 0.5 + 0.5 * Math.sin(ux + t * 3) * Math.cos(uy - t * 2.2);
+        n += 0.45 * (0.5 + 0.5 * Math.sin((ux - uy) * 1.6 + t * 4));
+        const colh = h1(((gx - phaseX) * 0.5) | 0);
+        let b = n * (0.45 + 0.45 * colh);
+        if (!rm && Math.sin(colh * 30 + ts * 0.012) < -0.4) b *= 0.3;
+        b = b < 0 ? 0 : b > 1 ? 1 : b;
+        if (b < 0.07) continue;
+        addDot(B, NB, gx, gy, b, b > 0.66 ? 2.0 : 1.5);
+        if (!rm && b > 0.8 && colh > 0.55) glitch.push(gx, gy, b);
       }
     }
+    ctx.save(); ctx.globalCompositeOperation = "lighter";
+    paintBuckets(ctx, B, NB, (k) => ({ c: k > 0.9 ? "#ffd9fb" : k > 0.72 ? hot : k > 0.45 ? mid : base, a: 0.14 + 0.6 * k }));
+    for (let i = 0; i < glitch.length; i += 3) {
+      ctx.globalAlpha = 0.18 * glitch[i + 2]; ctx.fillStyle = GR; ctx.beginPath(); ctx.arc(glitch[i] - 2.2, glitch[i + 1], 1.6, 0, TAU); ctx.fill();
+      ctx.fillStyle = GC; ctx.beginPath(); ctx.arc(glitch[i] + 2.2, glitch[i + 1], 1.6, 0, TAU); ctx.fill();
+    }
     if (!rm) {
-      const hh = Math.max(1, y1 - y0), ty = y0 + ((ts * 0.12) % hh);
-      ctx.globalAlpha = 0.22; ctx.fillStyle = GR; ctx.fillRect(x0, ty, x1 - x0, 1.6);
-      ctx.fillStyle = GC; ctx.fillRect(x0, ty + 2.5, (x1 - x0) * (0.4 + 0.5 * h1((ts / 200) | 0)), 1.2);
+      const hh = Math.max(1, y1 - y0), ty = y0 + ((ts * 0.1) % hh);
+      ctx.globalAlpha = 0.2; ctx.fillStyle = GR; ctx.fillRect(x0, ty, x1 - x0, 1.4);
+      ctx.fillStyle = GC; ctx.fillRect(x0, ty + 2.4, (x1 - x0) * (0.4 + 0.5 * h1((ts / 200) | 0)), 1.1);
     }
     ctx.restore();
   }
@@ -271,21 +278,29 @@ window.EnvFX = (function () {
     ctx.beginPath(); ctx.arc(cx, cy, gR * 1.01, 0, TAU); ctx.stroke(); ctx.restore();
   }
   function closeVoid(ctx, cx, cy, gR, c, ts, rm) {
-    const B = newBuckets(NB), R = gR * 1.15, STEP = 4, t = rm ? 0 : ts * 0.05;
+    const B = newBuckets(NB), R = gR * 1.15, STEP = 4, t = rm ? 0 : ts * 0.0009;
+    const base = "#2a0b4a", mid = c || "#A124E3", hot = "#ff5ce0";
+    const glitch = [];
     for (let gy = -R; gy <= R; gy += STEP) {
       for (let gx = -R; gx <= R; gx += STEP) {
         const nx = gx / R, ny = gy / R, d = Math.hypot(nx, ny);
         if (d > 1.04) continue;
-        const col = (gx * 0.5) | 0, drag = h1(col), dy = rm ? 0 : (drag * R * 0.5 + t * (0.5 + drag)) % (R * 0.6);
-        const band = 0.5 + 0.5 * Math.sin(gy * 0.3 + col);
-        let b = (0.3 + 0.7 * band) * (1 - d * 0.6);
-        if (!rm && Math.sin(col * 7.0 + ts / 150) < -0.3) b *= 0.25;
+        const a = Math.atan2(ny, nx), edge = 1 - Math.pow(Math.min(1, d), 2.0);
+        let n = 0.5 + 0.5 * Math.sin(gx * 0.14 + t * 3.2 + a) * Math.cos(gy * 0.13 - t * 2.6);
+        n += 0.4 * (0.5 + 0.5 * Math.sin((gx - gy) * 0.26 - t * 4.2));
+        let b = edge * (0.32 + 0.6 * n);
+        if (!rm && Math.sin(h1((gx * 0.5) | 0) * 30 + ts * 0.012) < -0.4) b *= 0.28;
         b = b < 0 ? 0 : b > 1 ? 1 : b;
-        addDot(B, NB, cx + gx, cy + gy - dy * 0.3, b, 1.5);
+        addDot(B, NB, cx + gx, cy + gy, b, b > 0.62 ? 2.0 : 1.5);
+        if (!rm && b > 0.82) glitch.push(cx + gx, cy + gy, b);
       }
     }
     ctx.save(); ctx.globalCompositeOperation = "lighter";
-    paintBuckets(ctx, B, NB, (k) => ({ c: k > 0.8 ? "#fff" : c, a: 0.2 + 0.62 * k }));
+    paintBuckets(ctx, B, NB, (k) => ({ c: k > 0.9 ? "#ffe0fb" : k > 0.72 ? hot : k > 0.45 ? mid : base, a: 0.2 + 0.6 * k }));
+    for (let i = 0; i < glitch.length; i += 3) {
+      ctx.globalAlpha = 0.2 * glitch[i + 2]; ctx.fillStyle = GR; ctx.beginPath(); ctx.arc(glitch[i] - 2.2, glitch[i + 1], 1.7, 0, TAU); ctx.fill();
+      ctx.fillStyle = GC; ctx.beginPath(); ctx.arc(glitch[i] + 2.2, glitch[i + 1], 1.7, 0, TAU); ctx.fill();
+    }
     ctx.restore();
   }
   function drawClose(ctx, fxList, cx, cy, gR, ts, rm) {
