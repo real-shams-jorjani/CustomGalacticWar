@@ -209,6 +209,24 @@
       }
     ]
   },
+  "287": {
+    "poi": [
+      {
+        "category": "",
+        "title": "CYBORG HIDEOUT",
+        "icon": "fac_automaton",
+        "date": "23.06.2186",
+        "status": "LIBERATED",
+        "statusColor": "#6fe994",
+        "body": [
+          {
+            "type": "text",
+            "text": ""
+          }
+        ]
+      }
+    ]
+  },
   "_format": {
     "note": "Per-planet POINTS OF INTEREST. Key = planet INDEX (string). Each planet has a 'poi' array; every entry renders as a Helldivers-style intel card. EMPTY BY DEFAULT — add entries to author lore. Delete the example below freely.",
     "imagesAreURLs": "Image blocks take a remote 'url' (https://...), NOT a local file. Hotlink any image you like.",
