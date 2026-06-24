@@ -45,6 +45,28 @@
       }
     ]
   },
+  "104": {
+    "poi": [
+      {
+        "category": "MINISTRY HEADQUARTERS",
+        "title": "MINISTRY OF TRUTH HQ",
+        "icon": "fac_superearth",
+        "date": "21.09.2037",
+        "status": "BROADCASTING TRUTH",
+        "statusColor": "#fa58c2",
+        "body": [
+          {
+            "type": "text",
+            "text": "This is where [c=#FFE900]all operations[/c] regarding the**[c=#fa58c2] Ministry of Truth[/c]** originate from; where all citizens are given [c=#FFE900]the unshakeable truth about Super Earth[/c] and the galaxy it holds dear."
+          },
+          {
+            "type": "text",
+            "text": "If this planet were to fall to the enemy; only Lady Liberty herself knows what [c=#FFE900]horrendous lies they would tell our citizens[/c], and the consequences of our Way of Life's[c=#FFE900] rapid destabilization.[/c]"
+          }
+        ]
+      }
+    ]
+  },
   "253": {
     "poi": [
       {
