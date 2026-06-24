@@ -45,6 +45,33 @@
       }
     ]
   },
+  "91": {
+    "poi": [
+      {
+        "category": "INTRASTELLAR REMNANTS",
+        "title": "DESTROYED SYSTEM",
+        "icon": "players",
+        "date": "10.06.2084",
+        "status": "DESTROYED",
+        "statusColor": "#ff5a5a",
+        "body": [
+          {
+            "type": "text",
+            "text": "This system was torn apart by a supermassive black hole; once referred to as [c=#FFE900]BRILLIANCE[/c]. All planets within the system were violently torn apart after entering BRILLIANCE'S Roche limit, and now this is all that remains of it."
+          },
+          {
+            "type": "image",
+            "url": "https://helldivers.wiki.gg/images/Fractured_Planet_Header.png?d87631",
+            "caption": "***We had no chance of ever recovering intel from this system.***"
+          },
+          {
+            "type": "text",
+            "text": "However, visits from interstellar vessels are still allowed; to show all of the Federation what happens [c=#FFE900]when you never take action[/c]."
+          }
+        ]
+      }
+    ]
+  },
   "104": {
     "poi": [
       {
@@ -142,7 +169,7 @@
           },
           {
             "type": "text",
-            "text": "Its remains stay safe here, under the control of the ever-loving [c=#FFE900]SUPER EARTH FEDERATION[/c]."
+            "text": "Its remains stay safe here, under the control of the ever-loving "
           }
         ]
       }
