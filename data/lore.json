@@ -50,10 +50,10 @@
       {
         "category": "PLANETARY IMPLOSION",
         "title": "CONVENTIONAL BLACK HOLE",
-        "icon": "",
+        "icon": "players",
         "date": "08.06.2081",
         "status": "COLLAPSED",
-        "statusColor": "#6fe994",
+        "statusColor": "#ff5a5a",
         "body": [
           {
             "type": "text",
