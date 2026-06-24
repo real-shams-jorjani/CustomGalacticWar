@@ -109,7 +109,7 @@ window.EnvFX = (function () {
     const glitch = [];
     ctx.save();
     const dg = ctx.createRadialGradient(sx, sy, 0, sx, sy, R);
-    dg.addColorStop(0, "rgba(5,2,13,0.66)"); dg.addColorStop(0.7, "rgba(5,2,13,0.4)"); dg.addColorStop(1, "rgba(5,2,13,0)");
+    dg.addColorStop(0, "rgba(13,5,30,0.66)"); dg.addColorStop(0.7, "rgba(13,5,30,0.4)"); dg.addColorStop(1, "rgba(13,5,30,0)");
     ctx.fillStyle = dg; ctx.beginPath(); ctx.arc(sx, sy, R, 0, TAU); ctx.fill();
     ctx.restore();
     for (let gy = -R; gy <= R; gy += STEP) {
@@ -127,7 +127,7 @@ window.EnvFX = (function () {
       }
     }
     ctx.save(); ctx.globalCompositeOperation = "lighter";
-    paintBuckets(ctx, B, NB, (k) => ({ c: k > 0.88 ? "#a87fe0" : k > 0.64 ? "#7245c0" : k > 0.4 ? "#4a2a80" : "#2e1a55", a: 0.1 + 0.4 * k }));
+    paintBuckets(ctx, B, NB, (k) => ({ c: k > 0.9 ? "#e6d2ff" : k > 0.68 ? "#b96cff" : k > 0.42 ? "#8a3ff0" : "#5421a8", a: 0.14 + 0.5 * k }));
     for (let i = 0; i < glitch.length; i += 3) {
       ctx.globalAlpha = 0.12 * glitch[i + 2]; ctx.fillStyle = GR; ctx.beginPath(); ctx.arc(glitch[i] - 2, glitch[i + 1], 1.4, 0, TAU); ctx.fill();
       ctx.fillStyle = GC; ctx.beginPath(); ctx.arc(glitch[i] + 2, glitch[i + 1], 1.4, 0, TAU); ctx.fill();
@@ -143,7 +143,7 @@ window.EnvFX = (function () {
     phaseX = phaseX || 0; phaseY = phaseY || 0;
     const B = newBuckets(NB), STEP = simple ? 6 : 5, t = rm ? 0 : ts * 0.00045;
     const glitch = [];
-    ctx.save(); ctx.globalAlpha = 0.5; ctx.fillStyle = "#06030f"; ctx.fillRect(x0, y0, x1 - x0, y1 - y0); ctx.restore();
+    ctx.save(); ctx.globalAlpha = 0.5; ctx.fillStyle = "#0c0522"; ctx.fillRect(x0, y0, x1 - x0, y1 - y0); ctx.restore();
     for (let gy = y0; gy <= y1; gy += STEP) {
       for (let gx = x0; gx <= x1; gx += STEP) {
         const ux = (gx - phaseX) * 0.06, uy = (gy - phaseY) * 0.06;
@@ -159,7 +159,7 @@ window.EnvFX = (function () {
       }
     }
     ctx.save(); ctx.globalCompositeOperation = "lighter";
-    paintBuckets(ctx, B, NB, (k) => ({ c: k > 0.88 ? "#a87fe0" : k > 0.64 ? "#7245c0" : k > 0.4 ? "#4a2a80" : "#2e1a55", a: 0.1 + 0.4 * k }));
+    paintBuckets(ctx, B, NB, (k) => ({ c: k > 0.9 ? "#e6d2ff" : k > 0.68 ? "#b96cff" : k > 0.42 ? "#8a3ff0" : "#5421a8", a: 0.14 + 0.5 * k }));
     for (let i = 0; i < glitch.length; i += 3) {
       ctx.globalAlpha = 0.12 * glitch[i + 2]; ctx.fillStyle = GR; ctx.beginPath(); ctx.arc(glitch[i] - 2.2, glitch[i + 1], 1.5, 0, TAU); ctx.fill();
       ctx.fillStyle = GC; ctx.beginPath(); ctx.arc(glitch[i] + 2.2, glitch[i + 1], 1.5, 0, TAU); ctx.fill();
@@ -286,7 +286,7 @@ window.EnvFX = (function () {
     const glitch = [];
     ctx.save();
     const dg = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
-    dg.addColorStop(0, "rgba(5,2,13,0.72)"); dg.addColorStop(0.75, "rgba(5,2,13,0.44)"); dg.addColorStop(1, "rgba(5,2,13,0)");
+    dg.addColorStop(0, "rgba(13,5,30,0.72)"); dg.addColorStop(0.75, "rgba(13,5,30,0.44)"); dg.addColorStop(1, "rgba(13,5,30,0)");
     ctx.fillStyle = dg; ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.fill();
     ctx.restore();
     for (let gy = -R; gy <= R; gy += STEP) {
@@ -304,7 +304,7 @@ window.EnvFX = (function () {
       }
     }
     ctx.save(); ctx.globalCompositeOperation = "lighter";
-    paintBuckets(ctx, B, NB, (k) => ({ c: k > 0.88 ? "#b98cf0" : k > 0.64 ? "#7245c0" : k > 0.4 ? "#4a2a80" : "#2e1a55", a: 0.12 + 0.42 * k }));
+    paintBuckets(ctx, B, NB, (k) => ({ c: k > 0.9 ? "#e6d2ff" : k > 0.68 ? "#b96cff" : k > 0.42 ? "#8a3ff0" : "#5421a8", a: 0.16 + 0.5 * k }));
     for (let i = 0; i < glitch.length; i += 3) {
       ctx.globalAlpha = 0.14 * glitch[i + 2]; ctx.fillStyle = GR; ctx.beginPath(); ctx.arc(glitch[i] - 2.2, glitch[i + 1], 1.6, 0, TAU); ctx.fill();
       ctx.fillStyle = GC; ctx.beginPath(); ctx.arc(glitch[i] + 2.2, glitch[i + 1], 1.6, 0, TAU); ctx.fill();

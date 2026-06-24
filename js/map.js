@@ -907,7 +907,7 @@
 
   function drawSectorFX(c, ts) {
 
-    if (interacting || RMOTION) return;
+    if (interacting || RMOTION || LOWFX) return;
     c.save(); c.globalCompositeOperation = "lighter";
     for (const s of SECTORS) {
       if (!s.enemy || !s._scrCells) continue;
@@ -1124,6 +1124,19 @@
     for (const cmp of comps) c.drawImage(sprite, x + cmp[0] * sep - s2 / 2, y + cmp[1] * sep - s2 / 2, s2, s2);
   }
   function drawPlanetDots(c, ts) {
+    if (LOWFX) {   // low mode: flat, consistent owner-coloured circles instead of glowing stars
+      const zf = Math.max(0.5, Math.min(2.2, Math.pow(cam.zoom, 0.6))), r = 3.1 * zf;
+      c.save();
+      for (const e of PLANETS) {
+        const p = e.p;
+        if (p.fx && p.fx.some((f) => f.t === "black_hole")) continue;
+        c.fillStyle = facColor(p.owner);
+        c.beginPath(); c.arc(e.sx, e.sy, r, 0, Math.PI * 2); c.fill();
+        c.lineWidth = 1; c.strokeStyle = "rgba(4,8,14,0.7)"; c.stroke();
+      }
+      c.restore();
+      return;
+    }
     c.save(); c.globalCompositeOperation = "lighter";
     for (const e of PLANETS) {
       const p = e.p;
@@ -1401,7 +1414,7 @@
   function drawVoidOutline(ts) {
     const cells = FX_MARKS.filter((e) => e.voidCell && e.voidCell.length >= 3 && e.p.fx.some((f) => f.t === "void"));
     if (!cells.length) return;
-    const col = (cells[0].p.fx.find((f) => f.t === "void") || {}).c || "#A124E3";
+    const col = "#b06bff";   // WarForge-style vivid violet edge glow
     const edges = {};
     const key = (a, b) => { const ax = Math.round(a.x), ay = Math.round(a.y), bx = Math.round(b.x), by = Math.round(b.y); return (ax < bx || (ax === bx && ay <= by)) ? ax + "_" + ay + "_" + bx + "_" + by : bx + "_" + by + "_" + ax + "_" + ay; };
     cells.forEach((e) => { const cl = e.voidCell; for (let i = 0; i < cl.length; i++) { const a = cl[i], b = cl[(i + 1) % cl.length], k = key(a, b); (edges[k] || (edges[k] = { n: 0, a: a, b: b })).n++; } });
@@ -1739,9 +1752,10 @@
 
     Array.prototype.forEach.call(document.querySelectorAll("#map-layers button[data-layer]"), (b) => {
       b.onclick = () => {
-        const k = b.getAttribute("data-layer");
-        LAYERS[k] = !LAYERS[k];
-        b.classList.toggle("on", LAYERS[k]);
+        const keys = b.getAttribute("data-layer").split(/\s+/);   // one button can drive a group of layers
+        const on = !LAYERS[keys[0]];
+        keys.forEach((k) => { LAYERS[k] = on; });
+        b.classList.toggle("on", on);
         staticKey = "";
         if (window.__mapRender) window.__mapRender(performance.now());
       };
