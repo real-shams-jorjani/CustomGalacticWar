@@ -79,12 +79,12 @@
         "title": "DESTROYED SYSTEM",
         "icon": "players",
         "date": "10.06.2084",
-        "status": "DESTROYED",
+        "status": "SHATTERED",
         "statusColor": "#ff5a5a",
         "body": [
           {
             "type": "text",
-            "text": "This system was torn apart by a supermassive black hole; once referred to as [c=#FFE900]BRILLIANCE[/c]. All planets within the system were violently torn apart after entering BRILLIANCE'S Roche limit, and now this is all that remains of it."
+            "text": "This system was torn apart by a large black hole; once referred to as [c=#FFE900]BRILLIANCE[/c]. All planets within the system were violently torn apart after entering BRILLIANCE'S Roche limit, and now this is all that remains of it."
           },
           {
             "type": "image",
