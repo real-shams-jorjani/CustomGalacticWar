@@ -26,21 +26,27 @@
   // Low-graphics mode: strips visual fluff (starfield, nebula, haze, parallax, glows, 3D depth, and
   // particle/VFX intensity) while keeping all functionality. Default LOW on phones, HIGH on desktop
   // (incl. "request desktop site", which reports a wide viewport); a stored choice overrides.
-  const GFX_STORED = (function () { try { return !!localStorage.getItem("cgw_gfx"); } catch (e) { return false; } })();
+  // Graphics tiers: 0 = low (bare), 1 = medium (middleground), 2 = high (full). LOWFX gates the most
+  // aggressive cuts (low only); REDUCED gates the moderate cuts shared by medium AND low.
+  const GFX_NAMES = ["low", "medium", "high"], GFX_LEVELS = { low: 0, medium: 1, high: 2 };
   function wantLowGfx() { return (window.innerWidth || document.documentElement.clientWidth || 9999) <= 820; }
-  let LOWFX = GFX_STORED ? (function () { try { return localStorage.getItem("cgw_gfx") === "low"; } catch (e) { return false; } })() : wantLowGfx();
-  try { document.documentElement.classList.toggle("lowfx", LOWFX); } catch (e) {}
-  function setGfx(low, persist) {
-    LOWFX = !!low;
-    if (persist !== false) { try { localStorage.setItem("cgw_gfx", LOWFX ? "low" : "high"); } catch (e) {} }
-    document.documentElement.classList.toggle("lowfx", LOWFX);
-    Array.prototype.forEach.call(document.querySelectorAll("#map-layers button[data-gfx]"), (b) => b.classList.toggle("on", (b.getAttribute("data-gfx") === "low") === LOWFX));
+  const GFX_STORED = (function () { try { const s = localStorage.getItem("cgw_gfx"); return GFX_LEVELS[s] != null ? s : null; } catch (e) { return null; } })();
+  let GFX = GFX_STORED != null ? GFX_LEVELS[GFX_STORED] : (wantLowGfx() ? 0 : 2);
+  let LOWFX = GFX === 0, REDUCED = GFX <= 1;
+  try { document.documentElement.classList.toggle("lowfx", GFX === 0); } catch (e) {}
+  function setGfx(level, persist) {
+    if (level === true) level = 0; else if (level === false) level = 2;
+    else if (typeof level === "string") level = GFX_LEVELS[level] != null ? GFX_LEVELS[level] : 2;
+    GFX = level; LOWFX = GFX === 0; REDUCED = GFX <= 1;
+    if (persist !== false) { try { localStorage.setItem("cgw_gfx", GFX_NAMES[GFX]); } catch (e) {} }
+    document.documentElement.classList.toggle("lowfx", GFX === 0);
+    Array.prototype.forEach.call(document.querySelectorAll("#map-layers button[data-gfx]"), (b) => b.classList.toggle("on", GFX_LEVELS[b.getAttribute("data-gfx")] === GFX));
     staticKey = ""; if (window.__mapRender) window.__mapRender(performance.now());
   }
   window.__setGfx = setGfx;
-  // Until the user makes a manual choice, track the device default across viewport changes -- this also
-  // makes "request desktop site" (which widens the viewport past 820) flip to High, as requested.
-  window.addEventListener("resize", function () { try { if (localStorage.getItem("cgw_gfx")) return; } catch (e) {} const wl = wantLowGfx(); if (wl !== LOWFX) setGfx(wl, false); });
+  // Track the device default across viewport changes until a manual choice is stored (so "request
+  // desktop site" -> High). Medium is opt-in, so the auto-default only picks low or high.
+  window.addEventListener("resize", function () { try { if (localStorage.getItem("cgw_gfx")) return; } catch (e) {} const wl = wantLowGfx() ? 0 : 2; if (wl !== GFX) setGfx(wl, false); });
   const ZMIN = 0.35, ZMAX = 9;
 
   let _c = 1, _s = 0, _scale = 0.25, elevK = 1;
@@ -603,15 +609,16 @@
     if (_starsKey !== cvW + "x" + cvH) { _starsKey = cvW + "x" + cvH; buildStars(); }
     const ox = cam.x, oy = cam.y, mv = RMOTION, R = Math.max(cvW, cvH);
 
-    if (_nebKey !== cvW + "x" + cvH) buildNeb();
-    const dr = mv ? 0 : ts * 0.00018;
-    const ndx = -ox * 0.012 + Math.sin(dr) * 10, ndy = -oy * 0.012 + Math.cos(dr * 0.8) * 8;
-    c.save(); c.globalCompositeOperation = "lighter"; c.imageSmoothingEnabled = true; c.imageSmoothingQuality = "high";
-    c.drawImage(_nebSprite, -_nebM + ndx, -_nebM + ndy, _nebW, _nebH);
-    c.restore();
-
-    drawGalaxy3D(c, ts, mv);
-    drawWarp(c, ts, mv);
+    if (!REDUCED) {   // heavy parallax background (nebula / galaxy stars / warp) -- HIGH only
+      if (_nebKey !== cvW + "x" + cvH) buildNeb();
+      const dr = mv ? 0 : ts * 0.00018;
+      const ndx = -ox * 0.012 + Math.sin(dr) * 10, ndy = -oy * 0.012 + Math.cos(dr * 0.8) * 8;
+      c.save(); c.globalCompositeOperation = "lighter"; c.imageSmoothingEnabled = true; c.imageSmoothingQuality = "high";
+      c.drawImage(_nebSprite, -_nebM + ndx, -_nebM + ndy, _nebW, _nebH);
+      c.restore();
+      drawGalaxy3D(c, ts, mv);
+      drawWarp(c, ts, mv);
+    }
 
     const gs = 48, gp = 0.06, scroll = mv ? 0 : ts * 0.004;
     const offX = ((-ox * gp + scroll) % gs + gs) % gs, offY = ((-oy * gp + scroll * 0.7) % gs + gs) % gs;
@@ -907,7 +914,7 @@
 
   function drawSectorFX(c, ts) {
 
-    if (interacting || RMOTION || LOWFX) return;
+    if (interacting || RMOTION || REDUCED) return;
     c.save(); c.globalCompositeOperation = "lighter";
     for (const s of SECTORS) {
       if (!s.enemy || !s._scrCells) continue;
@@ -1402,7 +1409,7 @@
 
       const rest = hasVoid ? fx.filter((f) => f.t !== "void") : fx;
       if (rest.length && !(e.sx < -R * 1.6 || e.sx > W + R * 1.6 || e.sy < -R * 1.6 || e.sy > H + R * 1.6)) {
-        window.EnvFX.draw(ctx, rest, e.sx, e.sy, R, ts, RMOTION, interacting || LOWFX, e.p.i);
+        window.EnvFX.draw(ctx, rest, e.sx, e.sy, R, ts, RMOTION, interacting || REDUCED, e.p.i);
       }
     }
     drawVoidOutline(ts);
@@ -1433,7 +1440,7 @@
     const cell = e.voidCell, col = (e.p.fx.find((f) => f.t === "void") || {}).c || "#A124E3";
     if (!cell || cell.length < 3) {
       const R = 19 * Math.min(2.5, Math.max(0.85, Math.sqrt(cam.zoom)));
-      window.EnvFX.draw(ctx, [{ t: "void", c: col }], e.sx, e.sy, R, ts, RMOTION, interacting || LOWFX, e.p.i);
+      window.EnvFX.draw(ctx, [{ t: "void", c: col }], e.sx, e.sy, R, ts, RMOTION, interacting || REDUCED, e.p.i);
       return;
     }
     const W = cv.width / dpr, H = cv.height / dpr;
@@ -1445,7 +1452,7 @@
     ctx.beginPath(); ctx.moveTo(pp[0].x, pp[0].y); for (let i = 1; i < pp.length; i++) ctx.lineTo(pp[i].x, pp[i].y); ctx.closePath();
     ctx.clip();   // clip only - the union boundary is stroked once in drawVoidOutline (no internal seams)
     const o = project(0, 0, 0);   // anchor the field pattern to the map so it doesn't swim when panning
-    window.EnvFX.voidFieldRect(ctx, Math.max(0, x0), Math.max(0, y0), Math.min(W, x1), Math.min(H, y1), col, ts, RMOTION, interacting || LOWFX, o.x, o.y);
+    window.EnvFX.voidFieldRect(ctx, Math.max(0, x0), Math.max(0, y0), Math.min(W, x1), Math.min(H, y1), col, ts, RMOTION, interacting || REDUCED, o.x, o.y);
     ctx.restore();
   }
 
@@ -1473,7 +1480,7 @@
         cg.addColorStop(0, hexA(col, 0.12)); cg.addColorStop(1, hexA(col, 0.55));
         ctx.strokeStyle = cg; ctx.lineWidth = 4.5; ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
         ctx.strokeStyle = hexA(col, 0.7); ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
-        if (!LOWFX) {   // moving conduit pulses + endpoint glow are fluff -> keep the bare lines in low mode
+        if (!REDUCED) {   // moving conduit pulses + endpoint glow are fluff -> bare lines in medium/low
           const PULSES = 3, tail = Math.min(len * 0.45, 64);
           for (let i = 0; i < PULSES; i++) {
             const t = RMOTION ? (i + 0.5) / PULSES : ((ts / 2600) + i / PULSES) % 1;
@@ -1490,7 +1497,7 @@
       ctx.restore();
     }
 
-    if (LAYERS.supply && !interacting && !RMOTION && !LOWFX && SE_LINKS.length) {
+    if (LAYERS.supply && !interacting && !RMOTION && !REDUCED && SE_LINKS.length) {
       const W = cv.width / dpr, H = cv.height / dpr;
       ctx.save(); ctx.globalCompositeOperation = "lighter"; ctx.fillStyle = "#9be6ff";
       for (let k = 0, drawn = 0; k < SE_LINKS.length && drawn < 44; k += 2) {
@@ -1761,11 +1768,11 @@
       };
     });
     Array.prototype.forEach.call(document.querySelectorAll("#map-layers button[data-gfx]"), (b) => {
-      b.classList.toggle("on", (b.getAttribute("data-gfx") === "low") === LOWFX);
-      b.onclick = () => setGfx(b.getAttribute("data-gfx") === "low");
+      b.classList.toggle("on", GFX_LEVELS[b.getAttribute("data-gfx")] === GFX);
+      b.onclick = () => setGfx(b.getAttribute("data-gfx"));
     });
     // Re-derive the device default once the viewport has settled (no stored choice yet); don't persist.
-    if (!GFX_STORED) { const wantLow = wantLowGfx(); if (wantLow !== LOWFX) setGfx(wantLow, false); }
+    if (!GFX_STORED) { const wl = wantLowGfx() ? 0 : 2; if (wl !== GFX) setGfx(wl, false); }
     const lbtn = document.getElementById("layers-btn"), lpanel = document.getElementById("map-layers");
     if (lbtn && lpanel) {
       lbtn.onclick = (e) => { e.stopPropagation(); const open = lpanel.classList.toggle("open"); lbtn.classList.toggle("open", open); lbtn.setAttribute("aria-expanded", open ? "true" : "false"); };
