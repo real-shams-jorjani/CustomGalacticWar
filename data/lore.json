@@ -237,6 +237,37 @@
       }
     ]
   },
+  "268": {
+    "poi": [
+      {
+        "category": "ESSENTIAL TRAINING FACILITY",
+        "title": "PROVING GROUNDS",
+        "icon": "fac_superearth",
+        "date": "10.11.2042",
+        "status": "TRAINING HELLDIVERS",
+        "statusColor": "#b7bbc4",
+        "body": [
+          {
+            "type": "text",
+            "text": "One of the biggest and most intensive training facilities in the galaxy; Mercury's Proving Grounds are where [c=#FFE900]all Helldiver recruits are sent[/c], regardless of if they enlisted themselves or were voluntarily conscripted."
+          },
+          {
+            "type": "image",
+            "url": "https://helldivers.wiki.gg/images/Helldiver_Training_Facilities_POI.png?1ffba6",
+            "caption": ""
+          },
+          {
+            "type": "text",
+            "text": "The training conditions on the Proving Grounds are [c=#FFE900]swapped on a regular basis; you never know what you might meet while on the course[/c]. While most training facilities utilize Terminids for both their relative passivity and ease of handling, the Proving Grounds utilize [c=#FFE900]captured units from all three fronts[/c]. This way the Helldivers can get the strongest feel possible for fighting the enemies of Democracy."
+          },
+          {
+            "type": "text",
+            "text": "After the Liberty Day incident on Venus happened one year ago, [c=#FFE900]this planet was selected for relocation and reconstruction[/c] of the training facilities destroyed during that tragic accident."
+          }
+        ]
+      }
+    ]
+  },
   "_format": {
     "note": "Per-planet POINTS OF INTEREST. Key = planet INDEX (string). Each planet has a 'poi' array; every entry renders as a Helldivers-style intel card. EMPTY BY DEFAULT — add entries to author lore. Delete the example below freely.",
     "imagesAreURLs": "Image blocks take a remote 'url' (https://...), NOT a local file. Hotlink any image you like.",
