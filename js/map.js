@@ -1025,18 +1025,20 @@
         const x0 = px(i), x1 = px(i + 1), y0 = py(j), y1 = py(j + 1), xm = (x0 + x1) / 2, ym = (y0 + y1) / 2;
         const TL = { x: x0, y: y0 }, TR = { x: x1, y: y0 }, BR = { x: x1, y: y1 }, BL = { x: x0, y: y1 };
         const tM = { x: xm, y: y0 }, rM = { x: x1, y: ym }, bM = { x: xm, y: y1 }, lM = { x: x0, y: ym };
-        const hot = (f0 >= 1 && f0 !== F) || (f1 >= 1 && f1 !== F) || (f2 >= 1 && f2 !== F) || (f3 >= 1 && f3 !== F);   // borders ANY other faction (SE or enemy) -> active front; void edge stays a faction rim
-        const pushC = (a, b) => { if (hot) CONTESTED.push([a, b]); else contour.push([a, b]); };   // seams aren't drawn as faction borders
+        // Each contour segment is classified by the faction DIRECTLY ACROSS it (the adjacent non-F
+        // corner): a real faction across -> contested frontline coloured by both sides; empty void
+        // across -> a plain faction rim. Fixes false frontlines on edges that don't actually meet.
+        const pushSeg = (a, b, fb) => { if (fb >= 1) CONTESTED.push({ a, b, fa: F, fb }); else contour.push([a, b]); };
         if (s === 4) { fillPolys.push([TL, TR, BR, BL]); continue; }
         if (tl === br && tr === bl && tl !== tr) {   // saddle -> two diagonal corner triangles
-          if (tl) { fillPolys.push([TL, tM, lM], [BR, bM, rM]); pushC(tM, lM); pushC(bM, rM); }
-          else { fillPolys.push([TR, rM, tM], [BL, lM, bM]); pushC(rM, tM); pushC(lM, bM); }
+          if (tl) { const fb = (f1 >= 1 ? f1 : 0) || (f3 >= 1 ? f3 : 0); fillPolys.push([TL, tM, lM], [BR, bM, rM]); pushSeg(tM, lM, fb); pushSeg(bM, rM, fb); }
+          else { const fb = (f0 >= 1 ? f0 : 0) || (f2 >= 1 ? f2 : 0); fillPolys.push([TR, rM, tM], [BL, lM, bM]); pushSeg(rM, tM, fb); pushSeg(lM, bM, fb); }
           continue;
         }
-        const corners = [[tl, TL], [tr, TR], [br, BR], [bl, BL]], mids = [tM, rM, bM, lM], poly = [], trans = [];
-        for (let k = 0; k < 4; k++) { const cur = corners[k], nv = corners[(k + 1) % 4]; if (cur[0]) poly.push(cur[1]); if (cur[0] !== nv[0]) { poly.push(mids[k]); trans.push(mids[k]); } }
+        const cF = [f0, f1, f2, f3], cM = [tl, tr, br, bl], coords = [TL, TR, BR, BL], mids = [tM, rM, bM, lM], poly = [], trans = [], across = [];
+        for (let k = 0; k < 4; k++) { const k2 = (k + 1) % 4; if (cM[k]) poly.push(coords[k]); if (cM[k] !== cM[k2]) { poly.push(mids[k]); trans.push(mids[k]); across.push(cM[k] ? cF[k2] : cF[k]); } }
         if (poly.length >= 3) fillPolys.push(poly);
-        if (trans.length === 2) pushC(trans[0], trans[1]);
+        if (trans.length === 2) pushSeg(trans[0], trans[1], (across[0] >= 1 ? across[0] : 0) || (across[1] >= 1 ? across[1] : 0));
       }
       TERRITORY.push({ fac: F, col: FAC_FILL[F] || facColor(F), fill: fillPolys, contour });
     }
@@ -1044,25 +1046,27 @@
     if (CONTESTED.length) {
       const seen = {}, uniq = [];
       for (const s of CONTESTED) {
-        const a = s[0], b = s[1], ax = Math.round(a.x), ay = Math.round(a.y), bx = Math.round(b.x), by = Math.round(b.y);
+        const a = s.a, b = s.b, ax = Math.round(a.x), ay = Math.round(a.y), bx = Math.round(b.x), by = Math.round(b.y);
         const k = (ax < bx || (ax === bx && ay <= by)) ? ax + "_" + ay + "_" + bx + "_" + by : bx + "_" + by + "_" + ax + "_" + ay;
         if (!seen[k]) { seen[k] = 1; uniq.push(s); }
       }
       CONTESTED = uniq;
     }
-    // merge deduped seam segments into continuous polylines so the hazard band + flow run unbroken
+    // merge deduped seam segments into continuous polylines (only joining segments of the SAME faction
+    // pair, so a front never jumps across a tri-point) -> the hazard band + flow run unbroken per front
     CONTESTED_LINES = [];
     if (CONTESTED.length) {
       const K = (p) => Math.round(p.x) + "_" + Math.round(p.y);
-      const ends = new Map();
-      CONTESTED.forEach((s, i) => { const ka = K(s[0]), kb = K(s[1]); (ends.get(ka) || ends.set(ka, []).get(ka)).push([i, s[1]]); (ends.get(kb) || ends.set(kb, []).get(kb)).push([i, s[0]]); });
+      const pk = (s) => Math.min(s.fa, s.fb) + "_" + Math.max(s.fa, s.fb);
+      const ends = new Map();   // "pairKey|nodeKey" -> [[segIdx, otherPt]]
+      CONTESTED.forEach((s, i) => { const p = pk(s), ka = p + "|" + K(s.a), kb = p + "|" + K(s.b); (ends.get(ka) || ends.set(ka, []).get(ka)).push([i, s.b]); (ends.get(kb) || ends.set(kb, []).get(kb)).push([i, s.a]); });
       const used = new Array(CONTESTED.length).fill(false);
       for (let i = 0; i < CONTESTED.length; i++) {
         if (used[i]) continue; used[i] = true;
-        const chain = [CONTESTED[i][0], CONTESTED[i][1]];
-        for (let grow = true; grow;) { grow = false; const cand = ends.get(K(chain[chain.length - 1])) || []; for (const [j, other] of cand) { if (!used[j]) { used[j] = true; chain.push(other); grow = true; break; } } }
-        for (let grow = true; grow;) { grow = false; const cand = ends.get(K(chain[0])) || []; for (const [j, other] of cand) { if (!used[j]) { used[j] = true; chain.unshift(other); grow = true; break; } } }
-        CONTESTED_LINES.push(chain);
+        const s0 = CONTESTED[i], p = pk(s0), chain = [s0.a, s0.b];
+        for (let grow = true; grow;) { grow = false; const cand = ends.get(p + "|" + K(chain[chain.length - 1])) || []; for (const [j, other] of cand) { if (!used[j]) { used[j] = true; chain.push(other); grow = true; break; } } }
+        for (let grow = true; grow;) { grow = false; const cand = ends.get(p + "|" + K(chain[0])) || []; for (const [j, other] of cand) { if (!used[j]) { used[j] = true; chain.unshift(other); grow = true; break; } } }
+        CONTESTED_LINES.push({ pts: chain, ca: facColor(s0.fa), cb: facColor(s0.fb) });
       }
     }
   }
@@ -1090,12 +1094,15 @@
     c.restore(); c.shadowBlur = 0;
     // 4) crisp bright core line on the border
     for (const t of TERRITORY) { c.strokeStyle = hexA(lightHex(t.col, 0.5), 0.95); c.lineWidth = 1.3; strokeContour(t); }
-    // 5) contested frontline — bright hazard base (dark backing + amber core). The animated hazard
-    //    band + flow ride on top in drawDynamic; this base is what low/medium-gfx sees.
-    if (CONTESTED_LINES.length) {
-      const strokeLines = () => { c.beginPath(); for (const ln of CONTESTED_LINES) { for (let k = 0; k < ln.length; k++) { const q = project(ln[k].x, ln[k].y, 0); k ? c.lineTo(q.x, q.y) : c.moveTo(q.x, q.y); } } };
-      strokeLines(); c.strokeStyle = "rgba(4,6,11,0.9)"; c.lineWidth = 4.5; c.stroke();        // dark backing
-      strokeLines(); c.strokeStyle = hexA("#ffce4a", 0.85); c.lineWidth = 1.8; c.stroke();      // bright amber core
+    // 5) contested frontline base — dark backing + interlocked dashes in the TWO bordering faction
+    //    colours. The animated flow rides on top in drawDynamic; this base is the low/medium-gfx look.
+    for (const ln of CONTESTED_LINES) {
+      const path = () => { c.beginPath(); for (let k = 0; k < ln.pts.length; k++) { const q = project(ln.pts[k].x, ln.pts[k].y, 0); k ? c.lineTo(q.x, q.y) : c.moveTo(q.x, q.y); } };
+      c.setLineDash([]); path(); c.strokeStyle = "rgba(4,6,11,0.9)"; c.lineWidth = 4.5; c.stroke();
+      c.setLineDash([8, 8]);
+      c.lineDashOffset = 0; path(); c.strokeStyle = hexA(ln.ca, 0.92); c.lineWidth = 2; c.stroke();
+      c.lineDashOffset = 8; path(); c.strokeStyle = hexA(ln.cb, 0.92); c.lineWidth = 2; c.stroke();
+      c.setLineDash([]);
     }
     c.shadowBlur = 0; c.restore();
   }
@@ -1660,23 +1667,30 @@
 
     drawSectorFX(ctx, ts);
 
-    // contested FRONTLINE — an "active combat / hazard" band: a glow, scrolling amber hazard dashes,
-    // a counter-scrolling hot shimmer, and a hot pulse sweeping each front. High-gfx only; the static
-    // amber base in drawTerritory is the low/medium fallback. Territory map style only.
+    // contested FRONTLINE — "active combat" band coloured by the TWO bordering factions: a soft
+    // two-colour glow + interlocking scrolling dashes (faction A in one phase, faction B in the gaps)
+    // + a hot pulse sweeping each front for urgency. High-gfx only; static base is the low/med fallback.
     if (LAYERS.sectors && MAPMODE === "territory" && !REDUCED && CONTESTED_LINES.length) {
-      const strokeLines = () => { for (const ln of CONTESTED_LINES) { ctx.beginPath(); for (let k = 0; k < ln.length; k++) { const q = project(ln[k].x, ln[k].y, 0); k ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y); } ctx.stroke(); } };
       const breathe = 0.78 + 0.22 * Math.sin(ts / 520), off = (ts / 26);
+      const groups = new Map();   // batch by colour pair so it's a few strokes, not per-line
+      for (const ln of CONTESTED_LINES) { const k = ln.ca + "|" + ln.cb; let g = groups.get(k); if (!g) groups.set(k, g = { ca: ln.ca, cb: ln.cb, lines: [] }); g.lines.push(ln.pts); }
       ctx.save(); ctx.lineCap = "butt"; ctx.lineJoin = "round"; ctx.globalCompositeOperation = "lighter";
-      ctx.setLineDash([]); ctx.strokeStyle = hexA("#ff9d2a", 0.16 * breathe); ctx.lineWidth = 7; strokeLines();   // soft amber glow
-      ctx.setLineDash([7, 7]); ctx.lineDashOffset = -off; ctx.strokeStyle = hexA("#ffce4a", 0.9 * breathe); ctx.lineWidth = 3; strokeLines();   // scrolling hazard dashes
-      ctx.lineDashOffset = -off + 7; ctx.strokeStyle = hexA("#fff3c0", 0.45); ctx.lineWidth = 1.3; strokeLines();   // counter-phase hot shimmer
+      for (const g of groups.values()) {
+        const path = () => { ctx.beginPath(); for (const pts of g.lines) { for (let k = 0; k < pts.length; k++) { const q = project(pts[k].x, pts[k].y, 0); k ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y); } } };
+        ctx.setLineDash([]);
+        path(); ctx.strokeStyle = hexA(g.ca, 0.13 * breathe); ctx.lineWidth = 7; ctx.stroke();   // soft glow A
+        path(); ctx.strokeStyle = hexA(g.cb, 0.13 * breathe); ctx.lineWidth = 7; ctx.stroke();   // soft glow B
+        ctx.setLineDash([8, 8]);
+        ctx.lineDashOffset = -off;     path(); ctx.strokeStyle = hexA(g.ca, 0.95 * breathe); ctx.lineWidth = 3; ctx.stroke();   // scrolling faction-A dashes
+        ctx.lineDashOffset = -off + 8; path(); ctx.strokeStyle = hexA(g.cb, 0.95 * breathe); ctx.lineWidth = 3; ctx.stroke();   // faction-B dashes fill the gaps
+      }
       ctx.setLineDash([]);
-      // hot combat pulse sweeping along each front (by vertex index -> cheap, reads as energy on the move)
+      // hot pulse sweeping along each front (urgency) — white so it reads over either faction colour
       ctx.fillStyle = "#ffffff";
       for (let i = 0; i < CONTESTED_LINES.length; i++) {
-        const ln = CONTESTED_LINES[i]; if (ln.length < 2) continue;
-        const ft = ((ts / 1500) + i * 0.37) % 1, idx = Math.min(ln.length - 1, Math.floor(ft * (ln.length - 1))), q = project(ln[idx].x, ln[idx].y, 0);
-        ctx.globalAlpha = 0.8; ctx.beginPath(); ctx.arc(q.x, q.y, 2.3, 0, Math.PI * 2); ctx.fill();
+        const pts = CONTESTED_LINES[i].pts; if (pts.length < 2) continue;
+        const ft = ((ts / 1500) + i * 0.37) % 1, idx = Math.min(pts.length - 1, Math.floor(ft * (pts.length - 1))), q = project(pts[idx].x, pts[idx].y, 0);
+        ctx.globalAlpha = 0.8; ctx.beginPath(); ctx.arc(q.x, q.y, 2.2, 0, Math.PI * 2); ctx.fill();
       }
       ctx.globalAlpha = 1; ctx.setLineDash([]); ctx.restore();
     }
