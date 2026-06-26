@@ -1011,24 +1011,9 @@
     const nearFac = (x, y) => { const bx = Math.floor(x / bs), by = Math.floor(y / bs); let best = 0, bd = R2; for (let ox = -1; ox <= 1; ox++) for (let oy = -1; oy <= 1; oy++) { const a = BK.get(key(bx + ox, by + oy)); if (!a) continue; for (const e of a) { const dx = e.wx - x, dy = e.wy - y, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = e.p.owner; } } } return best; };
     const fac = new Int16Array(nx * ny);
     for (let i = 0; i < nx; i++) { const x = minX + i * G; for (let j = 0; j < ny; j++) fac[i * ny + j] = nearFac(x, minY + j * G); }
-    // Fill ENCLOSED holes (e.g. a lone Super Earth planet ringed by enemy space) so territory reads
-    // as solid angular masses — the holdout still shows as its own coloured dot on top. Open SE/empty
-    // space (reachable from the grid edge) stays blank, so real frontiers and SE territory are kept.
-    const open = new Uint8Array(nx * ny), stack = [];
-    const seed = (idx) => { if (fac[idx] < 2 && !open[idx]) { open[idx] = 1; stack.push(idx); } };
-    for (let i = 0; i < nx; i++) { seed(i * ny); seed(i * ny + (ny - 1)); }
-    for (let j = 0; j < ny; j++) { seed(j); seed((nx - 1) * ny + j); }
-    while (stack.length) { const idx = stack.pop(), i = (idx / ny) | 0, j = idx % ny;
-      if (i > 0) seed((i - 1) * ny + j); if (i < nx - 1) seed((i + 1) * ny + j);
-      if (j > 0) seed(idx - 1); if (j < ny - 1) seed(idx + 1);
-    }
-    for (let pass = 0, dirty = true; dirty && pass < 24; pass++) { dirty = false;
-      for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) { const idx = i * ny + j; if (fac[idx] >= 2 || open[idx]) continue;
-        const cnt = {}; for (let ox = -1; ox <= 1; ox++) for (let oy = -1; oy <= 1; oy++) { if (!ox && !oy) continue; const ii = i + ox, jj = j + oy; if (ii < 0 || jj < 0 || ii >= nx || jj >= ny) continue; const v = fac[ii * ny + jj]; if (v >= 2) cnt[v] = (cnt[v] || 0) + 1; }
-        let bf = 0, bn = 0; for (const f in cnt) { if (cnt[f] > bn) { bn = cnt[f]; bf = +f; } }
-        if (bf) { fac[idx] = bf; dirty = true; }
-      }
-    }
+    // No hole-fill: Super Earth / contested planets BLOCK enemy territory (they're the nearest planet
+    // for their cells), so they carve out of it and never sit inside it. The carve-out — and the whole
+    // SE/enemy front — is ringed by the hazard frontline (any inter-faction edge is "hot" below).
     const present = [...new Set(Array.from(fac).filter((f) => f >= 2))];
     const px = (i) => minX + i * G, py = (j) => minY + j * G;
     for (const F of present) {
@@ -1040,7 +1025,7 @@
         const x0 = px(i), x1 = px(i + 1), y0 = py(j), y1 = py(j + 1), xm = (x0 + x1) / 2, ym = (y0 + y1) / 2;
         const TL = { x: x0, y: y0 }, TR = { x: x1, y: y0 }, BR = { x: x1, y: y1 }, BL = { x: x0, y: y1 };
         const tM = { x: xm, y: y0 }, rM = { x: x1, y: ym }, bM = { x: xm, y: y1 }, lM = { x: x0, y: ym };
-        const hot = (f0 >= 2 && f0 !== F) || (f1 >= 2 && f1 !== F) || (f2 >= 2 && f2 !== F) || (f3 >= 2 && f3 !== F);
+        const hot = (f0 >= 1 && f0 !== F) || (f1 >= 1 && f1 !== F) || (f2 >= 1 && f2 !== F) || (f3 >= 1 && f3 !== F);   // borders ANY other faction (SE or enemy) -> active front; void edge stays a faction rim
         const pushC = (a, b) => { if (hot) CONTESTED.push([a, b]); else contour.push([a, b]); };   // seams aren't drawn as faction borders
         if (s === 4) { fillPolys.push([TL, TR, BR, BL]); continue; }
         if (tl === br && tr === bl && tl !== tr) {   // saddle -> two diagonal corner triangles
