@@ -91,7 +91,7 @@
     return { x: rx * c + ry * s, y: -rx * s + ry * c };
   }
 
-  let PLANETS = [], HIDDEN = [], SECTORS = [], LINKS = [], ATTACKS = [], LABELS = [], DSS = null, MO_MARKS = [], DEFENSE_MARKS = [], FLEET_MARKS = [], FX_MARKS = [], SUBFAC_MARKS = [], GLOOM_LINKS = [], SE_LINKS = [], MIXED_LINKS = [], ENEMY_BORDER = [], TERRITORY = [], CONTESTED = [];
+  let PLANETS = [], HIDDEN = [], SECTORS = [], LINKS = [], ATTACKS = [], LABELS = [], DSS = null, MO_MARKS = [], DEFENSE_MARKS = [], FLEET_MARKS = [], FX_MARKS = [], SUBFAC_MARKS = [], GLOOM_LINKS = [], SE_LINKS = [], MIXED_LINKS = [], ENEMY_BORDER = [], TERRITORY = [], CONTESTED = [], CONTESTED_LINES = [];
 
   const FLEETS_ENABLED = false;
 
@@ -1065,6 +1065,21 @@
       }
       CONTESTED = uniq;
     }
+    // merge deduped seam segments into continuous polylines so the hazard band + flow run unbroken
+    CONTESTED_LINES = [];
+    if (CONTESTED.length) {
+      const K = (p) => Math.round(p.x) + "_" + Math.round(p.y);
+      const ends = new Map();
+      CONTESTED.forEach((s, i) => { const ka = K(s[0]), kb = K(s[1]); (ends.get(ka) || ends.set(ka, []).get(ka)).push([i, s[1]]); (ends.get(kb) || ends.set(kb, []).get(kb)).push([i, s[0]]); });
+      const used = new Array(CONTESTED.length).fill(false);
+      for (let i = 0; i < CONTESTED.length; i++) {
+        if (used[i]) continue; used[i] = true;
+        const chain = [CONTESTED[i][0], CONTESTED[i][1]];
+        for (let grow = true; grow;) { grow = false; const cand = ends.get(K(chain[chain.length - 1])) || []; for (const [j, other] of cand) { if (!used[j]) { used[j] = true; chain.push(other); grow = true; break; } } }
+        for (let grow = true; grow;) { grow = false; const cand = ends.get(K(chain[0])) || []; for (const [j, other] of cand) { if (!used[j]) { used[j] = true; chain.unshift(other); grow = true; break; } } }
+        CONTESTED_LINES.push(chain);
+      }
+    }
   }
 
   function drawTerritory(c) {
@@ -1090,11 +1105,12 @@
     c.restore(); c.shadowBlur = 0;
     // 4) crisp bright core line on the border
     for (const t of TERRITORY) { c.strokeStyle = hexA(lightHex(t.col, 0.5), 0.95); c.lineWidth = 1.3; strokeContour(t); }
-    // 5) contested seam — a quiet dark trench (the animated energy flow rides on top, in drawDynamic)
-    if (CONTESTED.length) {
-      c.beginPath(); for (const seg of CONTESTED) { const a = project(seg[0].x, seg[0].y, 0), b = project(seg[1].x, seg[1].y, 0); c.moveTo(a.x, a.y); c.lineTo(b.x, b.y); }
-      c.strokeStyle = "rgba(4,6,11,0.92)"; c.lineWidth = 3.2; c.stroke();
-      c.strokeStyle = "rgba(120,150,190,0.38)"; c.lineWidth = 0.9; c.stroke();
+    // 5) contested frontline — bright hazard base (dark backing + amber core). The animated hazard
+    //    band + flow ride on top in drawDynamic; this base is what low/medium-gfx sees.
+    if (CONTESTED_LINES.length) {
+      const strokeLines = () => { c.beginPath(); for (const ln of CONTESTED_LINES) { for (let k = 0; k < ln.length; k++) { const q = project(ln[k].x, ln[k].y, 0); k ? c.lineTo(q.x, q.y) : c.moveTo(q.x, q.y); } } };
+      strokeLines(); c.strokeStyle = "rgba(4,6,11,0.9)"; c.lineWidth = 4.5; c.stroke();        // dark backing
+      strokeLines(); c.strokeStyle = hexA("#ffce4a", 0.85); c.lineWidth = 1.8; c.stroke();      // bright amber core
     }
     c.shadowBlur = 0; c.restore();
   }
@@ -1355,6 +1371,9 @@
 
   const scaleHex = (hex, k) => { const h = hex.replace("#", ""), n = parseInt(h.length === 3 ? h.replace(/(.)/g, "$1$1") : h, 16), m = (v) => Math.max(0, Math.min(255, v * k)) | 0; return "#" + ((1 << 24) + (m((n >> 16) & 255) << 16) + (m((n >> 8) & 255) << 8) + m(n & 255)).toString(16).slice(1); };
   const PLATE = { h: 23, padx: 7, crest: 15, gap: 9, poiW: 17 };
+  const _plateDrawn = new Set();   // planet indices that got a plate this frame (so floating timers dedupe)
+  // distinct factions present on a planet via ownership + ambient subfactions + named forces
+  const planetFactions = (p) => { const s = new Set(); if (p.owner >= 1) s.add(p.owner); if (p.subfac) for (const f of p.subfac) { if (f >= 1) s.add(f); } if (p.forces) for (const f of p.forces) { if (f.f >= 1) s.add(f.f); } return [...s]; };
   function plateMetrics(c, name, poiN) {
     c.font = "700 12px " + headFont();
     const poiSeg = poiN ? (8 + poiN * PLATE.poiW) : 0;
@@ -1363,7 +1382,7 @@
     return { w, poiSeg, blockW };
   }
 
-  function drawNamePlate(c, cx, topY, p, name, fac, pois) {
+  function drawNamePlate(c, cx, topY, p, name, fac, pois, ts) {
     const col = facColor(fac), poiN = pois ? pois.length : 0;
     const m = plateMetrics(c, name, poiN), w = m.w, h = PLATE.h, x = cx - w / 2, y = topY, blockW = m.blockW;
     const ch = 6, cyr = y + h / 2;
@@ -1393,6 +1412,45 @@
       for (const id of pois) { drawPoi(c, id, px + 8, cyr, 15, POI_TINT); px += PLATE.poiW; }
     }
     if (p.home != null) { c.fillStyle = "#FFE900"; c.beginPath(); c.moveTo(x + w - ch, y); c.lineTo(x + w, y + ch); c.lineTo(x + w - ch, y + ch); c.closePath(); c.fill(); }
+
+    // CONTESTED faction-presence strip along the top edge: one segment per faction present
+    // (owner + ambient subfactions + named forces). >=2 segments reads instantly as contested.
+    const facs = planetFactions(p);
+    if (facs.length >= 2) {
+      const sw = w / facs.length;
+      for (let fi = 0; fi < facs.length; fi++) { c.fillStyle = facColor(facs[fi]); c.fillRect(x + fi * sw, y - 4, Math.ceil(sw), 3); }
+      c.fillStyle = "rgba(0,0,0,0.4)"; for (let fi = 1; fi < facs.length; fi++) c.fillRect(x + fi * sw - 0.5, y - 4, 1, 3);
+    }
+    // BUILT-IN countdown bar welded under the plate (event expiry / Major Order deadline)
+    if (ts != null && LAYERS.timers) {
+      let dl = 0, acc = null;
+      if (p.ev && p.ev.expireEpoch) { dl = p.ev.expireEpoch * 1000; acc = facColor(tipMeta(p).dispFac); }
+      else if (p.mo && window.__MO_DEADLINE) { dl = window.__MO_DEADLINE; acc = "#FFE900"; }
+      if (dl) drawPlateTimer(c, x, y + h, w, dl, acc, ts);
+    }
+    c.restore();
+  }
+
+  // Slim countdown bar attached under a nameplate (inset under the name, not the crest block).
+  function drawPlateTimer(c, x, topY, w, deadlineMs, accent, ts) {
+    const left = deadlineMs - Date.now();
+    const expired = left <= 0, urgent = !expired && left < 3600000;
+    const acc = (expired || urgent) ? "#FF5A5A" : accent;
+    const pulse = urgent ? (0.6 + 0.4 * Math.abs(Math.sin(ts / 360))) : 1;
+    const txt = expired ? "EXPIRED" : fmtHMS(left);
+    const h = 14, ch = 5, bx = x + 28, bw = w - 28, y = topY, midY = y + h / 2;
+    c.save();
+    c.beginPath(); c.moveTo(bx, y); c.lineTo(bx + bw, y); c.lineTo(bx + bw, y + h - ch); c.lineTo(bx + bw - ch, y + h); c.lineTo(bx, y + h); c.closePath();
+    c.fillStyle = "rgba(9,13,20,0.96)"; c.fill();
+    c.lineWidth = 1; c.strokeStyle = hexA(acc, 0.85 * pulse); c.stroke();
+    const iconR = 4.2, ccx = bx + 8;
+    c.strokeStyle = hexA(acc, pulse); c.lineWidth = 1.3;
+    c.beginPath(); c.arc(ccx, midY, iconR, 0, Math.PI * 2); c.stroke();
+    c.beginPath(); c.moveTo(ccx, midY); c.lineTo(ccx, midY - iconR * 0.6); c.moveTo(ccx, midY); c.lineTo(ccx + iconR * 0.5, midY + iconR * 0.18); c.stroke();
+    c.font = "700 10px " + headFont(); c.textAlign = "left"; c.textBaseline = "middle";
+    const tx = bx + 8 + iconR + 6;
+    c.fillStyle = "rgba(0,0,0,0.6)"; c.fillText(txt, tx + 0.6, midY + 1.2);
+    c.fillStyle = "#eef5fb"; c.fillText(txt, tx, midY + 0.3);
     c.restore();
   }
 
@@ -1436,7 +1494,8 @@
     c.restore();
   }
 
-  function drawNotableLabels(c) {
+  function drawNotableLabels(c, ts) {
+    _plateDrawn.clear();
     if (cam.zoom < 0.8) return;
     loadEmblems();
     const W = cv.width / dpr, H = cv.height / dpr, ccx = W / 2, ccy = H / 2;
@@ -1460,10 +1519,12 @@
       if (budget <= 0) break;
       const pois = planetPOIs(it.p), name = it.p.name || "";
       const w = plateMetrics(c, name, pois.length).w, cx = it.e.sx, top = it.e.sy + lift;
-      const x0 = cx - w / 2 - 4, y0 = top - 3, x1 = cx + w / 2 + 4, y1 = top + PLATE.h + 3;
+      const hasTimer = LAYERS.timers && ((it.p.ev && it.p.ev.expireEpoch) || (it.p.mo && window.__MO_DEADLINE));
+      const x0 = cx - w / 2 - 4, y0 = top - 5, x1 = cx + w / 2 + 4, y1 = top + PLATE.h + 3 + (hasTimer ? 15 : 0);
       if (collide(x0, y0, x1, y1)) continue;
       placed.push({ x0, y0, x1, y1 }); budget--;
-      drawNamePlate(c, cx, top, it.p, name, crestOf(it.p, true), pois);
+      drawNamePlate(c, cx, top, it.p, name, crestOf(it.p, true), pois, ts);
+      _plateDrawn.add(it.p.i);
     }
 
     if (nameZoom) {
@@ -1614,17 +1675,25 @@
 
     drawSectorFX(ctx, ts);
 
-    // contested front line: energy sparks flow along the seam (high-gfx only; the static dark trench
-    // drawn in drawTerritory is the fallback). Territory map style only.
-    if (LAYERS.sectors && MAPMODE === "territory" && !REDUCED && CONTESTED.length) {
-      ctx.save(); ctx.globalCompositeOperation = "lighter"; ctx.fillStyle = "#dff0ff";
-      for (let i = 0; i < CONTESTED.length; i++) {
-        const s = CONTESTED[i], a = project(s[0].x, s[0].y, 0), b = project(s[1].x, s[1].y, 0);
-        const t = ((ts / 900) + (s[0].x * 0.0009 + s[0].y * 0.0013)) % 1;   // phase by world pos -> flows along the front
-        ctx.globalAlpha = 0.55 * Math.sin(t * Math.PI);
-        ctx.beginPath(); ctx.arc(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, 1.7, 0, Math.PI * 2); ctx.fill();
+    // contested FRONTLINE — an "active combat / hazard" band: a glow, scrolling amber hazard dashes,
+    // a counter-scrolling hot shimmer, and a hot pulse sweeping each front. High-gfx only; the static
+    // amber base in drawTerritory is the low/medium fallback. Territory map style only.
+    if (LAYERS.sectors && MAPMODE === "territory" && !REDUCED && CONTESTED_LINES.length) {
+      const strokeLines = () => { for (const ln of CONTESTED_LINES) { ctx.beginPath(); for (let k = 0; k < ln.length; k++) { const q = project(ln[k].x, ln[k].y, 0); k ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y); } ctx.stroke(); } };
+      const breathe = 0.78 + 0.22 * Math.sin(ts / 520), off = (ts / 26);
+      ctx.save(); ctx.lineCap = "butt"; ctx.lineJoin = "round"; ctx.globalCompositeOperation = "lighter";
+      ctx.setLineDash([]); ctx.strokeStyle = hexA("#ff9d2a", 0.16 * breathe); ctx.lineWidth = 7; strokeLines();   // soft amber glow
+      ctx.setLineDash([7, 7]); ctx.lineDashOffset = -off; ctx.strokeStyle = hexA("#ffce4a", 0.9 * breathe); ctx.lineWidth = 3; strokeLines();   // scrolling hazard dashes
+      ctx.lineDashOffset = -off + 7; ctx.strokeStyle = hexA("#fff3c0", 0.45); ctx.lineWidth = 1.3; strokeLines();   // counter-phase hot shimmer
+      ctx.setLineDash([]);
+      // hot combat pulse sweeping along each front (by vertex index -> cheap, reads as energy on the move)
+      ctx.fillStyle = "#ffffff";
+      for (let i = 0; i < CONTESTED_LINES.length; i++) {
+        const ln = CONTESTED_LINES[i]; if (ln.length < 2) continue;
+        const ft = ((ts / 1500) + i * 0.37) % 1, idx = Math.min(ln.length - 1, Math.floor(ft * (ln.length - 1))), q = project(ln[idx].x, ln[idx].y, 0);
+        ctx.globalAlpha = 0.8; ctx.beginPath(); ctx.arc(q.x, q.y, 2.3, 0, Math.PI * 2); ctx.fill();
       }
-      ctx.globalAlpha = 1; ctx.restore();
+      ctx.globalAlpha = 1; ctx.setLineDash([]); ctx.restore();
     }
 
     if (LAYERS.effects) drawEnvFX(ts);
@@ -1693,7 +1762,7 @@
     if (LAYERS.objectives && DSS) drawDSSMark(ctx, ts);
     if (FLEETS_ENABLED) drawFleetPawns(ctx, ts);
     drawSubfactions(ctx, ts);
-    if (LAYERS.text) { drawFactionSigils(ctx); drawNotableLabels(ctx); }
+    if (LAYERS.text) { drawFactionSigils(ctx); drawNotableLabels(ctx, ts); }
     ctx.restore();
 
     if (LAYERS.objectives) { const pulse = 1 - ((ts / 2400) % 1), R = 6 + (1 - pulse) * 16;
@@ -1714,6 +1783,7 @@
       // label below) convey the action, so the chip itself stays a pure countdown.
       PLANETS.forEach((e) => { const p = e.p; if (p.ev && p.ev.expireEpoch) { const mm = tipMeta(p); add(p.i, { dl: p.ev.expireEpoch * 1000, accent: facColor(mm.dispFac) }); } });
       Object.keys(chips).forEach((idx) => {
+        if (LAYERS.text && _plateDrawn.has(+idx)) return;   // its timer is built into the nameplate
         const e = byIndex[idx]; if (!e || e.sx < -160 || e.sx > W + 160 || e.sy < -120 || e.sy > H + 120) return;
         let ay = e.sy - 13;
         chips[idx].forEach((cp) => { drawMapTimer(ctx, e.sx, ay, cp.dl, cp.accent, ts); ay -= 20; });
