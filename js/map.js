@@ -287,37 +287,23 @@
       sec.cells.forEach(([ring, line]) => { const rm = (ring + 0.5) * 100, am = ang(line + 0.5); cx += rm * Math.cos(am); cy += -rm * Math.sin(am); n++; });
       if (n) { cx /= n; cy /= n; }
 
-      // Two-faction sector: the dominant faction fills normally; the SECONDARY faction's cells are
-      // carved out of the fill and traced with a glowing outline in its colour (an enemy enclave).
-      let split = null;
+      // Enemy territory is coloured per controlling faction: each cell goes to its nearest in-sector
+      // enemy planet, then cells group by faction. A sector held by two enemies shows BOTH colours as
+      // clean striped regions. (Super Earth / contested never fill -- handled by skipping non-enemy
+      // sectors at draw time -- so home space stays blank.)
+      let regions = null;
       if (isEnemy) {
-        const others = Object.keys(st.counts).map((o) => +o).filter((o) => o >= 1 && o !== fac);
-        if (others.length) {
-          const sec2 = others.sort((a, b) => st.counts[b] - st.counts[a])[0];
-          const here = PLANETS.filter((e) => e.p.sector === me && (e.p.owner === fac || e.p.owner === sec2));
-          if (here.length) {
-            const secCell = tops.map((poly) => {
-              let mx = 0, my = 0; for (const q of poly) { mx += q.x; my += q.y; } mx /= poly.length; my /= poly.length;
-              let best = fac, bd = Infinity; for (const e of here) { const dx = e.wx - mx, dy = e.wy - my, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = e.p.owner; } }
-              return best === sec2;
-            });
-            if (secCell.some(Boolean)) {
-              const inSec = (r, l) => { const idx = sec.cells.findIndex(([cr, cl]) => cr === r && cl === ((l + 24) % 24)); return idx >= 0 && secCell[idx]; };
-              const secOutline = [];
-              sec.cells.forEach(([ring, line], ix) => {
-                if (!secCell[ix]) return;
-                const a0 = ang(line), a1 = ang(line + 1), rIn = ring * 100, rOut = (ring + 1) * 100;
-                if (!inSec(ring + 1, line)) secOutline.push(arcLine(rOut, a0, a1, 3));
-                if (ring > 0 && !inSec(ring - 1, line)) secOutline.push(arcLine(rIn, a0, a1, 3));
-                if (!inSec(ring, line + 1)) secOutline.push([polar(rIn, a1), polar(rOut, a1)]);
-                if (!inSec(ring, line - 1)) secOutline.push([polar(rIn, a0), polar(rOut, a0)]);
-              });
-              split = { sec2, col2: facColor(sec2), secCell, outline: secOutline };
-            }
-          }
-        }
+        const eHere = PLANETS.filter((e) => e.p.sector === me && e.p.owner >= 2);
+        const byFac = {};
+        tops.forEach((poly, ix) => {
+          let mx = 0, my = 0; for (const q of poly) { mx += q.x; my += q.y; } mx /= poly.length; my /= poly.length;
+          let best = domEnemy, bd = Infinity;
+          for (const e of eHere) { const dx = e.wx - mx, dy = e.wy - my, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = e.p.owner; } }
+          (byFac[best] || (byFac[best] = [])).push(ix);
+        });
+        regions = Object.keys(byFac).map((f) => ({ fac: +f, col: FAC_FILL[+f] || facColor(+f), idx: byFac[f] }));
       }
-      return { tops, walls, risers, secEdges, dots, cx, cy, elev, tier, fillHex, wallHex, outline, alpha, se: isSE, enemy: isEnemy, available, active: st.camp, split };
+      return { tops, walls, risers, secEdges, dots, cx, cy, elev, tier, fillHex, wallHex, outline, alpha, se: isSE, enemy: isEnemy, available, active: st.camp, regions };
     });
 
     const NODE_POP = 0;
@@ -686,7 +672,7 @@
     drawGrid(c);
     drawStems(c);
     if (LAYERS.supply) drawLinks(c);
-    if (LAYERS.sectors) { drawBorders(c); drawSplitOutlines(c); }
+    if (LAYERS.sectors) drawBorders(c);
 
   }
 
@@ -873,7 +859,7 @@
     if (lastRot !== cam.rot) { sectorOrder.sort((a, b) => project(SECTORS[a].cx, SECTORS[a].cy, 0).y - project(SECTORS[b].cx, SECTORS[b].cy, 0).y); lastRot = cam.rot; }
     for (const i of sectorOrder) {
       const s = SECTORS[i];
-      if (!s.enemy && !s.se) continue;
+      if (!s.enemy) continue;   // Super Earth / contested sectors render no fill or stripes (home space stays blank)
 
       if (s.wallHex && s.elev > 1) {
         const faces = [];
@@ -904,25 +890,22 @@
         }
       }
 
-      if (s.enemy) s._scrCells = [];
-      // Inactive sectors (no live campaign/event) recede -- darker + more translucent -- so the
-      // active fronts read at a glance, matching WarForge's active/inactive sector shading.
+      s._scrCells = [];
+      // Inactive sectors (no live campaign/event) recede so the active fronts read at a glance.
       const dim = s.active ? 1 : 0.55;
-      const baseHex = s.active ? s.fillHex : scaleHex(s.fillHex, 0.72);
-      const tint = s.enemy ? hexA(baseHex, (0.34 + s.tier * 0.08) * dim) : facColor(1);
-
-      c.beginPath();
-      s.tops.forEach((poly) => {
-        let mx = 0, my = 0;
-        for (let k = 0; k < poly.length; k++) { const q = project(poly[k].x, poly[k].y, s.elev); k ? c.lineTo(q.x, q.y) : c.moveTo(q.x, q.y); if (s.enemy) { mx += q.x; my += q.y; } }
-        if (s.enemy) s._scrCells.push([mx / poly.length, my / poly.length]);
-      });
-      if (s.enemy) {
+      // Fill each controlling-faction region with its own colour + hazard stripes (one region for a
+      // single-enemy sector; two-up for a contested sector that two enemies share).
+      for (const rg of (s.regions || [])) {
+        const baseHex = s.active ? rg.col : scaleHex(rg.col, 0.72);
+        c.beginPath();
+        for (const ix of rg.idx) {
+          const poly = s.tops[ix]; let mx = 0, my = 0;
+          for (let k = 0; k < poly.length; k++) { const q = project(poly[k].x, poly[k].y, s.elev); k ? c.lineTo(q.x, q.y) : c.moveTo(q.x, q.y); mx += q.x; my += q.y; }
+          s._scrCells.push([mx / poly.length, my / poly.length]);
+        }
         c.fillStyle = "rgba(7,11,18,0.55)"; c.fill();
-        c.fillStyle = tint; c.fill();
+        c.fillStyle = hexA(baseHex, (0.34 + s.tier * 0.08) * dim); c.fill();
         c.globalAlpha = (0.38 + s.tier * 0.06) * dim; c.fillStyle = hazPattern(baseHex); c.fill(); c.globalAlpha = 1;
-      } else {
-        c.fillStyle = "rgba(7,11,18,0.3)"; c.fill(); c.globalAlpha = s.alpha * dim; c.fillStyle = tint; c.fill(); c.globalAlpha = 1;
       }
 
     }
@@ -932,9 +915,9 @@
     c.save(); c.lineJoin = "round"; c.lineCap = "round"; c.lineWidth = 1;
     for (const i of sectorOrder) {
       const s = SECTORS[i];
-      if (!s.secEdges || !s.secEdges.length || (!s.enemy && !s.se)) continue;
-      const col = s.enemy ? lightHex(s.fillHex, 0.4) : (s.se ? facColor(1) : "#5b7686");
-      c.strokeStyle = hexA(col, s.se ? 0.3 : 0.2);
+      if (!s.secEdges || !s.secEdges.length || !s.enemy) continue;
+      const col = lightHex(s.fillHex, 0.4);
+      c.strokeStyle = hexA(col, 0.2);
       c.beginPath();
       for (const pts of s.secEdges) {
         for (let k = 0; k < pts.length; k++) { const q = project(pts[k].x, pts[k].y, s.elev); k ? c.lineTo(q.x, q.y) : c.moveTo(q.x, q.y); }
@@ -985,22 +968,6 @@
     }
     c.restore();
   }
-  // Two-faction sectors: the secondary faction's carved-out cells get a glowing outline in their
-  // colour (an enemy enclave inside the dominant fill). Static -> lives in the cached layer.
-  function drawSplitOutlines(c) {
-    let any = false; for (const s of SECTORS) { if (s.split) { any = true; break; } }
-    if (!any) return;
-    c.save(); c.lineJoin = "round"; c.lineCap = "round";
-    for (const s of SECTORS) {
-      const sp = s.split; if (!sp) continue;
-      c.shadowBlur = 0; c.strokeStyle = hexA(sp.col2, 0.16); c.lineWidth = 4.5;
-      for (const pts of sp.outline) strokeEdge(c, pts, s.elev);
-      c.shadowColor = sp.col2; c.shadowBlur = 7; c.strokeStyle = hexA(sp.col2, 0.92); c.lineWidth = 1.7;
-      for (const pts of sp.outline) strokeEdge(c, pts, s.elev);
-    }
-    c.shadowBlur = 0; c.restore();
-  }
-
   function hazPattern(fillHex) {
     if (hazPat[fillHex]) return hazPat[fillHex];
     const t = document.createElement("canvas"); t.width = t.height = 15;
