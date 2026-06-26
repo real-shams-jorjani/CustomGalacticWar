@@ -153,6 +153,33 @@
       }
     ]
   },
+  "199": {
+    "poi": [
+      {
+        "category": "ESSENTIAL INFRASTRUCTURE",
+        "title": "DEEP CRUST EXTRACTION SITE",
+        "icon": "region_factory",
+        "date": "10.08.2085",
+        "status": "PRODUCING VESSELS",
+        "statusColor": "#46a4ff",
+        "body": [
+          {
+            "type": "text",
+            "text": "[c=#FFE900]Heat resistant materials[/c] found under the surface of this planet are [c=#FFE900]essentia[/c]l to the manufacturing of Super Destroyers."
+          },
+          {
+            "type": "image",
+            "url": "https://cdn.discordapp.com/attachments/1492735744484315357/1492735746124025896/image.png?ex=6a3ea1bf&is=6a3d503f&hm=92a9e87307df763b0a377e1aa6c937df1a1f34f7868e0f1b196390e007522903&",
+            "caption": "Certified incident-free since 2184."
+          },
+          {
+            "type": "text",
+            "text": "These minerals, found by Super Earth's top xenogeologists; are [c=#FFE900]highly resistant to the blazing hot surface temperature of Venus[/c], which coincidentally make them perfectly suited for planetary re-entry. Thus, the vast majority of Super Earth's interplanetary vessels are produced here, where only [c=#FFE900]the most equal[/c] of all the Federation can be found."
+          }
+        ]
+      }
+    ]
+  },
   "225": {
     "poi": [
       {
