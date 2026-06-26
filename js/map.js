@@ -1026,19 +1026,19 @@
         const TL = { x: x0, y: y0 }, TR = { x: x1, y: y0 }, BR = { x: x1, y: y1 }, BL = { x: x0, y: y1 };
         const tM = { x: xm, y: y0 }, rM = { x: x1, y: ym }, bM = { x: xm, y: y1 }, lM = { x: x0, y: ym };
         // Each contour segment is classified by the faction DIRECTLY ACROSS it (the adjacent non-F
-        // corner): a real faction across -> contested frontline coloured by both sides; empty void
-        // across -> a plain faction rim. Fixes false frontlines on edges that don't actually meet.
-        const pushSeg = (a, b, fb) => { if (fb >= 1) CONTESTED.push({ a, b, fa: F, fb }); else contour.push([a, b]); };
+        // corner). CONTESTED frontline ONLY where two ENEMY factions meet (fb >= 2). Borders with
+        // Super Earth (1) or empty void (0) are plain faction rims, not the hazard band.
+        const pushSeg = (a, b, fb) => { if (fb >= 2) CONTESTED.push({ a, b, fa: F, fb }); else contour.push([a, b]); };
         if (s === 4) { fillPolys.push([TL, TR, BR, BL]); continue; }
         if (tl === br && tr === bl && tl !== tr) {   // saddle -> two diagonal corner triangles
-          if (tl) { const fb = (f1 >= 1 ? f1 : 0) || (f3 >= 1 ? f3 : 0); fillPolys.push([TL, tM, lM], [BR, bM, rM]); pushSeg(tM, lM, fb); pushSeg(bM, rM, fb); }
-          else { const fb = (f0 >= 1 ? f0 : 0) || (f2 >= 1 ? f2 : 0); fillPolys.push([TR, rM, tM], [BL, lM, bM]); pushSeg(rM, tM, fb); pushSeg(lM, bM, fb); }
+          if (tl) { const fb = (f1 >= 2 ? f1 : 0) || (f3 >= 2 ? f3 : 0); fillPolys.push([TL, tM, lM], [BR, bM, rM]); pushSeg(tM, lM, fb); pushSeg(bM, rM, fb); }
+          else { const fb = (f0 >= 2 ? f0 : 0) || (f2 >= 2 ? f2 : 0); fillPolys.push([TR, rM, tM], [BL, lM, bM]); pushSeg(rM, tM, fb); pushSeg(lM, bM, fb); }
           continue;
         }
         const cF = [f0, f1, f2, f3], cM = [tl, tr, br, bl], coords = [TL, TR, BR, BL], mids = [tM, rM, bM, lM], poly = [], trans = [], across = [];
         for (let k = 0; k < 4; k++) { const k2 = (k + 1) % 4; if (cM[k]) poly.push(coords[k]); if (cM[k] !== cM[k2]) { poly.push(mids[k]); trans.push(mids[k]); across.push(cM[k] ? cF[k2] : cF[k]); } }
         if (poly.length >= 3) fillPolys.push(poly);
-        if (trans.length === 2) pushSeg(trans[0], trans[1], (across[0] >= 1 ? across[0] : 0) || (across[1] >= 1 ? across[1] : 0));
+        if (trans.length === 2) pushSeg(trans[0], trans[1], (across[0] >= 2 ? across[0] : 0) || (across[1] >= 2 ? across[1] : 0));
       }
       TERRITORY.push({ fac: F, col: FAC_FILL[F] || facColor(F), fill: fillPolys, contour });
     }
