@@ -1363,19 +1363,19 @@
   const lightHex = (hex, f) => { const h = hex.replace("#", ""), n = parseInt(h.length === 3 ? h.replace(/(.)/g, "$1$1") : h, 16), m = (v) => (v + (255 - v) * f) | 0; return "#" + ((1 << 24) + (m((n >> 16) & 255) << 16) + (m((n >> 8) & 255) << 8) + m(n & 255)).toString(16).slice(1); };
 
   const scaleHex = (hex, k) => { const h = hex.replace("#", ""), n = parseInt(h.length === 3 ? h.replace(/(.)/g, "$1$1") : h, 16), m = (v) => Math.max(0, Math.min(255, v * k)) | 0; return "#" + ((1 << 24) + (m((n >> 16) & 255) << 16) + (m((n >> 8) & 255) << 8) + m(n & 255)).toString(16).slice(1); };
-  const PLATE = { h: 23, padx: 7, crest: 15, gap: 9, poiW: 17 };
+  const PLATE = { h: 23, padx: 6, crest: 18, gap: 9, poiW: 17 };
   const _plateDrawn = new Set();   // planet indices that got a plate this frame (so floating timers dedupe)
   // distinct factions present on a planet via ownership + ambient subfactions + named forces
   const planetFactions = (p) => { const s = new Set(); if (p.owner >= 1) s.add(p.owner); if (p.subfac) for (const f of p.subfac) { if (f >= 1) s.add(f); } if (p.forces) for (const f of p.forces) { if (f.f >= 1) s.add(f.f); } return [...s]; };
-  // contested plate sides: owner faction (left) + the faction contesting it (right), if any
+  // contested plate sides: owner faction (left) + a SECOND enemy faction contesting it (right).
+  // Contested == two ENEMY factions sharing a world (>=2) — Super Earth never counts (same rule as the border VFX).
   function plateSides(p) {
-    const own = p.owner >= 1 ? p.owner : (p.campRace || (p.ev && p.ev.race) || 0);
+    const own = p.owner;
+    if (own < 2) return { own, opp: 0 };                                          // SE / uncontrolled owner -> no enemy-vs-enemy split
     let opp = 0;
-    if (p.ev && p.ev.race && p.ev.race !== own) opp = p.ev.race;                  // event attacker
-    if (!opp && p.active && own >= 2) opp = 1;                                     // enemy world being liberated -> SE contesting
-    if (!opp && p.campRace && p.campRace !== own) opp = p.campRace;
-    if (!opp && p.subfac) for (const f of p.subfac) { if (f >= 1 && f !== own) { opp = f; break; } }
-    if (!opp && p.forces) for (const f of p.forces) { if (f.f >= 1 && f.f !== own) { opp = f.f; break; } }
+    if (p.subfac) for (const f of p.subfac) { if (f >= 2 && f !== own) { opp = f; break; } }
+    if (!opp && p.forces) for (const f of p.forces) { if (f.f >= 2 && f.f !== own) { opp = f.f; break; } }
+    if (!opp && p.ev && p.ev.race >= 2 && p.ev.race !== own) opp = p.ev.race;     // event run by a different enemy
     return { own, opp };
   }
   function plateMetrics(c, name, poiN) {
@@ -1395,15 +1395,16 @@
 
     panel(); c.fillStyle = "rgba(11,15,22,0.97)"; c.fill();
 
-    const sides = plateSides(p), ex = x + PLATE.padx, ey = cyr - PLATE.crest / 2, es = PLATE.crest, half = blockW / 2;
+    const sides = plateSides(p), ex = x + PLATE.padx, ey = cyr - PLATE.crest / 2, es = PLATE.crest;
     if (sides.opp) {
-      // contested: split crest block — owner faction's icon (left half) + contesting faction's (right half)
-      c.fillStyle = scaleHex(facColor(sides.own), 0.78); c.fillRect(x, y, half, h);
-      c.fillStyle = scaleHex(facColor(sides.opp), 0.78); c.fillRect(x + half, y, blockW - half, h);
+      // contested: split crest block — owner faction's icon (left) + the contesting enemy's (right),
+      // each cropped to its outer half with a small dark gap between (no hard divider line)
+      const g = 3, hz = (blockW - g) / 2, rx = x + hz + g, ecx = x + blockW / 2;
+      c.fillStyle = scaleHex(facColor(sides.own), 0.78); c.fillRect(x, y, hz, h);
+      c.fillStyle = scaleHex(facColor(sides.opp), 0.78); c.fillRect(rx, y, hz, h);
       const e1 = FAC_EMBLEM[sides.own], e2 = FAC_EMBLEM[sides.opp];
-      if (e1) { c.save(); c.beginPath(); c.rect(x, y, half, h); c.clip(); c.drawImage(e1, ex, ey, es, es); c.restore(); }
-      if (e2) { c.save(); c.beginPath(); c.rect(x + half, y, blockW - half, h); c.clip(); c.drawImage(e2, ex, ey, es, es); c.restore(); }
-      c.fillStyle = "rgba(0,0,0,0.5)"; c.fillRect(x + half - 0.5, y, 1, h);   // centre divider
+      if (e1) { c.save(); c.beginPath(); c.rect(x, y, hz, h); c.clip(); c.drawImage(e1, ecx - es / 2, ey, es, es); c.restore(); }
+      if (e2) { c.save(); c.beginPath(); c.rect(rx, y, hz, h); c.clip(); c.drawImage(e2, ecx - es / 2, ey, es, es); c.restore(); }
     } else {
       c.fillStyle = scaleHex(col, 0.78); c.fillRect(x, y, blockW, h);
       const emb = FAC_EMBLEM[fac]; if (emb) c.drawImage(emb, ex, ey, es, es);
