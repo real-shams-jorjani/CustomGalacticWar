@@ -1041,7 +1041,7 @@
         const TL = { x: x0, y: y0 }, TR = { x: x1, y: y0 }, BR = { x: x1, y: y1 }, BL = { x: x0, y: y1 };
         const tM = { x: xm, y: y0 }, rM = { x: x1, y: ym }, bM = { x: xm, y: y1 }, lM = { x: x0, y: ym };
         const hot = (f0 >= 2 && f0 !== F) || (f1 >= 2 && f1 !== F) || (f2 >= 2 && f2 !== F) || (f3 >= 2 && f3 !== F);
-        const pushC = (a, b) => { contour.push([a, b]); if (hot) CONTESTED.push([a, b]); };
+        const pushC = (a, b) => { if (hot) CONTESTED.push([a, b]); else contour.push([a, b]); };   // seams aren't drawn as faction borders
         if (s === 4) { fillPolys.push([TL, TR, BR, BL]); continue; }
         if (tl === br && tr === bl && tl !== tr) {   // saddle -> two diagonal corner triangles
           if (tl) { fillPolys.push([TL, tM, lM], [BR, bM, rM]); pushC(tM, lM); pushC(bM, rM); }
@@ -1055,28 +1055,46 @@
       }
       TERRITORY.push({ fac: F, col: FAC_FILL[F] || facColor(F), fill: fillPolys, contour });
     }
+    // de-dupe the seam: both bordering factions emit the same segment, so collapse by rounded endpoints
+    if (CONTESTED.length) {
+      const seen = {}, uniq = [];
+      for (const s of CONTESTED) {
+        const a = s[0], b = s[1], ax = Math.round(a.x), ay = Math.round(a.y), bx = Math.round(b.x), by = Math.round(b.y);
+        const k = (ax < bx || (ax === bx && ay <= by)) ? ax + "_" + ay + "_" + bx + "_" + by : bx + "_" + by + "_" + ax + "_" + ay;
+        if (!seen[k]) { seen[k] = 1; uniq.push(s); }
+      }
+      CONTESTED = uniq;
+    }
   }
 
   function drawTerritory(c) {
     if (!TERRITORY.length) return;
     c.save(); c.lineJoin = "round"; c.lineCap = "round";
-    for (const t of TERRITORY) {     // subtle interior: dark base + faction tint + faint HD2 stripes
-      c.beginPath();
-      for (const poly of t.fill) { for (let k = 0; k < poly.length; k++) { const q = project(poly[k].x, poly[k].y, 0); k ? c.lineTo(q.x, q.y) : c.moveTo(q.x, q.y); } c.closePath(); }
-      c.fillStyle = "rgba(7,11,18,0.5)"; c.fill();
-      c.fillStyle = hexA(t.col, 0.22); c.fill();
-      c.globalAlpha = 0.2; c.fillStyle = hazPattern(t.col); c.fill(); c.globalAlpha = 1;
+    const strokeContour = (t) => { c.beginPath(); for (const seg of t.contour) { const a = project(seg[0].x, seg[0].y, 0), b = project(seg[1].x, seg[1].y, 0); c.moveTo(a.x, a.y); c.lineTo(b.x, b.y); } c.stroke(); };
+    const fillPath = (t) => { c.beginPath(); for (const poly of t.fill) { for (let k = 0; k < poly.length; k++) { const q = project(poly[k].x, poly[k].y, 0); k ? c.lineTo(q.x, q.y) : c.moveTo(q.x, q.y); } c.closePath(); } };
+
+    // 1) dark moat — a soft dark halo around each territory so it reads as a landmass against open space
+    for (const t of TERRITORY) { c.shadowColor = "#05070c"; c.shadowBlur = 7; c.strokeStyle = hexA(scaleHex(t.col, 0.2), 0.55); c.lineWidth = 4.5; strokeContour(t); }
+    c.shadowBlur = 0;
+    // 2) interior — dark base + faint faction tint + faint HD2 stripes (calmer, so borders are the hero)
+    for (const t of TERRITORY) {
+      fillPath(t);
+      c.fillStyle = "rgba(7,11,18,0.55)"; c.fill();
+      c.fillStyle = hexA(t.col, 0.16); c.fill();
+      c.globalAlpha = 0.16; c.fillStyle = hazPattern(t.col); c.fill(); c.globalAlpha = 1;
     }
-    const passes = [{ w: 6, a: 0.16, blur: 11, light: 0 }, { w: 3, a: 0.85, blur: 6, light: 0 }, { w: 1.2, a: 0.95, blur: 0, light: 0.55 }];
-    for (const p of passes) {        // bold glowing faction border (Stellaris hero element)
-      for (const t of TERRITORY) {
-        c.shadowColor = t.col; c.shadowBlur = p.blur; c.strokeStyle = hexA(p.light ? lightHex(t.col, p.light) : t.col, p.a); c.lineWidth = p.w;
-        c.beginPath(); for (const seg of t.contour) { const a = project(seg[0].x, seg[0].y, 0), b = project(seg[1].x, seg[1].y, 0); c.moveTo(a.x, a.y); c.lineTo(b.x, b.y); } c.stroke();
-      }
-    }
-    if (CONTESTED.length) {          // white-hot contested front line where two enemies meet
-      c.shadowColor = "#ffffff"; c.shadowBlur = 8; c.strokeStyle = "rgba(255,255,255,0.5)"; c.lineWidth = 2.2;
-      c.beginPath(); for (const seg of CONTESTED) { const a = project(seg[0].x, seg[0].y, 0), b = project(seg[1].x, seg[1].y, 0); c.moveTo(a.x, a.y); c.lineTo(b.x, b.y); } c.stroke();
+    // 3) inner rim (Stellaris falloff) — a wide faction glow confined to interiors via source-atop
+    // (the outer half falls on transparent void and is discarded), giving a soft inward edge cheaply
+    c.save(); c.globalCompositeOperation = "source-atop";
+    for (const t of TERRITORY) { c.shadowColor = t.col; c.shadowBlur = 10; c.strokeStyle = hexA(t.col, 0.5); c.lineWidth = 9; strokeContour(t); }
+    c.restore(); c.shadowBlur = 0;
+    // 4) crisp bright core line on the border
+    for (const t of TERRITORY) { c.strokeStyle = hexA(lightHex(t.col, 0.5), 0.95); c.lineWidth = 1.3; strokeContour(t); }
+    // 5) contested seam — a quiet dark trench (the animated energy flow rides on top, in drawDynamic)
+    if (CONTESTED.length) {
+      c.beginPath(); for (const seg of CONTESTED) { const a = project(seg[0].x, seg[0].y, 0), b = project(seg[1].x, seg[1].y, 0); c.moveTo(a.x, a.y); c.lineTo(b.x, b.y); }
+      c.strokeStyle = "rgba(4,6,11,0.92)"; c.lineWidth = 3.2; c.stroke();
+      c.strokeStyle = "rgba(120,150,190,0.38)"; c.lineWidth = 0.9; c.stroke();
     }
     c.shadowBlur = 0; c.restore();
   }
@@ -1595,6 +1613,19 @@
     }
 
     drawSectorFX(ctx, ts);
+
+    // contested front line: energy sparks flow along the seam (high-gfx only; the static dark trench
+    // drawn in drawTerritory is the fallback). Territory map style only.
+    if (LAYERS.sectors && MAPMODE === "territory" && !REDUCED && CONTESTED.length) {
+      ctx.save(); ctx.globalCompositeOperation = "lighter"; ctx.fillStyle = "#dff0ff";
+      for (let i = 0; i < CONTESTED.length; i++) {
+        const s = CONTESTED[i], a = project(s[0].x, s[0].y, 0), b = project(s[1].x, s[1].y, 0);
+        const t = ((ts / 900) + (s[0].x * 0.0009 + s[0].y * 0.0013)) % 1;   // phase by world pos -> flows along the front
+        ctx.globalAlpha = 0.55 * Math.sin(t * Math.PI);
+        ctx.beginPath(); ctx.arc(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, 1.7, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.globalAlpha = 1; ctx.restore();
+    }
 
     if (LAYERS.effects) drawEnvFX(ts);
 
