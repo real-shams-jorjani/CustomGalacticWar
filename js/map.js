@@ -80,7 +80,7 @@
     return { x: rx * c + ry * s, y: -rx * s + ry * c };
   }
 
-  let PLANETS = [], HIDDEN = [], SECTORS = [], LINKS = [], ATTACKS = [], LABELS = [], DSS = null, MO_MARKS = [], DEFENSE_MARKS = [], FLEET_MARKS = [], FX_MARKS = [], SUBFAC_MARKS = [], GLOOM_LINKS = [], SE_LINKS = [], MIXED_LINKS = [], ENEMY_BORDER = [];
+  let PLANETS = [], HIDDEN = [], SECTORS = [], LINKS = [], ATTACKS = [], LABELS = [], DSS = null, MO_MARKS = [], DEFENSE_MARKS = [], FLEET_MARKS = [], FX_MARKS = [], SUBFAC_MARKS = [], GLOOM_LINKS = [], SE_LINKS = [], MIXED_LINKS = [], ENEMY_BORDER = [], TERRITORY = [], CONTESTED = [];
 
   const FLEETS_ENABLED = false;
 
@@ -287,37 +287,7 @@
       sec.cells.forEach(([ring, line]) => { const rm = (ring + 0.5) * 100, am = ang(line + 0.5); cx += rm * Math.cos(am); cy += -rm * Math.sin(am); n++; });
       if (n) { cx /= n; cy /= n; }
 
-      // Enemy territory is coloured per controlling faction: each cell goes to its nearest in-sector
-      // enemy planet, then cells group by faction. A sector held by two enemies shows BOTH colours as
-      // clean striped regions. (Super Earth / contested never fill -- handled by skipping non-enemy
-      // sectors at draw time -- so home space stays blank.)
-      let regions = null;
-      if (isEnemy) {
-        const eHere = PLANETS.filter((e) => e.p.sector === me && e.p.owner >= 2);
-        const cellFac = tops.map((poly) => {
-          let mx = 0, my = 0; for (const q of poly) { mx += q.x; my += q.y; } mx /= poly.length; my /= poly.length;
-          let best = domEnemy, bd = Infinity;
-          for (const e of eHere) { const dx = e.wx - mx, dy = e.wy - my, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = e.p.owner; } }
-          return best;
-        });
-        const facAt = {}; sec.cells.forEach(([r, l], ix) => { facAt[r + "," + l] = cellFac[ix]; });
-        const facOf = (r, l) => { const k = r + "," + ((l + 24) % 24); return (k in facAt) ? facAt[k] : -1; };
-        const byFac = {};
-        sec.cells.forEach(([ring, line], ix) => {
-          const f = cellFac[ix];
-          const rg = byFac[f] || (byFac[f] = { fac: f, col: FAC_FILL[f] || facColor(f), idx: [], perim: [] });
-          rg.idx.push(ix);
-          // an edge is on this faction's territory perimeter wherever the neighbour cell isn't the
-          // same faction — outer boundary AND the seam where it meets a second enemy faction.
-          const a0 = ang(line), a1 = ang(line + 1), rIn = ring * 100, rOut = (ring + 1) * 100;
-          if (facOf(ring + 1, line) !== f) rg.perim.push(arcLine(rOut, a0, a1, 3));
-          if (ring > 0 && facOf(ring - 1, line) !== f) rg.perim.push(arcLine(rIn, a0, a1, 3));
-          if (facOf(ring, line + 1) !== f) rg.perim.push([polar(rIn, a1), polar(rOut, a1)]);
-          if (facOf(ring, line - 1) !== f) rg.perim.push([polar(rIn, a0), polar(rOut, a0)]);
-        });
-        regions = Object.keys(byFac).map((f) => byFac[f]);
-      }
-      return { tops, walls, risers, secEdges, dots, cx, cy, elev, tier, fillHex, wallHex, outline, alpha, se: isSE, enemy: isEnemy, available, active: st.camp, regions };
+      return { tops, walls, risers, secEdges, dots, cx, cy, elev, tier, fillHex, wallHex, outline, alpha, se: isSE, enemy: isEnemy, available, active: st.camp };
     });
 
     const NODE_POP = 0;
@@ -333,6 +303,7 @@
 
     SE_LINKS = LINKS.filter((l) => l.a.p.owner === 1 && l.b.p.owner === 1);
     MIXED_LINKS = LINKS.filter((l) => l.a.p.owner >= 1 && l.b.p.owner >= 1 && l.a.p.owner !== l.b.p.owner);
+    buildTerritory();
     const sums = {};
     DATA.planets.forEach((p) => { if (p.owner < 1) return; const s = sums[p.owner] || (sums[p.owner] = { x: 0, y: 0, n: 0 }); s.x += p.x * MAP_SCALE; s.y += -p.y * MAP_SCALE; s.n++; });
     LABELS = []; Object.keys(sums).forEach((f) => { const s = sums[f]; if (s.n < 3) return; LABELS.push({ t: facName(+f), cx: s.x / s.n, cy: s.y / s.n, col: facColor(+f), fid: +f }); });
@@ -682,11 +653,11 @@
     HIDDEN.forEach((e) => { const q = project(e.wx, e.wy, 0); e.sx = q.x; e.sy = q.y; });
     if (DSS) { const g = project(DSS.wx, DSS.wy, DSS.belev || 0); DSS.gx = g.x; DSS.gy = g.y; const q = project(DSS.wx, DSS.wy, DSS.elev || 0); DSS.sx = q.x; DSS.sy = q.y; }
 
-    if (LAYERS.sectors) drawSectors(c);
+    if (LAYERS.sectors) { drawSectorOutlines(c); drawTerritory(c); }
     drawGrid(c);
     drawStems(c);
     if (LAYERS.supply) drawLinks(c);
-    if (LAYERS.sectors) drawBorders(c);
+    // (sector grid + planet-driven territory are drawn above, before supply lines)
 
   }
 
@@ -925,20 +896,17 @@
     }
   }
 
+  // Faint structural grid of ALL sectors — stays visible beneath the planet-driven territory layer.
   function drawSectorOutlines(c) {
     c.save(); c.lineJoin = "round"; c.lineCap = "round"; c.lineWidth = 1;
-    for (const i of sectorOrder) {
-      const s = SECTORS[i];
-      if (!s.secEdges || !s.secEdges.length || !s.enemy) continue;
-      const col = lightHex(s.fillHex, 0.4);
-      c.strokeStyle = hexA(col, 0.2);
-      c.beginPath();
+    c.strokeStyle = "rgba(112,140,175,0.13)"; c.beginPath();
+    for (const s of SECTORS) {
+      if (!s.secEdges || !s.secEdges.length) continue;
       for (const pts of s.secEdges) {
-        for (let k = 0; k < pts.length; k++) { const q = project(pts[k].x, pts[k].y, s.elev); k ? c.lineTo(q.x, q.y) : c.moveTo(q.x, q.y); }
+        for (let k = 0; k < pts.length; k++) { const q = project(pts[k].x, pts[k].y, 0); k ? c.lineTo(q.x, q.y) : c.moveTo(q.x, q.y); }
       }
-      c.stroke();
     }
-    c.restore();
+    c.stroke(); c.restore();
   }
 
   function drawSectorFX(c, ts) {
@@ -970,22 +938,75 @@
   // Each enemy faction's territory is outlined with a glowing border in its own colour. Where two
   // enemies share a sector their perimeters run side by side, so the seam reads in BOTH colours.
   // Static (cached) layer, so the glow/shadowBlur cost is paid once per camera move, not per frame.
-  function drawBorders(c) {
-    c.save(); c.lineJoin = "round"; c.lineCap = "round"; c.shadowBlur = 0;
-    const passes = [
-      { w: 6.5, a: 0.16, blur: 11, light: 0 },   // wide soft outer glow
-      { w: 3.2, a: 0.85, blur: 6, light: 0 },    // solid faction-colour band
-      { w: 1.2, a: 0.95, blur: 0, light: 0.55 }, // bright inner core
-    ];
-    for (const p of passes) {
-      for (const s of SECTORS) {
-        if (!s.enemy || !s.regions) continue;
-        for (const rg of s.regions) {
-          const col = p.light ? lightHex(rg.col, p.light) : rg.col;
-          c.shadowColor = rg.col; c.shadowBlur = p.blur; c.strokeStyle = hexA(col, p.a); c.lineWidth = p.w;
-          for (const pts of rg.perim) strokeEdge(c, pts, s.elev);
+  // --- Planet-driven territory -----------------------------------------------------------------
+  // Territory is grown from the planets, not the sector grid: a world-space grid where each point
+  // takes its nearest planet's faction (within an influence radius), then per-enemy-faction
+  // marching squares gives ANGULAR (right-angle + 45°) shapes. SE/contested points block but never
+  // fill. CONTESTED collects the seam segments where two enemy factions meet (lit white-hot).
+  function buildTerritory() {
+    TERRITORY = []; CONTESTED = [];
+    const pl = PLANETS; if (pl.length < 2) return;
+    const ll = (DATA.links || []).map(([a, b]) => { const A = byIndex[a], B = byIndex[b]; return (A && B) ? Math.hypot(A.wx - B.wx, A.wy - B.wy) : 0; }).filter((d) => d > 0).sort((x, y) => x - y);
+    const med = ll.length ? ll[ll.length >> 1] : 1600;
+    let G = med * 0.4; const R = med * 0.95, R2 = R * R;
+    let minX = 1e9, minY = 1e9, maxX = -1e9, maxY = -1e9;
+    for (const e of pl) { if (e.wx < minX) minX = e.wx; if (e.wx > maxX) maxX = e.wx; if (e.wy < minY) minY = e.wy; if (e.wy > maxY) maxY = e.wy; }
+    minX -= R * 1.1; minY -= R * 1.1; maxX += R * 1.1; maxY += R * 1.1;
+    let nx = Math.ceil((maxX - minX) / G) + 1, ny = Math.ceil((maxY - minY) / G) + 1;
+    const CAP = 150; if (Math.max(nx, ny) > CAP) { G *= Math.max(nx, ny) / CAP; nx = Math.ceil((maxX - minX) / G) + 1; ny = Math.ceil((maxY - minY) / G) + 1; }
+    const bs = R || 1, BK = new Map(), key = (a, b) => a * 100003 + b;
+    for (const e of pl) { const k = key(Math.floor(e.wx / bs), Math.floor(e.wy / bs)); let a = BK.get(k); if (!a) BK.set(k, a = []); a.push(e); }
+    const nearFac = (x, y) => { const bx = Math.floor(x / bs), by = Math.floor(y / bs); let best = 0, bd = R2; for (let ox = -1; ox <= 1; ox++) for (let oy = -1; oy <= 1; oy++) { const a = BK.get(key(bx + ox, by + oy)); if (!a) continue; for (const e of a) { const dx = e.wx - x, dy = e.wy - y, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = e.p.owner; } } } return best; };
+    const fac = new Int16Array(nx * ny);
+    for (let i = 0; i < nx; i++) { const x = minX + i * G; for (let j = 0; j < ny; j++) fac[i * ny + j] = nearFac(x, minY + j * G); }
+    const present = [...new Set(Array.from(fac).filter((f) => f >= 2))];
+    const px = (i) => minX + i * G, py = (j) => minY + j * G;
+    for (const F of present) {
+      const fillPolys = [], contour = [];
+      for (let i = 0; i < nx - 1; i++) for (let j = 0; j < ny - 1; j++) {
+        const f0 = fac[i * ny + j], f1 = fac[(i + 1) * ny + j], f2 = fac[(i + 1) * ny + j + 1], f3 = fac[i * ny + j + 1];
+        const tl = f0 === F ? 1 : 0, tr = f1 === F ? 1 : 0, br = f2 === F ? 1 : 0, bl = f3 === F ? 1 : 0;
+        const s = tl + tr + br + bl; if (!s) continue;
+        const x0 = px(i), x1 = px(i + 1), y0 = py(j), y1 = py(j + 1), xm = (x0 + x1) / 2, ym = (y0 + y1) / 2;
+        const TL = { x: x0, y: y0 }, TR = { x: x1, y: y0 }, BR = { x: x1, y: y1 }, BL = { x: x0, y: y1 };
+        const tM = { x: xm, y: y0 }, rM = { x: x1, y: ym }, bM = { x: xm, y: y1 }, lM = { x: x0, y: ym };
+        const hot = (f0 >= 2 && f0 !== F) || (f1 >= 2 && f1 !== F) || (f2 >= 2 && f2 !== F) || (f3 >= 2 && f3 !== F);
+        const pushC = (a, b) => { contour.push([a, b]); if (hot) CONTESTED.push([a, b]); };
+        if (s === 4) { fillPolys.push([TL, TR, BR, BL]); continue; }
+        if (tl === br && tr === bl && tl !== tr) {   // saddle -> two diagonal corner triangles
+          if (tl) { fillPolys.push([TL, tM, lM], [BR, bM, rM]); pushC(tM, lM); pushC(bM, rM); }
+          else { fillPolys.push([TR, rM, tM], [BL, lM, bM]); pushC(rM, tM); pushC(lM, bM); }
+          continue;
         }
+        const corners = [[tl, TL], [tr, TR], [br, BR], [bl, BL]], mids = [tM, rM, bM, lM], poly = [], trans = [];
+        for (let k = 0; k < 4; k++) { const cur = corners[k], nv = corners[(k + 1) % 4]; if (cur[0]) poly.push(cur[1]); if (cur[0] !== nv[0]) { poly.push(mids[k]); trans.push(mids[k]); } }
+        if (poly.length >= 3) fillPolys.push(poly);
+        if (trans.length === 2) pushC(trans[0], trans[1]);
       }
+      TERRITORY.push({ fac: F, col: FAC_FILL[F] || facColor(F), fill: fillPolys, contour });
+    }
+  }
+
+  function drawTerritory(c) {
+    if (!TERRITORY.length) return;
+    c.save(); c.lineJoin = "round"; c.lineCap = "round";
+    for (const t of TERRITORY) {     // subtle interior: dark base + faction tint + faint HD2 stripes
+      c.beginPath();
+      for (const poly of t.fill) { for (let k = 0; k < poly.length; k++) { const q = project(poly[k].x, poly[k].y, 0); k ? c.lineTo(q.x, q.y) : c.moveTo(q.x, q.y); } c.closePath(); }
+      c.fillStyle = "rgba(7,11,18,0.5)"; c.fill();
+      c.fillStyle = hexA(t.col, 0.22); c.fill();
+      c.globalAlpha = 0.2; c.fillStyle = hazPattern(t.col); c.fill(); c.globalAlpha = 1;
+    }
+    const passes = [{ w: 6, a: 0.16, blur: 11, light: 0 }, { w: 3, a: 0.85, blur: 6, light: 0 }, { w: 1.2, a: 0.95, blur: 0, light: 0.55 }];
+    for (const p of passes) {        // bold glowing faction border (Stellaris hero element)
+      for (const t of TERRITORY) {
+        c.shadowColor = t.col; c.shadowBlur = p.blur; c.strokeStyle = hexA(p.light ? lightHex(t.col, p.light) : t.col, p.a); c.lineWidth = p.w;
+        c.beginPath(); for (const seg of t.contour) { const a = project(seg[0].x, seg[0].y, 0), b = project(seg[1].x, seg[1].y, 0); c.moveTo(a.x, a.y); c.lineTo(b.x, b.y); } c.stroke();
+      }
+    }
+    if (CONTESTED.length) {          // white-hot contested front line where two enemies meet
+      c.shadowColor = "#ffffff"; c.shadowBlur = 8; c.strokeStyle = "rgba(255,255,255,0.5)"; c.lineWidth = 2.2;
+      c.beginPath(); for (const seg of CONTESTED) { const a = project(seg[0].x, seg[0].y, 0), b = project(seg[1].x, seg[1].y, 0); c.moveTo(a.x, a.y); c.lineTo(b.x, b.y); } c.stroke();
     }
     c.shadowBlur = 0; c.restore();
   }
