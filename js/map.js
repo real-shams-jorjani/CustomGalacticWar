@@ -158,7 +158,7 @@
     });
     (DATA.links || []).forEach((e) => {
       const a = bi[e[0]], c = bi[e[1]];
-      if (a && c) { a.adj.push({ name: c.name, owner: c.owner }); c.adj.push({ name: a.name, owner: a.owner }); }
+      if (a && c) { a.adj.push({ name: c.name, owner: c.owner, globe: c.globe, i: c.i }); c.adj.push({ name: a.name, owner: a.owner, globe: a.globe, i: a.i }); }
     });
   }
 
@@ -1882,6 +1882,17 @@
   const hazIcon = (n) => (HAZ_ICON[n] ? `img/env/${encodeURIComponent(HAZ_ICON[n])}` : null);
   const resistance = (p) => (p.max > 0 ? (p.regen * 3600 / p.max * 100) : 0);
   const hazTag = (e) => { const ic = hazIcon(e); return `<span class="haz">${ic ? `<img src="${ic}" alt="">` : ""}${e}</span>`; };
+  // Subfaction display-name -> Discord emoji icon (id + anim), lifted from fleet_catalogue.json.
+  // Lets ENEMY FORCES chips show the real WarForge subfaction icon (img/enemies/<id>.png, with
+  // a Discord-CDN fallback via enemyIcon). Strains with no emoji fall back to the faction icon.
+  const SUBFAC_ICON = {
+    "PREDATOR STRAIN": { eid: "1433396632912924682" }, "RUPTURE STRAIN": { eid: "1433395636241432676" },
+    "DRAGONROACHES": { eid: "1433396592836087869" }, "HIVE LORDS": { eid: "1430405000349094008", anim: true },
+    "THE JET BRIGADE": { eid: "1433397113831817258" }, "THE INCINERATION CORPS": { eid: "1430317932805754972" },
+    "CYBORGS": { eid: "1468838016742068244" }, "APPROPRIATORS": { eid: "1484679532450549891" },
+    "ASSIMILATORS": { eid: "1507917832795721758" }, "PANZER DIVISION": { eid: "1507491787764400239" },
+    "SEAF": { eid: "1506468708342562908" },
+  };
   const PB = { GAP: 14, PAD: 2, TRI_W: 7, TRI_H: 9, CHEV_W: 5, CHEV_THICK: 6, CHEV_SPACE: 8, STRIPE_W: 5, STRIPE_SPACE: 6, STRIPE_ANGLE: 32, SPEED_SE: 0.5, SPEED_EN: 0.125 };
   const SE_COL = { bg: "#8BCCDF", fg: "#78AFBE" };
   const ENEMY_COL = { 0: { bg: "#A0A0A0", fg: "#707070" }, 2: { bg: "#FFCB00", fg: "#D9AC00" }, 3: { bg: "#FF7F7F", fg: "#DB6E6E" }, 4: { bg: "#DAA4EF", fg: "#BA8CCC" } };
@@ -2000,9 +2011,9 @@
     const m = tipMeta(p), fc = facColor(m.dispFac), oc = facColor(p.owner), hasCamp = m.mode !== "none";
     let h = `<div class="wf-dash" style="--fac:${fc}">`;
 
-    h += `<div class="wf-dash-head"><span class="wf-dash-fac"><span class="wf-dash-ficon" style="-webkit-mask:url(${facIcon(m.dispFac)}) center/contain no-repeat;mask:url(${facIcon(m.dispFac)}) center/contain no-repeat;background:${fc}"></span><span class="wf-outline wf-dash-facname" style="color:${fc}">${facNameS(m.dispFac)}</span><span class="wf-outline wf-dash-pname">${p.name}</span></span>` +
-      `<span class="wf-outline wf-dash-name">${p.name}</span>` +
-      `<span class="wf-dash-idx"><span class="wf-idx-icon"></span><b class="wf-outline">${p.i}</b></span>` +
+    h += `<div class="wf-dash-head"><span class="wf-dash-fac"><span class="wf-dash-ficon" style="-webkit-mask:url(${facIcon(m.dispFac)}) center/contain no-repeat;mask:url(${facIcon(m.dispFac)}) center/contain no-repeat"></span><span class="wf-dash-facname">${facNameS(m.dispFac)}</span><span class="wf-dash-pname">${p.name}</span></span>` +
+      `<span class="wf-dash-name">${p.name}</span>` +
+      `<span class="wf-dash-idx"><span class="wf-idx-icon"></span><b>${p.i}</b></span>` +
       `<button class="pc-close" id="pc-close" title="Close">&times;</button></div>`;
     h += `<div class="wf-dash-body">`;
     const hasStorm = p.fx && p.fx.some((f) => f.t === "vortex");
@@ -2018,11 +2029,11 @@
     else h += statusCard(p);
     const desc = tipDesc(p, m); if (desc) h += `<div class="wf-dash-desc">${desc}</div>`;
     if (m.mode === "event") { const frame = `img/icons/frame_${FAC_LOWER[m.dispFac] || "terminid"}.png`; h += `<div class="wf-eventwrap"><div class="wf-badge"><span class="wf-badge-frame" style="-webkit-mask:url(${frame}) center/contain no-repeat;mask:url(${frame}) center/contain no-repeat;background:${fc}"></span><span class="wf-badge-lvl" style="color:${fc}">${invLevel(p)}</span></div><canvas class="wf-eventbar" width="232" height="38"></canvas></div><div class="wf-timer" data-exp="${p.ev.expireEpoch}" data-label="${m.isDefense ? "DEFEND" : "CLAIM"}">${m.isDefense ? "DEFEND" : "CLAIM"} --:--:--</div>`; }
-    else if (m.mode === "standard") h += `<div class="wf-outline wf-liblbl">${p.lib.toFixed(1)}% LIBERATED</div>`;
+    else if (m.mode === "standard") h += `<canvas class="wf-bar" width="232" height="15"></canvas><div class="wf-outline wf-liblbl">${p.lib.toFixed(1)}% LIBERATED</div>`;
 
     const resSpec = m.isDefense
-      ? `<div class="dsr-spec"><span>INVASION LEVEL</span><b>${invLevel(p)}</b></div>`
-      : (function () { const res = resistance(p), rc = RES_CLASS(res); return `<div class="dsr-spec"><span>RESISTANCE</span><b style="color:${rc[1]}">${rc[0]} (${res.toFixed(2)}%)</b></div>`; })();
+      ? (function () { const lv = invLevel(p); return `<div class="dsr-spec has-bar"><span>INVASION LEVEL</span><b>${lv}</b><i class="dsr-spec-bar" style="--p:${clamp(lv / 10 * 100, 8, 100)}%;--c:#FF7676"></i></div>`; })()
+      : (function () { const res = resistance(p), rc = RES_CLASS(res); return `<div class="dsr-spec has-bar"><span>RESISTANCE</span><b style="color:${rc[1]}">${rc[0]} (${res.toFixed(2)}%)</b><i class="dsr-spec-bar" style="--p:${clamp(res / 8 * 100, 4, 100)}%;--c:${rc[1]}"></i></div>`; })();
     h += `<div class="dsr-specgrid">${resSpec}${specRibbon(p)}</div>`;
     h += `</div></div>`;
 
@@ -2038,9 +2049,12 @@
     if (sitrep.length) tabs.push({ id: "sitrep", label: "SITREP", body: grid(sitrep) });
     const force = [];
     if (forces) force.push(sec("ENEMY FORCES PRESENT", forces));
-    if (reg) force.push(sec((p.regions ? p.regions.length + " " : "") + "REGIONS", reg));
-    if (force.length) tabs.push({ id: "forces", label: "FORCES", body: grid(force) });
-    tabs.push({ id: "intel", label: "INTEL", body: grid([sec("POINTS OF INTEREST", `<div class="lore-inner">${renderLore(p)}</div>`, "dsr-poi")]) });
+    if (reg) { const rn = p.regions.length; force.push(sec(rn + " " + (rn === 1 ? "REGION" : "REGIONS"), reg)); }
+    if (force.length) tabs.push({ id: "forces", label: "FRONT", body: grid(force) });
+    // INTEL only appears for worlds that actually have documented lore in data/lore.json.
+    const _lore = LORE[String(p.i)];
+    if (_lore && _lore.poi && _lore.poi.length) tabs.push({ id: "intel", label: "INTEL", body: grid([sec("POINTS OF INTEREST", `<div class="lore-inner">${renderLore(p)}</div>`, "dsr-poi")]) });
+    if (!tabs.length) tabs.push({ id: "sitrep", label: "SITREP", body: grid([sec("SUPPLY NETWORK", sup || `<div class="lore-empty">No telemetry on record for this world.</div>`)]) });
     h += `<div class="dsr-right">` +
       `<div class="dsr-tabs" role="tablist">` + tabs.map((t, i) => `<button class="dsr-tab${i === 0 ? " on" : ""}" data-tab="${t.id}" role="tab" aria-selected="${i === 0 ? "true" : "false"}">${t.label}</button>`).join("") + `</div>` +
       `<div class="dsr-panels">` + tabs.map((t, i) => `<div class="dsr-panel${i === 0 ? " on" : ""}" data-panel="${t.id}">${t.body}</div>`).join("") + `</div>` +
@@ -2049,20 +2063,35 @@
     return h;
   }
 
+  // one stat box; pass pct (0-100) + col to draw a mini progress bar beneath the value
+  function specBox(label, val, pct, col) {
+    const bar = (pct != null) ? `<i class="dsr-spec-bar" style="--p:${clamp(pct, 2, 100)}%;--c:${col || "#46a4ff"}"></i>` : "";
+    return `<div class="dsr-spec${pct != null ? " has-bar" : ""}"><span>${label}</span><b>${val}</b>${bar}</div>`;
+  }
+  // status tags — driven by live planet state; styled as filled HUD pills (see .pc-badge)
+  function dashTags(p) {
+    const t = [];
+    if (p.mo) t.push(["MAJOR ORDER", "mo"]);
+    if (p.home != null) t.push(["HOME WORLD", "home"]);
+    const inbound = ATTACKS.filter((a) => a.b.p.i === p.i).length;
+    if (p.ev && p.owner === 1) t.push(["UNDER DEFENSE", "atk"]);
+    else if (inbound) t.push(["INCOMING ASSAULT", "atk"]);
+    if (p.active && !p.ev) t.push(["ACTIVE FRONT", "active"]);
+    if (p.active && p.lib >= 90) t.push(["FINAL PUSH", "push"]);
+    if ((p.adj || []).length >= 4) t.push(["SUPPLY HUB", "hub"]);
+    const FXLBL = { black_hole: "BLACK HOLE", vortex: "EXOSTORM", void: "THE VOID", gloom: "GLOOM" };
+    (p.fx || []).forEach((f) => { if (FXLBL[f.t]) t.push([FXLBL[f.t], "anom"]); });
+    return t.map(([label, cls]) => `<span class="pc-badge ${cls}">${label}</span>`).join("");
+  }
   function specRibbon(p) {
-    const ctrl = p.max > 0 ? Math.round(p.hp / p.max * 100) : 0;
-    const items = [
-      ["SECTOR", SECTOR_NAME[p.sector] || ("SECTOR " + p.sector)],
-      ["CONTROL", ctrl + "%"],
-      ["INTEGRITY", Math.round(p.hp).toLocaleString() + " / " + Math.round(p.max).toLocaleString()],
-      ["INDEX", "#" + p.i],
-    ];
-    let h = items.map(([k, v]) => `<div class="dsr-spec"><span>${k}</span><b>${v}</b></div>`).join("");
-    const badges = [];
-    if (p.home != null) badges.push(`<span class="pc-badge home">HOME WORLD</span>`);
-    if (p.active) badges.push(`<span class="pc-badge active">ACTIVE FRONT</span>`);
-    if (p.mo) badges.push(`<span class="pc-badge mo">MAJOR ORDER</span>`);
-    if (badges.length) h += `<div class="dsr-spec-badges">${badges.join("")}</div>`;
+    const ctrl = p.max > 0 ? Math.round(p.hp / p.max * 100) : 0, oc = facColor(p.owner);
+    let h = specBox("SECTOR", SECTOR_NAME[p.sector] || ("SECTOR " + p.sector));
+    h += specBox("CONTROL", ctrl + "%", ctrl, oc);
+    h += specBox("INTEGRITY", Math.round(p.hp).toLocaleString() + " / " + Math.round(p.max).toLocaleString());
+    if (p.players > 0) h += specBox("HELLDIVERS", p.players.toLocaleString());
+    h += specBox("INDEX", "#" + p.i);
+    const tags = dashTags(p);
+    if (tags) h += `<div class="dsr-spec-badges">${tags}</div>`;
     return h;
   }
 
@@ -2105,11 +2134,15 @@
   // the inspect screen in place of the (disabled) live fleet tracker.
   function dashForces(p) {
     if (!p.forces || !p.forces.length) return "";
-    return `<ul class="dsr-forces">` + p.forces.map((f) => `<li style="--fac:${facColor(f.f)}">${esc(f.n)}</li>`).join("") + `</ul>`;
+    return `<div class="pc-haz pc-forces">` + p.forces.map((f) => {
+      const c = facColor(f.f), em = f.eid ? { eid: f.eid, anim: f.anim } : SUBFAC_ICON[(f.n || "").toUpperCase()];
+      const ic = (em && em.eid) ? enemyIcon(em, "") : `<img src="${facIcon(f.f)}" alt="">`;
+      return `<span class="haz force" style="--fac:${c}">${ic}${esc(f.n)}</span>`;
+    }).join("") + `</div>`;
   }
   function dashSupply(p) {
     const adj = p.adj || []; let h = "";
-    if (adj.length) h += adj.map((a) => { const c = facColor(a.owner); return `<div class="pc-adj"><span class="dot" style="background:${c};box-shadow:0 0 6px ${c}"></span><span class="pc-adj-name">${a.name}</span><span class="pc-adj-fac" style="color:${c}">${facName(a.owner)}</span></div>`; }).join("");
+    if (adj.length) h += adj.map((a) => { const c = facColor(a.owner), globe = a.globe || "img/globes/default_planet.png"; return `<div class="pc-adj"><span class="mf-globe pc-adj-globe" style="background-image:url(${globe});--fac:${c}"></span><span class="pc-adj-name">${a.name}</span><span class="pc-adj-fac" style="color:${c}">${facName(a.owner)}</span></div>`; }).join("");
     const inbound = ATTACKS.filter((a) => a.b.p.i === p.i).map((a) => a.a.p.name), outbound = ATTACKS.filter((a) => a.a.p.i === p.i).map((a) => a.b.p.name);
     if (inbound.length) h += subh("UNDER ASSAULT FROM", "atk") + inbound.map((n) => `<div class="pc-line atk">${n}</div>`).join("");
     if (outbound.length) h += subh("STAGING ASSAULT ON") + outbound.map((n) => `<div class="pc-line">${n}</div>`).join("");

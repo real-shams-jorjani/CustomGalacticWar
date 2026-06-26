@@ -153,6 +153,18 @@ def _emoji(tok):
     return {"eid": m.group(3), "anim": m.group(1) == "a"} if m else None
 
 
+def _demojibake(s):
+    """Repair upstream UTF-8-decoded-as-Latin-1 double-encoding in display
+    names (e.g. 'MIQÃ‰' -> 'MIQÉ', 'PORTE LIBERTÃ‰' -> 'PORTE LIBERTÉ').
+    No-op for clean ASCII/UTF-8 strings (round-trip fails -> original kept)."""
+    if not s:
+        return s
+    try:
+        return s.encode("latin-1").decode("utf-8")
+    except (UnicodeEncodeError, UnicodeDecodeError):
+        return s
+
+
 def _unit_faction(u):
     u = u or ""
     if "fac_bugs" in u: return 2
@@ -499,7 +511,7 @@ def _name_map():
                         "simple_generated_planet_data.json")
     try:
         raw = json.load(open(path, encoding="utf-8"))
-        return {k: (v.get("name") or "").strip() for k, v in raw.items()}
+        return {k: _demojibake((v.get("name") or "").strip()) for k, v in raw.items()}
     except Exception as e:
         print(f"[warn] could not load planet name map: {e}")
         return {}
@@ -868,7 +880,7 @@ def build():
         if _eid_i is not None:
             _sp = spawn_cat.get(_eid_i)
             if _sp and _sp.get("label"):
-                forces_by_planet[pidx][_sp["label"]] = int(_sp.get("faction") or 0)
+                forces_by_planet[pidx][_sp["label"]] = (int(_sp.get("faction") or 0), _sp.get("emoji"))
         rule = fx_rules.get(str(eid)) if isinstance(fx_rules, dict) else None
         if rule and rule.get("type") in _FX_DEFAULT:
             ft = rule["type"]
@@ -921,7 +933,15 @@ def build():
             p["subfac"] = sorted(sf)                    # factions with a type-71 flag here
         fr = forces_by_planet.get(p["i"])
         if fr:
-            p["forces"] = [{"n": lbl, "f": fac} for lbl, fac in sorted(fr.items())]   # enemy forces present (subfaction names)
+            _forces = []
+            for lbl, (fac, emo) in sorted(fr.items()):              # enemy forces present (subfaction names + icon)
+                _f = {"n": lbl, "f": fac}
+                if emo and emo.get("eid"):
+                    _f["eid"] = emo["eid"]
+                    if emo.get("anim"):
+                        _f["anim"] = True
+                _forces.append(_f)
+            p["forces"] = _forces
         if p["i"] in mo_targets:
             p["mo"] = True
         # active defense/claim event — the double-stacked race bar's data

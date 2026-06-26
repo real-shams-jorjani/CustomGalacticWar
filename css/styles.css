@@ -623,18 +623,25 @@ body.on-war .ticker, body.on-war footer { display: none; }
 .wf-dash::after { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 52;
   background: repeating-linear-gradient(0deg, rgba(0,0,0,0.10) 0 1px, transparent 1px 3px); mix-blend-mode: multiply; opacity: 0.55; }
 
-.wf-dash-head { flex: none; display: flex; align-items: center; gap: 13px; height: 58px; padding: 0 14px 0 18px;
-  background: linear-gradient(90deg, #2D333F, #1A2530); border-bottom: 2px solid var(--fac); }
-.wf-dash-fac { display: flex; align-items: center; gap: 9px; }
-.wf-dash-ficon { width: 30px; height: 30px; display: inline-block; flex: none; }
-.wf-dash-facname { font-size: 18px; white-space: nowrap; }
-.wf-dash-name { font-size: 30px; color: #FFEF00; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Solid faction-colour command banner: dark "ink" icon + text on the bright faction fill,
+   with a faint hazard hatch + bottom highlight for depth. */
+.wf-dash-head { --ink: #0b0f16; flex: none; display: flex; align-items: center; gap: 13px; height: 58px; padding: 0 14px 0 18px;
+  background:
+    repeating-linear-gradient(135deg, rgba(0,0,0,0.10) 0 2px, transparent 2px 9px),
+    linear-gradient(90deg, var(--fac), color-mix(in srgb, var(--fac) 80%, #000));
+  border-bottom: 2px solid color-mix(in srgb, var(--fac) 55%, #000);
+  box-shadow: inset 0 -1px 0 rgba(255,255,255,0.20), 0 4px 14px rgba(0,0,0,0.4); }
+.wf-dash-fac { display: flex; align-items: center; gap: 9px; min-width: 0; }
+.wf-dash-ficon { width: 30px; height: 30px; display: inline-block; flex: none; background: var(--ink); }
+.wf-dash-facname { font-size: 15px; font-weight: 700; letter-spacing: 0.1em; color: var(--ink); opacity: 0.72; white-space: nowrap; }
+.wf-dash-name { font-size: 28px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-.wf-dash-pname { display: none; font-size: 21px; color: #FFEF00; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wf-dash-pname { display: none; font-size: 20px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .wf-dash-idx { display: flex; align-items: center; gap: 6px; margin-left: auto; }
-.wf-dash-idx .wf-idx-icon { width: 22px; height: 22px; }
-.wf-dash-idx b { font-size: 26px; color: #FFEF00; }
-.wf-dash-head .pc-close { position: static; width: 30px; height: 30px; margin-left: 8px; }
+.wf-dash-idx .wf-idx-icon { width: 20px; height: 20px; background: var(--ink); }
+.wf-dash-idx b { font-size: 24px; color: var(--ink); }
+.wf-dash-head .pc-close { position: static; width: 30px; height: 30px; margin-left: 8px; color: var(--ink); background: rgba(0,0,0,0.16); }
+.wf-dash-head .pc-close:hover { background: rgba(0,0,0,0.34); color: #000; }
 
 .wf-dash-body { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: 360px 1fr; grid-template-rows: minmax(0, 1fr); gap: 14px; padding: 14px; overflow: hidden; position: relative; z-index: 1; }
 .wf-dash-body::-webkit-scrollbar { width: 0; height: 0; display: none; }
@@ -677,6 +684,7 @@ body.on-war .ticker, body.on-war footer { display: none; }
 .wf-status.pending .wf-status-t b { color: #bdc9d1; }
 .wf-status-t span { font-size: 11px; color: var(--muted); letter-spacing: 0.02em; }
 .wf-dash-libbox .wf-bar { display: block; width: 300px; height: 17px; }
+.dsr-vitals .wf-bar { display: block; width: 100%; height: 16px; }
 .dsr-vitals .wf-liblbl { font-size: 14px; color: #C8E3EF; margin-top: 4px; paint-order: stroke; -webkit-text-stroke: 1.4px #000; }
 .dsr-vitals .wf-eventwrap { display: flex; align-items: center; gap: 10px; }
 .dsr-vitals .wf-badge { position: relative; width: 56px; height: 56px; flex: none; }
@@ -764,6 +772,9 @@ body.on-war .ticker, body.on-war footer { display: none; }
 .dsr-spec { background: rgba(18,24,31,0.5); border: 1px solid #283039; border-left: 2px solid color-mix(in srgb, var(--fac) 55%, #283039); padding: 8px 11px; }
 .dsr-spec span { display: block; font-size: 10px; letter-spacing: 0.13em; color: #7f93a0; margin-bottom: 3px; }
 .dsr-spec b { font-family: var(--head, 'Swiss 721 Extended'), sans-serif; font-size: 15px; color: #eaf3fa; letter-spacing: 0.02em; }
+.dsr-spec.has-bar { display: flex; flex-direction: column; }
+.dsr-spec-bar { display: block; height: 3px; margin-top: 7px; background: #0c1219; overflow: hidden; }
+.dsr-spec-bar::before { content: ""; display: block; height: 100%; width: var(--p, 0%); background: var(--c, #46a4ff); box-shadow: 0 0 6px var(--c, #46a4ff); }
 .dsr-spec-badges { display: flex; align-items: center; gap: 7px; padding: 0 16px; margin-left: auto; }
 
 .dsr-sec { position: relative; background: linear-gradient(180deg, #151a21, #11151b); border: 1px solid #283039;
@@ -885,18 +896,25 @@ body.on-war .ticker, body.on-war footer { display: none; }
 .pc-stat span { font-size: 9.5px; letter-spacing: 0.1em; color: #7e93a0; text-transform: uppercase; }
 .pc-stat b { font-size: 13.5px; color: #e8eef2; font-weight: 600; line-height: 1.15; word-break: break-word; }
 .pc-badges { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px; }
-.pc-badge { font-size: 11px; letter-spacing: 0.06em; padding: 4px 9px; border: 1px solid currentColor; }
-.pc-badge.home { color: #fff; } .pc-badge.active { color: #FFE900; } .pc-badge.mo { color: #46a4ff; }
+.pc-badges, .dsr-spec-badges { flex-wrap: wrap; }
+.pc-badge { --bc: #9fb8c4; display: inline-flex; align-items: center; gap: 6px; font-size: 10.5px; font-weight: 700;
+  letter-spacing: 0.07em; text-transform: uppercase; padding: 4px 9px 4px 8px; white-space: nowrap;
+  color: color-mix(in srgb, var(--bc) 30%, #ffffff);
+  border: 1px solid color-mix(in srgb, var(--bc) 55%, transparent);
+  background: color-mix(in srgb, var(--bc) 15%, #10151c);
+  box-shadow: 0 0 9px color-mix(in srgb, var(--bc) 20%, transparent), inset 0 0 10px color-mix(in srgb, var(--bc) 8%, transparent); }
+.pc-badge::before { content: ""; width: 5px; height: 5px; border-radius: 50%; flex: none; background: var(--bc); box-shadow: 0 0 6px var(--bc); }
+.pc-badge.mo { --bc: #FFE900; } .pc-badge.home { --bc: #ffffff; } .pc-badge.active { --bc: #FFB23F; }
+.pc-badge.atk { --bc: #FF6B6B; } .pc-badge.push { --bc: #5CE372; } .pc-badge.hub { --bc: #46A4FF; }
+.pc-badge.anom { --bc: #B06BFF; }
 .pc-haz { display: flex; flex-wrap: wrap; gap: 8px; }
 .pc-haz .haz { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: #cdd8de;
   background: #1b2027; border: 1px solid #2c333c; padding: 3px 8px; }
 .pc-haz .haz img { width: 15px; height: 15px; object-fit: contain; }
 
-/* ENEMY FORCES PRESENT — faction-coloured subfaction names, 2-up */
-.dsr-forces { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px; }
-.dsr-forces li { position: relative; padding-left: 14px; font-size: 12px; letter-spacing: 0.03em; font-weight: 700;
-  color: var(--fac, #cdd8de); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.dsr-forces li::before { content: "\2022"; position: absolute; left: 2px; color: var(--fac, #cdd8de); }
+/* ENEMY FORCES — same chip family as ENVIRONMENT (.pc-haz .haz), faction-accented + subfaction icon */
+.pc-forces .haz.force { border-left: 2px solid var(--fac, #cdd8de); padding-left: 7px; font-weight: 700; letter-spacing: 0.03em; color: #e7eef3; }
+.pc-forces .haz.force img { width: 16px; height: 16px; filter: drop-shadow(0 0 3px color-mix(in srgb, var(--fac) 60%, transparent)); }
 
 .pc-card { background: #1b2027; border-left: 3px solid #3a444e; padding: 9px 11px; margin-bottom: 9px; }
 .pc-card-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
@@ -912,6 +930,7 @@ body.on-war .ticker, body.on-war footer { display: none; }
 .pc-op b { display: block; color: #FFE900; font-size: 15px; } .pc-op span { color: #9fb0ba; font-size: 12px; }
 .pc-adj { display: flex; align-items: center; gap: 9px; padding: 5px 0; border-bottom: 1px solid #20262e; font-size: 13px; }
 .pc-adj .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.pc-adj .pc-adj-globe { width: 18px; height: 18px; }
 .pc-adj-name { color: #dbe6ec; flex: 1; } .pc-adj-fac { font-size: 11px; flex: none; }
 .pc-line { font-size: 13px; color: #cfd8de; padding: 4px 0; }
 .pc-line.atk { color: #ff8a8a; }
