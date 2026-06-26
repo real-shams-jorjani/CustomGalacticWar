@@ -103,6 +103,29 @@
       }
     ]
   },
+  "119": {
+    "poi": [
+      {
+        "category": "ENEMY ESPIONAGE",
+        "title": "CYBORG HIDEOUT",
+        "icon": "fac_automaton",
+        "date": "12.05.2186",
+        "status": "LIBERATED",
+        "statusColor": "#FFE900",
+        "body": [
+          {
+            "type": "text",
+            "text": "[c=#ff5a5a]**The Cyborgs**[/c] were discovered operating in latent industrial districts on this world that had not been used since the 1st Galactic War."
+          },
+          {
+            "type": "image",
+            "url": "https://helldivers.wiki.gg/images/thumb/Cyberstan_Megafactory_Day_1.png/2560px-Cyberstan_Megafactory_Day_1.png?8f69b6",
+            "caption": ""
+          }
+        ]
+      }
+    ]
+  },
   "146": {
     "poi": [
       {
