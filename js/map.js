@@ -973,12 +973,11 @@
         const m = TERRITORY_MOTES[ci], q = project(m.wx, m.wy, 0);
         if (q.x < -10 || q.x > W + 10 || q.y < -30 || q.y > H + 10) continue;   // cull off-screen
         c.fillStyle = m.col;
-        for (let e = 0; e < 2; e++) {
-          const ph = ((ts / 2400) + e * 0.5 + ci * 0.37 + m.wx * 0.00022 + m.wy * 0.00031) % 1;
-          if (ph < 0.06) continue;
-          const ex = q.x + Math.sin(ph * 6.28 + ci) * 3, ey = q.y - ph * 24, fade = Math.sin(ph * Math.PI);
-          c.globalAlpha = fade * 0.55; c.beginPath(); c.arc(ex, ey, 1.2, 0, Math.PI * 2); c.fill();
-        }
+        // one slow mote per seed: long cycle (calm drift) + per-seed phase offset so they don't pulse in unison
+        const ph = ((ts / 6800) + ci * 0.37 + m.wx * 0.00022 + m.wy * 0.00031) % 1;
+        if (ph < 0.06) continue;
+        const ex = q.x + Math.sin(ph * 6.28 + ci) * 3, ey = q.y - ph * 24, fade = Math.sin(ph * Math.PI);
+        c.globalAlpha = fade * 0.5; c.beginPath(); c.arc(ex, ey, 1.2, 0, Math.PI * 2); c.fill();
       }
       c.globalAlpha = 1; c.restore();
       return;
@@ -1074,7 +1073,7 @@
         if (fac[i * ny + j - 1] === f) same++; if (fac[i * ny + j + 1] === f) same++;
         if (same >= 3) seeds.push({ wx: px(i), wy: py(j), col: FAC_FILL[f] || facColor(f) });
       }
-      const CAP_M = 340, stride = Math.max(1, Math.ceil(seeds.length / CAP_M));
+      const CAP_M = 110, stride = Math.max(1, Math.ceil(seeds.length / CAP_M));
       for (let k = 0; k < seeds.length; k += stride) TERRITORY_MOTES.push(seeds[k]);
     }
     // de-dupe the seam: both bordering factions emit the same segment, so collapse by rounded endpoints
