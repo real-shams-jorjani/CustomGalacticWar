@@ -682,7 +682,7 @@
     HIDDEN.forEach((e) => { const q = project(e.wx, e.wy, 0); e.sx = q.x; e.sy = q.y; });
     if (DSS) { const g = project(DSS.wx, DSS.wy, DSS.belev || 0); DSS.gx = g.x; DSS.gy = g.y; const q = project(DSS.wx, DSS.wy, DSS.elev || 0); DSS.sx = q.x; DSS.sy = q.y; }
 
-    if (LAYERS.sectors) { drawSectors(c); drawSectorOutlines(c); }
+    if (LAYERS.sectors) drawSectors(c);
     drawGrid(c);
     drawStems(c);
     if (LAYERS.supply) drawLinks(c);
@@ -917,9 +917,9 @@
           for (let k = 0; k < poly.length; k++) { const q = project(poly[k].x, poly[k].y, s.elev); k ? c.lineTo(q.x, q.y) : c.moveTo(q.x, q.y); mx += q.x; my += q.y; }
           s._scrCells.push([mx / poly.length, my / poly.length]);
         }
-        c.fillStyle = "rgba(7,11,18,0.55)"; c.fill();
-        c.fillStyle = hexA(baseHex, (0.34 + s.tier * 0.08) * dim); c.fill();
-        c.globalAlpha = (0.38 + s.tier * 0.06) * dim; c.fillStyle = hazPattern(baseHex); c.fill(); c.globalAlpha = 1;
+        c.fillStyle = "rgba(7,11,18,0.5)"; c.fill();
+        c.fillStyle = hexA(baseHex, (0.22 + s.tier * 0.06) * dim); c.fill();
+        c.globalAlpha = (0.24 + s.tier * 0.05) * dim; c.fillStyle = hazPattern(baseHex); c.fill(); c.globalAlpha = 1;
       }
 
     }
@@ -972,15 +972,20 @@
   // Static (cached) layer, so the glow/shadowBlur cost is paid once per camera move, not per frame.
   function drawBorders(c) {
     c.save(); c.lineJoin = "round"; c.lineCap = "round"; c.shadowBlur = 0;
-    for (const s of SECTORS) {                                   // pass 1: wide faint underlay
-      if (!s.enemy || !s.regions) continue;
-      for (const rg of s.regions) { c.strokeStyle = hexA(rg.col, 0.16); c.lineWidth = 5;
-        for (const pts of rg.perim) strokeEdge(c, pts, s.elev); }
-    }
-    for (const s of SECTORS) {                                   // pass 2: bright glowing core
-      if (!s.enemy || !s.regions) continue;
-      for (const rg of s.regions) { c.shadowColor = rg.col; c.shadowBlur = 7; c.strokeStyle = hexA(rg.col, 0.92); c.lineWidth = 1.7;
-        for (const pts of rg.perim) strokeEdge(c, pts, s.elev); }
+    const passes = [
+      { w: 6.5, a: 0.16, blur: 11, light: 0 },   // wide soft outer glow
+      { w: 3.2, a: 0.85, blur: 6, light: 0 },    // solid faction-colour band
+      { w: 1.2, a: 0.95, blur: 0, light: 0.55 }, // bright inner core
+    ];
+    for (const p of passes) {
+      for (const s of SECTORS) {
+        if (!s.enemy || !s.regions) continue;
+        for (const rg of s.regions) {
+          const col = p.light ? lightHex(rg.col, p.light) : rg.col;
+          c.shadowColor = rg.col; c.shadowBlur = p.blur; c.strokeStyle = hexA(col, p.a); c.lineWidth = p.w;
+          for (const pts of rg.perim) strokeEdge(c, pts, s.elev);
+        }
+      }
     }
     c.shadowBlur = 0; c.restore();
   }
