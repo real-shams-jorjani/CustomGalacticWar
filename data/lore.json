@@ -27,6 +27,24 @@
       }
     ]
   },
+  "45": {
+    "poi": [
+      {
+        "category": "[HISTORICAL POINT OF INTEREST]",
+        "title": "FIRST COLONISATION OUTPOST",
+        "icon": "campaign_high_priority",
+        "date": "",
+        "status": "DESTTROYED",
+        "statusColor": "#ff5a5a",
+        "body": [
+          {
+            "type": "text",
+            "text": "This once great symbol of our superiority has now been reduced to nothing more than rubble and ash, no thanks to the [c=#FFE900]Terminid Scourge[/c]. New Haven was the first planet to be colonised during The Great Expansion, providing a perfect home, second only to [c=#FFE900]Super Earth[/c] itself."
+          }
+        ]
+      }
+    ]
+  },
   "90": {
     "poi": [
       {
