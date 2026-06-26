@@ -1025,20 +1025,21 @@
         const x0 = px(i), x1 = px(i + 1), y0 = py(j), y1 = py(j + 1), xm = (x0 + x1) / 2, ym = (y0 + y1) / 2;
         const TL = { x: x0, y: y0 }, TR = { x: x1, y: y0 }, BR = { x: x1, y: y1 }, BL = { x: x0, y: y1 };
         const tM = { x: xm, y: y0 }, rM = { x: x1, y: ym }, bM = { x: xm, y: y1 }, lM = { x: x0, y: ym };
-        // Each contour segment is classified by the faction DIRECTLY ACROSS it (the adjacent non-F
-        // corner). CONTESTED frontline ONLY where two ENEMY factions meet (fb >= 2). Borders with
-        // Super Earth (1) or empty void (0) are plain faction rims, not the hazard band.
+        // CONTESTED frontline ONLY where this segment runs between F and an ENEMY along its WHOLE
+        // length, i.e. BOTH adjacent non-F corners are enemy factions (>= 2). If one side is empty
+        // void or Super Earth, it's a plain faction rim -> the front ends cleanly instead of bleeding
+        // into edges that don't actually meet another enemy.
         const pushSeg = (a, b, fb) => { if (fb >= 2) CONTESTED.push({ a, b, fa: F, fb }); else contour.push([a, b]); };
         if (s === 4) { fillPolys.push([TL, TR, BR, BL]); continue; }
         if (tl === br && tr === bl && tl !== tr) {   // saddle -> two diagonal corner triangles
-          if (tl) { const fb = (f1 >= 2 ? f1 : 0) || (f3 >= 2 ? f3 : 0); fillPolys.push([TL, tM, lM], [BR, bM, rM]); pushSeg(tM, lM, fb); pushSeg(bM, rM, fb); }
-          else { const fb = (f0 >= 2 ? f0 : 0) || (f2 >= 2 ? f2 : 0); fillPolys.push([TR, rM, tM], [BL, lM, bM]); pushSeg(rM, tM, fb); pushSeg(lM, bM, fb); }
+          if (tl) { const fb = (f1 >= 2 && f3 >= 2) ? f1 : 0; fillPolys.push([TL, tM, lM], [BR, bM, rM]); pushSeg(tM, lM, fb); pushSeg(bM, rM, fb); }
+          else { const fb = (f0 >= 2 && f2 >= 2) ? f0 : 0; fillPolys.push([TR, rM, tM], [BL, lM, bM]); pushSeg(rM, tM, fb); pushSeg(lM, bM, fb); }
           continue;
         }
         const cF = [f0, f1, f2, f3], cM = [tl, tr, br, bl], coords = [TL, TR, BR, BL], mids = [tM, rM, bM, lM], poly = [], trans = [], across = [];
         for (let k = 0; k < 4; k++) { const k2 = (k + 1) % 4; if (cM[k]) poly.push(coords[k]); if (cM[k] !== cM[k2]) { poly.push(mids[k]); trans.push(mids[k]); across.push(cM[k] ? cF[k2] : cF[k]); } }
         if (poly.length >= 3) fillPolys.push(poly);
-        if (trans.length === 2) pushSeg(trans[0], trans[1], (across[0] >= 2 ? across[0] : 0) || (across[1] >= 2 ? across[1] : 0));
+        if (trans.length === 2) pushSeg(trans[0], trans[1], (across[0] >= 2 && across[1] >= 2) ? across[0] : 0);
       }
       TERRITORY.push({ fac: F, col: FAC_FILL[F] || facColor(F), fill: fillPolys, contour });
     }
@@ -1671,28 +1672,26 @@
     // two-colour glow + interlocking scrolling dashes (faction A in one phase, faction B in the gaps)
     // + a hot pulse sweeping each front for urgency. High-gfx only; static base is the low/med fallback.
     if (LAYERS.sectors && MAPMODE === "territory" && !REDUCED && CONTESTED_LINES.length) {
-      const breathe = 0.78 + 0.22 * Math.sin(ts / 520), off = (ts / 26);
+      const breathe = 0.82 + 0.18 * Math.sin(ts / 520), off = (ts / 22);
       const groups = new Map();   // batch by colour pair so it's a few strokes, not per-line
       for (const ln of CONTESTED_LINES) { const k = ln.ca + "|" + ln.cb; let g = groups.get(k); if (!g) groups.set(k, g = { ca: ln.ca, cb: ln.cb, lines: [] }); g.lines.push(ln.pts); }
-      ctx.save(); ctx.lineCap = "butt"; ctx.lineJoin = "round"; ctx.globalCompositeOperation = "lighter";
+      ctx.save(); ctx.lineCap = "butt"; ctx.lineJoin = "round";
       for (const g of groups.values()) {
         const path = () => { ctx.beginPath(); for (const pts of g.lines) { for (let k = 0; k < pts.length; k++) { const q = project(pts[k].x, pts[k].y, 0); k ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y); } } };
-        ctx.setLineDash([]);
-        path(); ctx.strokeStyle = hexA(g.ca, 0.13 * breathe); ctx.lineWidth = 7; ctx.stroke();   // soft glow A
-        path(); ctx.strokeStyle = hexA(g.cb, 0.13 * breathe); ctx.lineWidth = 7; ctx.stroke();   // soft glow B
-        ctx.setLineDash([8, 8]);
-        ctx.lineDashOffset = -off;     path(); ctx.strokeStyle = hexA(g.ca, 0.95 * breathe); ctx.lineWidth = 3; ctx.stroke();   // scrolling faction-A dashes
-        ctx.lineDashOffset = -off + 8; path(); ctx.strokeStyle = hexA(g.cb, 0.95 * breathe); ctx.lineWidth = 3; ctx.stroke();   // faction-B dashes fill the gaps
+        // soft additive glow (subtle, so it doesn't wash the colours)
+        ctx.globalCompositeOperation = "lighter"; ctx.setLineDash([]);
+        path(); ctx.strokeStyle = hexA(g.ca, 0.10); ctx.lineWidth = 6; ctx.stroke();
+        path(); ctx.strokeStyle = hexA(g.cb, 0.10); ctx.lineWidth = 6; ctx.stroke();
+        // crisp two-colour scrolling dashes in NORMAL blend so each faction colour stays distinct
+        ctx.globalCompositeOperation = "source-over"; ctx.setLineDash([10, 10]);
+        ctx.lineDashOffset = -off;      path(); ctx.strokeStyle = hexA(g.ca, breathe); ctx.lineWidth = 3.4; ctx.stroke();   // faction-A dashes
+        ctx.lineDashOffset = -off + 10; path(); ctx.strokeStyle = hexA(g.cb, breathe); ctx.lineWidth = 3.4; ctx.stroke();   // faction-B dashes fill the gaps
+        // a bright travelling chip in each faction's own colour (urgency, no white)
+        ctx.setLineDash([5, 95]);
+        ctx.lineDashOffset = -(ts / 7);        path(); ctx.strokeStyle = hexA(lightHex(g.ca, 0.45), 0.95); ctx.lineWidth = 4; ctx.stroke();
+        ctx.lineDashOffset = -(ts / 7) + 48;   path(); ctx.strokeStyle = hexA(lightHex(g.cb, 0.45), 0.95); ctx.lineWidth = 4; ctx.stroke();
       }
-      ctx.setLineDash([]);
-      // hot pulse sweeping along each front (urgency) — white so it reads over either faction colour
-      ctx.fillStyle = "#ffffff";
-      for (let i = 0; i < CONTESTED_LINES.length; i++) {
-        const pts = CONTESTED_LINES[i].pts; if (pts.length < 2) continue;
-        const ft = ((ts / 1500) + i * 0.37) % 1, idx = Math.min(pts.length - 1, Math.floor(ft * (pts.length - 1))), q = project(pts[idx].x, pts[idx].y, 0);
-        ctx.globalAlpha = 0.8; ctx.beginPath(); ctx.arc(q.x, q.y, 2.2, 0, Math.PI * 2); ctx.fill();
-      }
-      ctx.globalAlpha = 1; ctx.setLineDash([]); ctx.restore();
+      ctx.setLineDash([]); ctx.restore();
     }
 
     if (LAYERS.effects) drawEnvFX(ts);
