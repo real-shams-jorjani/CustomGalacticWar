@@ -294,14 +294,28 @@
       let regions = null;
       if (isEnemy) {
         const eHere = PLANETS.filter((e) => e.p.sector === me && e.p.owner >= 2);
-        const byFac = {};
-        tops.forEach((poly, ix) => {
+        const cellFac = tops.map((poly) => {
           let mx = 0, my = 0; for (const q of poly) { mx += q.x; my += q.y; } mx /= poly.length; my /= poly.length;
           let best = domEnemy, bd = Infinity;
           for (const e of eHere) { const dx = e.wx - mx, dy = e.wy - my, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = e.p.owner; } }
-          (byFac[best] || (byFac[best] = [])).push(ix);
+          return best;
         });
-        regions = Object.keys(byFac).map((f) => ({ fac: +f, col: FAC_FILL[+f] || facColor(+f), idx: byFac[f] }));
+        const facAt = {}; sec.cells.forEach(([r, l], ix) => { facAt[r + "," + l] = cellFac[ix]; });
+        const facOf = (r, l) => { const k = r + "," + ((l + 24) % 24); return (k in facAt) ? facAt[k] : -1; };
+        const byFac = {};
+        sec.cells.forEach(([ring, line], ix) => {
+          const f = cellFac[ix];
+          const rg = byFac[f] || (byFac[f] = { fac: f, col: FAC_FILL[f] || facColor(f), idx: [], perim: [] });
+          rg.idx.push(ix);
+          // an edge is on this faction's territory perimeter wherever the neighbour cell isn't the
+          // same faction — outer boundary AND the seam where it meets a second enemy faction.
+          const a0 = ang(line), a1 = ang(line + 1), rIn = ring * 100, rOut = (ring + 1) * 100;
+          if (facOf(ring + 1, line) !== f) rg.perim.push(arcLine(rOut, a0, a1, 3));
+          if (ring > 0 && facOf(ring - 1, line) !== f) rg.perim.push(arcLine(rIn, a0, a1, 3));
+          if (facOf(ring, line + 1) !== f) rg.perim.push([polar(rIn, a1), polar(rOut, a1)]);
+          if (facOf(ring, line - 1) !== f) rg.perim.push([polar(rIn, a0), polar(rOut, a0)]);
+        });
+        regions = Object.keys(byFac).map((f) => byFac[f]);
       }
       return { tops, walls, risers, secEdges, dots, cx, cy, elev, tier, fillHex, wallHex, outline, alpha, se: isSE, enemy: isEnemy, available, active: st.camp, regions };
     });
@@ -953,20 +967,22 @@
     c.stroke();
   }
 
+  // Each enemy faction's territory is outlined with a glowing border in its own colour. Where two
+  // enemies share a sector their perimeters run side by side, so the seam reads in BOTH colours.
+  // Static (cached) layer, so the glow/shadowBlur cost is paid once per camera move, not per frame.
   function drawBorders(c) {
-    if (!ENEMY_BORDER.length) return;
     c.save(); c.lineJoin = "round"; c.lineCap = "round"; c.shadowBlur = 0;
-
-    for (const b of ENEMY_BORDER) {
-      c.strokeStyle = hexA(b.col, b.contested ? 0.18 : 0.11); c.lineWidth = b.contested ? 6 : 4;
-      strokeEdge(c, b.pts, b.el);
+    for (const s of SECTORS) {                                   // pass 1: wide faint underlay
+      if (!s.enemy || !s.regions) continue;
+      for (const rg of s.regions) { c.strokeStyle = hexA(rg.col, 0.16); c.lineWidth = 5;
+        for (const pts of rg.perim) strokeEdge(c, pts, s.elev); }
     }
-    for (const b of ENEMY_BORDER) {
-      if (b.contested) { c.shadowColor = b.col; c.shadowBlur = 6; } else c.shadowBlur = 0;
-      c.strokeStyle = hexA(b.col, b.contested ? 0.95 : 0.6); c.lineWidth = b.contested ? 1.7 : 1.1;
-      strokeEdge(c, b.pts, b.el);
+    for (const s of SECTORS) {                                   // pass 2: bright glowing core
+      if (!s.enemy || !s.regions) continue;
+      for (const rg of s.regions) { c.shadowColor = rg.col; c.shadowBlur = 7; c.strokeStyle = hexA(rg.col, 0.92); c.lineWidth = 1.7;
+        for (const pts of rg.perim) strokeEdge(c, pts, s.elev); }
     }
-    c.restore();
+    c.shadowBlur = 0; c.restore();
   }
   function hazPattern(fillHex) {
     if (hazPat[fillHex]) return hazPat[fillHex];
