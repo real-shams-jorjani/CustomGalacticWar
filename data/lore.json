@@ -126,6 +126,29 @@
       }
     ]
   },
+  "109": {
+    "poi": [
+      {
+        "category": "[MAJOR BATTLE]",
+        "title": "THE BATTLE FOR EXO-CITY",
+        "icon": "campaign_defense",
+        "date": "",
+        "status": "VICTORY",
+        "statusColor": "#6fe994",
+        "body": [
+          {
+            "type": "text",
+            "text": "[c=#FFE900]Tien Kwan[/c] is home to [c=#FFE900]Exo-City[/c], one of the most expansive Factorial complexes in [c=#FFE900]The Federation's Way[/c]. Because of this, it became a target for the [c=#FFE900]Automaton Legion[/c]. The battle for this stronghold was long and brutal, with casualty rates in the low millions. As the battle continued, Automaton supplies dwindled, forcing them to withdraw from the Planet, Successfully maintaining our hold on this Vital planet. After the conflict ended, Helldiver forces were granted Fleet-wide access to the abundance of salvaged automaton weaponry left behind, with it now being reverse-engineered and fitted onto our own exo-mechs."
+          },
+          {
+            "type": "image",
+            "url": "https://media.discordapp.net/attachments/1486054343701565460/1505698326568501278/NOT_TODAY.png?ex=6a404e57&is=6a3efcd7&hm=e3ae7a55330db7a3f36fce7e95d347d32ab2e828a2475cb532321a983d59bc2c&=&format=webp&quality=lossless&width=1360&height=765",
+            "caption": "An artistic rendition of the conflict, made by 'DATABLOCK'."
+          }
+        ]
+      }
+    ]
+  },
   "119": {
     "poi": [
       {
