@@ -251,7 +251,7 @@
         "body": [
           {
             "type": "text",
-            "text": "This is all that remains of Seasse after it was exploded following a tragic, unavoidable incident during the First Galactic War."
+            "text": "All that remains of Seasse after it was destroyed, following an explosion during the [c=#FFE900]First Galactic War[/c]."
           },
           {
             "type": "image",
@@ -260,7 +260,7 @@
           },
           {
             "type": "text",
-            "text": "It is unknown what the Illuminate plan to do with the remains of this planet. But we must not let curiosity or fear take hold of us. Their plans must be stopped, whatever the cost may be."
+            "text": "It is unknown what the Illuminate plan to do with the remains of this planet. But we must not let curiosity or fear take hold of us; their plans must be stopped, [c=#FFE900]whatever the cost may be.[/c]"
           }
         ]
       }
