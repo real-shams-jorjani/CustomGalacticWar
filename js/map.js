@@ -44,6 +44,17 @@
     staticKey = ""; if (window.__mapRender) window.__mapRender(performance.now());
   }
   window.__setGfx = setGfx;
+  // Sector display mode: "territory" = new planet-driven angular borders, "sectors" = classic
+  // whole-sector fill. Persisted; defaults to territory.
+  const MAPMODE_STORED = (function () { try { const s = localStorage.getItem("cgw_mapmode"); return (s === "sectors" || s === "territory") ? s : null; } catch (e) { return null; } })();
+  let MAPMODE = MAPMODE_STORED || "territory";
+  function setMapMode(m, persist) {
+    MAPMODE = (m === "sectors") ? "sectors" : "territory";
+    if (persist !== false) { try { localStorage.setItem("cgw_mapmode", MAPMODE); } catch (e) {} }
+    Array.prototype.forEach.call(document.querySelectorAll("#map-layers button[data-mapmode]"), (b) => b.classList.toggle("on", b.getAttribute("data-mapmode") === MAPMODE));
+    staticKey = ""; if (window.__mapRender) window.__mapRender(performance.now());
+  }
+  window.__setMapMode = setMapMode;
   // Track the device default across viewport changes until a manual choice is stored (so "request
   // desktop site" -> High). Medium is opt-in, so the auto-default only picks low or high.
   window.addEventListener("resize", function () { try { if (localStorage.getItem("cgw_gfx")) return; } catch (e) {} const wl = wantLowGfx() ? 0 : 2; if (wl !== GFX) setGfx(wl, false); });
@@ -663,7 +674,10 @@
     HIDDEN.forEach((e) => { const q = project(e.wx, e.wy, 0); e.sx = q.x; e.sy = q.y; });
     if (DSS) { const g = project(DSS.wx, DSS.wy, DSS.belev || 0); DSS.gx = g.x; DSS.gy = g.y; const q = project(DSS.wx, DSS.wy, DSS.elev || 0); DSS.sx = q.x; DSS.sy = q.y; }
 
-    if (LAYERS.sectors) { drawSectorOutlines(c); drawTerritory(c); }
+    if (LAYERS.sectors) {
+      if (MAPMODE === "sectors") { drawSectors(c); drawSectorOutlines(c); drawBordersClassic(c); }   // classic whole-sector fill
+      else { drawSectorGrid(c); drawTerritory(c); }                                                   // planet-driven territory
+    }
     drawGrid(c);
     drawStems(c);
     if (LAYERS.supply) drawLinks(c);
@@ -854,7 +868,7 @@
     if (lastRot !== cam.rot) { sectorOrder.sort((a, b) => project(SECTORS[a].cx, SECTORS[a].cy, 0).y - project(SECTORS[b].cx, SECTORS[b].cy, 0).y); lastRot = cam.rot; }
     for (const i of sectorOrder) {
       const s = SECTORS[i];
-      if (!s.enemy) continue;   // Super Earth / contested sectors render no fill or stripes (home space stays blank)
+      if (!s.enemy && !s.se) continue;   // classic mode: enemy + Super Earth sectors fill; contested stay blank
 
       if (s.wallHex && s.elev > 1) {
         const faces = [];
@@ -885,29 +899,30 @@
         }
       }
 
-      s._scrCells = [];
-      // Inactive sectors (no live campaign/event) recede so the active fronts read at a glance.
+      if (s.enemy) s._scrCells = [];
+      // Inactive sectors recede (darker + more translucent) so active fronts read at a glance.
       const dim = s.active ? 1 : 0.55;
-      // Fill each controlling-faction region with its own colour + hazard stripes (one region for a
-      // single-enemy sector; two-up for a contested sector that two enemies share).
-      for (const rg of (s.regions || [])) {
-        const baseHex = s.active ? rg.col : scaleHex(rg.col, 0.72);
-        c.beginPath();
-        for (const ix of rg.idx) {
-          const poly = s.tops[ix]; let mx = 0, my = 0;
-          for (let k = 0; k < poly.length; k++) { const q = project(poly[k].x, poly[k].y, s.elev); k ? c.lineTo(q.x, q.y) : c.moveTo(q.x, q.y); mx += q.x; my += q.y; }
-          s._scrCells.push([mx / poly.length, my / poly.length]);
-        }
-        c.fillStyle = "rgba(7,11,18,0.5)"; c.fill();
-        c.fillStyle = hexA(baseHex, (0.22 + s.tier * 0.06) * dim); c.fill();
-        c.globalAlpha = (0.24 + s.tier * 0.05) * dim; c.fillStyle = hazPattern(baseHex); c.fill(); c.globalAlpha = 1;
+      const baseHex = s.active ? s.fillHex : scaleHex(s.fillHex, 0.72);
+      const tint = s.enemy ? hexA(baseHex, (0.34 + s.tier * 0.08) * dim) : facColor(1);
+      c.beginPath();
+      s.tops.forEach((poly) => {
+        let mx = 0, my = 0;
+        for (let k = 0; k < poly.length; k++) { const q = project(poly[k].x, poly[k].y, s.elev); k ? c.lineTo(q.x, q.y) : c.moveTo(q.x, q.y); if (s.enemy) { mx += q.x; my += q.y; } }
+        if (s.enemy) s._scrCells.push([mx / poly.length, my / poly.length]);
+      });
+      if (s.enemy) {
+        c.fillStyle = "rgba(7,11,18,0.55)"; c.fill();
+        c.fillStyle = tint; c.fill();
+        c.globalAlpha = (0.38 + s.tier * 0.06) * dim; c.fillStyle = hazPattern(baseHex); c.fill(); c.globalAlpha = 1;
+      } else {
+        c.fillStyle = "rgba(7,11,18,0.3)"; c.fill(); c.globalAlpha = s.alpha * dim; c.fillStyle = tint; c.fill(); c.globalAlpha = 1;
       }
 
     }
   }
 
-  // Faint structural grid of ALL sectors — stays visible beneath the planet-driven territory layer.
-  function drawSectorOutlines(c) {
+  // Territory mode: faint structural grid of ALL sectors — stays visible beneath the territory layer.
+  function drawSectorGrid(c) {
     c.save(); c.lineJoin = "round"; c.lineCap = "round"; c.lineWidth = 1;
     c.strokeStyle = "rgba(112,140,175,0.13)"; c.beginPath();
     for (const s of SECTORS) {
@@ -917,6 +932,33 @@
       }
     }
     c.stroke(); c.restore();
+  }
+
+  // Classic mode: faint faction-coloured outline on each enemy / Super Earth sector.
+  function drawSectorOutlines(c) {
+    c.save(); c.lineJoin = "round"; c.lineCap = "round"; c.lineWidth = 1;
+    for (const i of sectorOrder) {
+      const s = SECTORS[i];
+      if (!s.secEdges || !s.secEdges.length || (!s.enemy && !s.se)) continue;
+      const col = s.enemy ? lightHex(s.fillHex, 0.4) : (s.se ? facColor(1) : "#5b7686");
+      c.strokeStyle = hexA(col, s.se ? 0.3 : 0.2);
+      c.beginPath();
+      for (const pts of s.secEdges) { for (let k = 0; k < pts.length; k++) { const q = project(pts[k].x, pts[k].y, s.elev); k ? c.lineTo(q.x, q.y) : c.moveTo(q.x, q.y); } }
+      c.stroke();
+    }
+    c.restore();
+  }
+
+  // Classic mode: glowing enemy-sector frontier borders (the original ENEMY_BORDER two-pass glow).
+  function drawBordersClassic(c) {
+    if (!ENEMY_BORDER.length) return;
+    c.save(); c.lineJoin = "round"; c.lineCap = "round"; c.shadowBlur = 0;
+    for (const b of ENEMY_BORDER) { c.strokeStyle = hexA(b.col, b.contested ? 0.18 : 0.11); c.lineWidth = b.contested ? 6 : 4; strokeEdge(c, b.pts, b.el); }
+    for (const b of ENEMY_BORDER) {
+      if (b.contested) { c.shadowColor = b.col; c.shadowBlur = 6; } else c.shadowBlur = 0;
+      c.strokeStyle = hexA(b.col, b.contested ? 0.95 : 0.6); c.lineWidth = b.contested ? 1.7 : 1.1; strokeEdge(c, b.pts, b.el);
+    }
+    c.restore();
   }
 
   function drawSectorFX(c, ts) {
@@ -1871,6 +1913,10 @@
     Array.prototype.forEach.call(document.querySelectorAll("#map-layers button[data-gfx]"), (b) => {
       b.classList.toggle("on", GFX_LEVELS[b.getAttribute("data-gfx")] === GFX);
       b.onclick = () => setGfx(b.getAttribute("data-gfx"));
+    });
+    Array.prototype.forEach.call(document.querySelectorAll("#map-layers button[data-mapmode]"), (b) => {
+      b.classList.toggle("on", b.getAttribute("data-mapmode") === MAPMODE);
+      b.onclick = () => setMapMode(b.getAttribute("data-mapmode"));
     });
     // Re-derive the device default once the viewport has settled (no stored choice yet); don't persist.
     if (!GFX_STORED) { const wl = wantLowGfx() ? 0 : 2; if (wl !== GFX) setGfx(wl, false); }
