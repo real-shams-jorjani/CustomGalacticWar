@@ -1470,31 +1470,49 @@
       let dl = 0, acc = null;
       if (p.ev && p.ev.expireEpoch) { dl = p.ev.expireEpoch * 1000; acc = facColor(tipMeta(p).dispFac); }
       else if (p.mo && window.__MO_DEADLINE) { dl = window.__MO_DEADLINE; acc = "#FFE900"; }
-      if (dl) drawPlateTimer(c, x, y + h, w, dl, acc, ts);
+      if (dl) drawPlateTimer(c, x, y + h, w, blockW, dl, acc, ts);
     }
     c.restore();
   }
 
-  // Slim countdown bar attached under a nameplate (inset under the name, not the crest block).
-  function drawPlateTimer(c, x, topY, w, deadlineMs, accent, ts) {
+  // Countdown welded under a nameplate: a full-width sub-panel that reads as one unit with the plate
+  // (accent "weld" seam on top, bottom-right chamfer echoing the plate corner) + an accent icon column
+  // aligned under the crest block, a crisp clock dial, and clean tabular digits. <1h or expired -> red+pulse.
+  function drawPlateTimer(c, x, topY, w, blockW, deadlineMs, accent, ts) {
     const left = deadlineMs - Date.now();
     const expired = left <= 0, urgent = !expired && left < 3600000;
-    const acc = (expired || urgent) ? "#FF5A5A" : accent;
-    const pulse = urgent ? (0.6 + 0.4 * Math.abs(Math.sin(ts / 360))) : 1;
+    const acc = (expired || urgent) ? "#FF5A5A" : (accent || "#9fb4c4");
+    const pulse = urgent ? (0.62 + 0.38 * Math.abs(Math.sin(ts / 360))) : 1;
     const txt = expired ? "EXPIRED" : fmtHMS(left);
-    const h = 14, ch = 5, bx = x + 28, bw = w - 28, y = topY, midY = y + h / 2;
-    c.save();
-    c.beginPath(); c.moveTo(bx, y); c.lineTo(bx + bw, y); c.lineTo(bx + bw, y + h - ch); c.lineTo(bx + bw - ch, y + h); c.lineTo(bx, y + h); c.closePath();
-    c.fillStyle = "rgba(9,13,20,0.96)"; c.fill();
-    c.lineWidth = 1; c.strokeStyle = hexA(acc, 0.85 * pulse); c.stroke();
-    const iconR = 4.2, ccx = bx + 8;
-    c.strokeStyle = hexA(acc, pulse); c.lineWidth = 1.3;
-    c.beginPath(); c.arc(ccx, midY, iconR, 0, Math.PI * 2); c.stroke();
-    c.beginPath(); c.moveTo(ccx, midY); c.lineTo(ccx, midY - iconR * 0.6); c.moveTo(ccx, midY); c.lineTo(ccx + iconR * 0.5, midY + iconR * 0.18); c.stroke();
-    c.font = "700 10px " + headFont(); c.textAlign = "left"; c.textBaseline = "middle";
-    const tx = bx + 8 + iconR + 6;
-    c.fillStyle = "rgba(0,0,0,0.6)"; c.fillText(txt, tx + 0.6, midY + 1.2);
-    c.fillStyle = "#eef5fb"; c.fillText(txt, tx, midY + 0.3);
+    const h = 15, ch = 6, y = topY, midY = y + h / 2 + 0.5;
+    const iz = Math.max(22, Math.min(blockW, 30));   // icon column lines up under the crest block
+    const body = () => { c.beginPath(); c.moveTo(x, y); c.lineTo(x + w, y); c.lineTo(x + w, y + h - ch); c.lineTo(x + w - ch, y + h); c.lineTo(x, y + h); c.closePath(); };
+    c.save(); c.lineJoin = "round"; c.lineCap = "round";
+
+    body(); c.fillStyle = "rgba(8,12,19,0.97)"; c.fill();
+    // accent column under the crest block (clipped to the panel so the chamfer stays clean)
+    c.save(); body(); c.clip(); c.fillStyle = hexA(acc, 0.16 * pulse); c.fillRect(x, y, iz, h); c.restore();
+    // weld seam along the top edge (joins plate <-> timer) + column divider
+    c.fillStyle = hexA(acc, 0.92 * pulse); c.fillRect(x, y, w, 1.4);
+    c.fillStyle = hexA(acc, 0.4); c.fillRect(x + iz, y + 1.4, 1, h - 1.4);
+    body(); c.lineWidth = 1; c.strokeStyle = hexA(acc, 0.55 * pulse); c.stroke();
+
+    // crisp clock dial centred in the accent column
+    const ccx = x + iz / 2, r = 4.3;
+    c.strokeStyle = hexA(acc, pulse); c.lineWidth = 1.4;
+    c.beginPath(); c.arc(ccx, midY, r, 0, Math.PI * 2); c.stroke();
+    c.lineWidth = 1.3;
+    c.beginPath(); c.moveTo(ccx, midY); c.lineTo(ccx, midY - r * 0.58); c.stroke();          // minute hand (12)
+    c.beginPath(); c.moveTo(ccx, midY); c.lineTo(ccx + r * 0.46, midY + r * 0.2); c.stroke(); // hour hand (~4)
+    c.fillStyle = hexA(acc, pulse); c.beginPath(); c.arc(ccx, midY, 0.9, 0, Math.PI * 2); c.fill();
+
+    // tabular countdown digits
+    c.font = "700 11px " + headFont(); c.textAlign = "left"; c.textBaseline = "middle";
+    if ("letterSpacing" in c) c.letterSpacing = "0.5px";
+    const tx = x + iz + 7;
+    c.fillStyle = "rgba(0,0,0,0.55)"; c.fillText(txt, tx + 0.6, midY + 1.1);
+    c.fillStyle = expired ? "#ffd6d6" : "#eef5fb"; c.fillText(txt, tx, midY);
+    if ("letterSpacing" in c) c.letterSpacing = "0px";
     c.restore();
   }
 
@@ -1709,6 +1727,10 @@
   }
 
   function drawDynamic(ts) {
+    // The static blit just ran with imageSmoothingEnabled tied to (off.width !== cv.width), which is FALSE
+    // at dpr===renderDpr (e.g. a 1x display) — that left nearest-neighbour scaling on, pixelating every
+    // drawImage below (faction emblems, fleet/POI icons, star sprites). Re-enable HQ smoothing for them.
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
 
     if (!LOWFX) {
       const o = project(0, 0, 0), breathe = 0.85 + 0.15 * Math.sin(ts / 900), R = 30 * Math.sqrt(cam.zoom) * breathe;
