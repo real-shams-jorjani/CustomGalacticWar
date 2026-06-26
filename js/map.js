@@ -325,7 +325,17 @@
       const allPts = PLANETS.concat(HIDDEN).map((e) => ({ x: e.wx, y: e.wy }));
       let ext = 1000; allPts.forEach((p) => { const m = Math.max(Math.abs(p.x), Math.abs(p.y)); if (m > ext) ext = m; });
       const bound = ext * 2.5;
-      voidSites.forEach((e) => { e.voidCell = voronoiCell(e.wx, e.wy, allPts, bound); });
+      const _ld = (DATA.links || []).map(([a, b]) => { const A = byIndex[a], B = byIndex[b]; return (A && B) ? Math.hypot(A.wx - B.wx, A.wy - B.wy) : 0; }).filter((d) => d > 0).sort((x, y) => x - y);
+      const rv = (_ld.length ? _ld[_ld.length >> 1] : 1600) * 1.45, D = rv * 1.4142;
+      voidSites.forEach((e) => {
+        let cell = voronoiCell(e.wx, e.wy, allPts, bound);
+        if (cell && cell.length >= 3) {   // contain the void to an octagon around its planet so it can't sprawl
+          const cx = e.wx, cy = e.wy;
+          const clips = [[1, 0, cx + rv], [-1, 0, -(cx - rv)], [0, 1, cy + rv], [0, -1, -(cy - rv)], [1, 1, cx + cy + D], [-1, -1, -(cx + cy - D)], [1, -1, cx - cy + D], [-1, 1, -(cx - cy - D)]];
+          for (const cp of clips) { if (cell.length < 3) break; cell = _clipHalf(cell, cp[0], cp[1], cp[2]); }
+        }
+        e.voidCell = (cell && cell.length >= 3) ? cell : null;
+      });
     }
 
     GLOOM_LINKS = [];
@@ -959,6 +969,24 @@
     const nearFac = (x, y) => { const bx = Math.floor(x / bs), by = Math.floor(y / bs); let best = 0, bd = R2; for (let ox = -1; ox <= 1; ox++) for (let oy = -1; oy <= 1; oy++) { const a = BK.get(key(bx + ox, by + oy)); if (!a) continue; for (const e of a) { const dx = e.wx - x, dy = e.wy - y, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = e.p.owner; } } } return best; };
     const fac = new Int16Array(nx * ny);
     for (let i = 0; i < nx; i++) { const x = minX + i * G; for (let j = 0; j < ny; j++) fac[i * ny + j] = nearFac(x, minY + j * G); }
+    // Fill ENCLOSED holes (e.g. a lone Super Earth planet ringed by enemy space) so territory reads
+    // as solid angular masses — the holdout still shows as its own coloured dot on top. Open SE/empty
+    // space (reachable from the grid edge) stays blank, so real frontiers and SE territory are kept.
+    const open = new Uint8Array(nx * ny), stack = [];
+    const seed = (idx) => { if (fac[idx] < 2 && !open[idx]) { open[idx] = 1; stack.push(idx); } };
+    for (let i = 0; i < nx; i++) { seed(i * ny); seed(i * ny + (ny - 1)); }
+    for (let j = 0; j < ny; j++) { seed(j); seed((nx - 1) * ny + j); }
+    while (stack.length) { const idx = stack.pop(), i = (idx / ny) | 0, j = idx % ny;
+      if (i > 0) seed((i - 1) * ny + j); if (i < nx - 1) seed((i + 1) * ny + j);
+      if (j > 0) seed(idx - 1); if (j < ny - 1) seed(idx + 1);
+    }
+    for (let pass = 0, dirty = true; dirty && pass < 24; pass++) { dirty = false;
+      for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) { const idx = i * ny + j; if (fac[idx] >= 2 || open[idx]) continue;
+        const cnt = {}; for (let ox = -1; ox <= 1; ox++) for (let oy = -1; oy <= 1; oy++) { if (!ox && !oy) continue; const ii = i + ox, jj = j + oy; if (ii < 0 || jj < 0 || ii >= nx || jj >= ny) continue; const v = fac[ii * ny + jj]; if (v >= 2) cnt[v] = (cnt[v] || 0) + 1; }
+        let bf = 0, bn = 0; for (const f in cnt) { if (cnt[f] > bn) { bn = cnt[f]; bf = +f; } }
+        if (bf) { fac[idx] = bf; dirty = true; }
+      }
+    }
     const present = [...new Set(Array.from(fac).filter((f) => f >= 2))];
     const px = (i) => minX + i * G, py = (j) => minY + j * G;
     for (const F of present) {
