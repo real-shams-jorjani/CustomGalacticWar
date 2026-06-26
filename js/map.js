@@ -287,20 +287,35 @@
       sec.cells.forEach(([ring, line]) => { const rm = (ring + 0.5) * 100, am = ang(line + 0.5); cx += rm * Math.cos(am); cy += -rm * Math.sin(am); n++; });
       if (n) { cx /= n; cy /= n; }
 
-      // Two-faction sector: top-2 real factions present -> a gradient axis (dominant centroid ->
-      // secondary centroid) plus per-cell ownership for the mosaic overlay. Drives the contested fill.
+      // Two-faction sector: the dominant faction fills normally; the SECONDARY faction's cells are
+      // carved out of the fill and traced with a glowing outline in its colour (an enemy enclave).
       let split = null;
-      const realFacs = Object.keys(st.counts).map((o) => +o).filter((o) => o >= 1);
-      if (isEnemy && realFacs.length >= 2) {
-        const ranked = realFacs.map((o) => ({ f: o, n: st.counts[o] })).sort((a, b) => b.n - a.n);
-        const fa = ranked[0].f, fb = ranked[1].f, secFill = (f) => FAC_FILL[f] || facColor(f);
-        const here = PLANETS.filter((e) => e.p.sector === me && (e.p.owner === fa || e.p.owner === fb));
-        const cents = tops.map((poly) => { let mx = 0, my = 0; for (const q of poly) { mx += q.x; my += q.y; } return { x: mx / poly.length, y: my / poly.length }; });
-        const cellFac = cents.map((ct) => { let best = fa, bd = Infinity; for (const e of here) { const dx = e.wx - ct.x, dy = e.wy - ct.y, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = e.p.owner; } } return best; });
-        let ax = 0, ay = 0, an = 0, bx2 = 0, by2 = 0, bn = 0;
-        cents.forEach((ct, ix) => { if (cellFac[ix] === fb) { bx2 += ct.x; by2 += ct.y; bn++; } else { ax += ct.x; ay += ct.y; an++; } });
-        ax = an ? ax / an : cx; ay = an ? ay / an : cy; bx2 = bn ? bx2 / bn : cx; by2 = bn ? by2 / bn : cy;
-        split = { fa, fb, ca: secFill(fa), cb: secFill(fb), share: ranked[0].n / (ranked[0].n + ranked[1].n), cellFac, ax0: ax, ay0: ay, ax1: bx2, ay1: by2 };
+      if (isEnemy) {
+        const others = Object.keys(st.counts).map((o) => +o).filter((o) => o >= 1 && o !== fac);
+        if (others.length) {
+          const sec2 = others.sort((a, b) => st.counts[b] - st.counts[a])[0];
+          const here = PLANETS.filter((e) => e.p.sector === me && (e.p.owner === fac || e.p.owner === sec2));
+          if (here.length) {
+            const secCell = tops.map((poly) => {
+              let mx = 0, my = 0; for (const q of poly) { mx += q.x; my += q.y; } mx /= poly.length; my /= poly.length;
+              let best = fac, bd = Infinity; for (const e of here) { const dx = e.wx - mx, dy = e.wy - my, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = e.p.owner; } }
+              return best === sec2;
+            });
+            if (secCell.some(Boolean)) {
+              const inSec = (r, l) => { const idx = sec.cells.findIndex(([cr, cl]) => cr === r && cl === ((l + 24) % 24)); return idx >= 0 && secCell[idx]; };
+              const secOutline = [];
+              sec.cells.forEach(([ring, line], ix) => {
+                if (!secCell[ix]) return;
+                const a0 = ang(line), a1 = ang(line + 1), rIn = ring * 100, rOut = (ring + 1) * 100;
+                if (!inSec(ring + 1, line)) secOutline.push(arcLine(rOut, a0, a1, 3));
+                if (ring > 0 && !inSec(ring - 1, line)) secOutline.push(arcLine(rIn, a0, a1, 3));
+                if (!inSec(ring, line + 1)) secOutline.push([polar(rIn, a1), polar(rOut, a1)]);
+                if (!inSec(ring, line - 1)) secOutline.push([polar(rIn, a0), polar(rOut, a0)]);
+              });
+              split = { sec2, col2: facColor(sec2), secCell, outline: secOutline };
+            }
+          }
+        }
       }
       return { tops, walls, risers, secEdges, dots, cx, cy, elev, tier, fillHex, wallHex, outline, alpha, se: isSE, enemy: isEnemy, available, active: st.camp, split };
     });
@@ -671,7 +686,7 @@
     drawGrid(c);
     drawStems(c);
     if (LAYERS.supply) drawLinks(c);
-    if (LAYERS.sectors) drawBorders(c);
+    if (LAYERS.sectors) { drawBorders(c); drawSplitOutlines(c); }
 
   }
 
@@ -904,25 +919,8 @@
       });
       if (s.enemy) {
         c.fillStyle = "rgba(7,11,18,0.55)"; c.fill();
-        if (s.split) {
-          // hybrid: gradient base (dominant -> secondary along the contested axis)...
-          const sp = s.split, p0 = project(sp.ax0, sp.ay0, s.elev), p1 = project(sp.ax1, sp.ay1, s.elev);
-          let grad;
-          if (Math.hypot(p1.x - p0.x, p1.y - p0.y) < 3) grad = sp.ca;
-          else { grad = c.createLinearGradient(p0.x, p0.y, p1.x, p1.y); const seam = clamp(sp.share, 0.4, 0.78); grad.addColorStop(0, sp.ca); grad.addColorStop(clamp(seam - 0.14, 0.04, 0.9), sp.ca); grad.addColorStop(clamp(seam + 0.14, 0.1, 0.96), sp.cb); grad.addColorStop(1, sp.cb); }
-          c.globalAlpha = (0.40 + s.tier * 0.06) * dim; c.fillStyle = grad; c.fill(); c.globalAlpha = 1;
-          // ...then the cells the secondary faction actually holds get an extra wash of their colour
-          c.beginPath();
-          s.tops.forEach((poly, ix) => { if (sp.cellFac[ix] !== sp.fb) return; for (let k = 0; k < poly.length; k++) { const q = project(poly[k].x, poly[k].y, s.elev); k ? c.lineTo(q.x, q.y) : c.moveTo(q.x, q.y); } });
-          c.globalAlpha = 0.34 * dim; c.fillStyle = sp.cb; c.fill(); c.globalAlpha = 1;
-          // hatch over the whole sector
-          c.beginPath();
-          s.tops.forEach((poly) => { for (let k = 0; k < poly.length; k++) { const q = project(poly[k].x, poly[k].y, s.elev); k ? c.lineTo(q.x, q.y) : c.moveTo(q.x, q.y); } });
-          c.globalAlpha = (0.34 + s.tier * 0.06) * dim; c.fillStyle = hazPattern(baseHex); c.fill(); c.globalAlpha = 1;
-        } else {
-          c.fillStyle = tint; c.fill();
-          c.globalAlpha = (0.38 + s.tier * 0.06) * dim; c.fillStyle = hazPattern(baseHex); c.fill(); c.globalAlpha = 1;
-        }
+        c.fillStyle = tint; c.fill();
+        c.globalAlpha = (0.38 + s.tier * 0.06) * dim; c.fillStyle = hazPattern(baseHex); c.fill(); c.globalAlpha = 1;
       } else {
         c.fillStyle = "rgba(7,11,18,0.3)"; c.fill(); c.globalAlpha = s.alpha * dim; c.fillStyle = tint; c.fill(); c.globalAlpha = 1;
       }
@@ -972,12 +970,6 @@
     c.stroke();
   }
 
-  // dual-colour gradient along a contested segment (this faction -> the neighbouring faction)
-  function borderGrad(c, b) {
-    const a = project(b.pts[0].x, b.pts[0].y, b.el), z = project(b.pts[b.pts.length - 1].x, b.pts[b.pts.length - 1].y, b.el);
-    const g = c.createLinearGradient(a.x, a.y, z.x, z.y);
-    g.addColorStop(0, b.col); g.addColorStop(1, b.col2 || b.col); return g;
-  }
   function drawBorders(c) {
     if (!ENEMY_BORDER.length) return;
     c.save(); c.lineJoin = "round"; c.lineCap = "round"; c.shadowBlur = 0;
@@ -987,36 +979,26 @@
       strokeEdge(c, b.pts, b.el);
     }
     for (const b of ENEMY_BORDER) {
-      // contested edges glow in BOTH faction colours (static base + low-gfx fallback)
-      if (b.contested) { c.shadowColor = b.col2 || b.col; c.shadowBlur = 6; c.strokeStyle = borderGrad(c, b); c.lineWidth = 1.9; }
-      else { c.shadowBlur = 0; c.strokeStyle = hexA(b.col, 0.6); c.lineWidth = 1.1; }
+      if (b.contested) { c.shadowColor = b.col; c.shadowBlur = 6; } else c.shadowBlur = 0;
+      c.strokeStyle = hexA(b.col, b.contested ? 0.95 : 0.6); c.lineWidth = b.contested ? 1.7 : 1.1;
       strokeEdge(c, b.pts, b.el);
     }
     c.restore();
   }
-  // Animated dual-colour shimmer on contested frontiers: a white-hot stop travels col -> col2 along
-  // each segment while the whole edge breathes. Medium/high only; LOWFX keeps the static gradient.
-  function drawContestedPulse(c, ts) {
-    if (LOWFX || !ENEMY_BORDER.length) return;
-    let any = false; for (const b of ENEMY_BORDER) { if (b.contested) { any = true; break; } }
+  // Two-faction sectors: the secondary faction's carved-out cells get a glowing outline in their
+  // colour (an enemy enclave inside the dominant fill). Static -> lives in the cached layer.
+  function drawSplitOutlines(c) {
+    let any = false; for (const s of SECTORS) { if (s.split) { any = true; break; } }
     if (!any) return;
-    c.save(); c.lineJoin = "round"; c.lineCap = "round"; c.globalCompositeOperation = "lighter";
-    const breathe = 0.5 + 0.5 * Math.sin(ts / 620);
-    for (const b of ENEMY_BORDER) {
-      if (!b.contested) continue;
-      const a = project(b.pts[0].x, b.pts[0].y, b.el), z = project(b.pts[b.pts.length - 1].x, b.pts[b.pts.length - 1].y, b.el);
-      const ph = (((ts / 1500) + (b.pts[0].x * 0.0007 + b.pts[0].y * 0.0011)) % 1 + 1) % 1;
-      const lo = Math.max(0, ph - 0.15), hi = Math.min(1, ph + 0.15);
-      const g = c.createLinearGradient(a.x, a.y, z.x, z.y);
-      g.addColorStop(0, b.col);
-      if (lo > 0) g.addColorStop(lo, b.col);
-      g.addColorStop(ph, "#ffffff");
-      if (hi < 1) g.addColorStop(hi, b.col2 || b.col);
-      g.addColorStop(1, b.col2 || b.col);
-      c.strokeStyle = g; c.globalAlpha = 0.3 + 0.42 * breathe; c.lineWidth = 1.7;
-      strokeEdge(c, b.pts, b.el);
+    c.save(); c.lineJoin = "round"; c.lineCap = "round";
+    for (const s of SECTORS) {
+      const sp = s.split; if (!sp) continue;
+      c.shadowBlur = 0; c.strokeStyle = hexA(sp.col2, 0.16); c.lineWidth = 4.5;
+      for (const pts of sp.outline) strokeEdge(c, pts, s.elev);
+      c.shadowColor = sp.col2; c.shadowBlur = 7; c.strokeStyle = hexA(sp.col2, 0.92); c.lineWidth = 1.7;
+      for (const pts of sp.outline) strokeEdge(c, pts, s.elev);
     }
-    c.globalAlpha = 1; c.restore();
+    c.shadowBlur = 0; c.restore();
   }
 
   function hazPattern(fillHex) {
@@ -1534,7 +1516,6 @@
     }
 
     drawSectorFX(ctx, ts);
-    if (LAYERS.sectors && !LOWFX) drawContestedPulse(ctx, ts);
 
     if (LAYERS.effects) drawEnvFX(ts);
 
