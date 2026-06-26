@@ -251,16 +251,16 @@
         "body": [
           {
             "type": "text",
-            "text": "All that remains of Seasse after it was destroyed, following an explosion during the [c=#FFE900]First Galactic War[/c]."
+            "text": "All that remains of [c=#FFE900]Seasse[/c] after it was destroyed, following an explosion during the [c=#FFE900]First Galactic War[/c]."
           },
           {
             "type": "image",
             "url": "https://helldivers.wiki.gg/images/Fractured_Planet_Header.png?d87631",
-            "caption": "***Whatever happened to this planet has been lost to time, due to our inability to recover any important evidence before the explosion.***"
+            "caption": "***Whatever happened to this planet has been lost to time, due to our inability to recover any important evidence before the incident.***"
           },
           {
             "type": "text",
-            "text": "It is unknown what the Illuminate plan to do with the remains of this planet. But we must not let curiosity or fear take hold of us; their plans must be stopped, [c=#FFE900]whatever the cost may be.[/c]"
+            "text": "It is[c=#FFE900] unknown what the Illuminate plan[/c] to do with the ruins of this planet, however it is undoubtedly to support their underhanded tactics."
           }
         ]
       }
