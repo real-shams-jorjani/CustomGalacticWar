@@ -24,11 +24,12 @@
     }
     function poll() {
       const refresh = window.__refreshMap || window.__refreshDispatch;
-      if (stop || typeof refresh !== "function") return;
-      if (document.hidden) return;
-      Promise.resolve(refresh()).then((n) => { if (typeof n === "number") syncPulse(n); }).catch(() => {});
+      if (stop || typeof refresh !== "function") return Promise.resolve(0);
+      if (document.hidden) return Promise.resolve(0);
+      return Promise.resolve(refresh()).then((n) => { if (typeof n === "number") syncPulse(n); return n; }).catch(() => 0);
     }
-    setInterval(poll, 30000);
+    // No auto-polling: the war map is a snapshot loaded once. Refreshing live data is now manual via the
+    // on-map refresh button (window.__forcePoll), so an idle map never re-fetches or rebuilds on its own.
     window.__forcePoll = poll;
   })();
 

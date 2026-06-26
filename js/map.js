@@ -1323,10 +1323,12 @@
     for (const cmp of comps) c.drawImage(sprite, x + cmp[0] * sep - s2 / 2, y + cmp[1] * sep - s2 / 2, s2, s2);
   }
   function drawPlanetDots(c, ts) {
+    const W = cvW, H = cvH, M = 60;   // skip planets off-screen (their sprite/warp stays within ~M of e.sx/sy)
     if (LOWFX) {   // low mode: flat, consistent owner-coloured circles instead of glowing stars
       const zf = Math.max(0.5, Math.min(2.2, Math.pow(cam.zoom, 0.6))), r = 3.1 * zf;
       c.save();
       for (const e of PLANETS) {
+        if (e.sx < -M || e.sx > W + M || e.sy < -M || e.sy > H + M) continue;
         const p = e.p;
         if (p.fx && p.fx.some((f) => f.t === "black_hole")) continue;
         c.fillStyle = facColor(p.owner);
@@ -1338,6 +1340,7 @@
     }
     c.save(); c.globalCompositeOperation = "lighter";
     for (const e of PLANETS) {
+      if (e.sx < -M || e.sx > W + M || e.sy < -M || e.sy > H + M) continue;
       const p = e.p;
       if (p.fx && p.fx.some((f) => f.t === "black_hole")) continue;
       drawNodeStar(c, e.sx, e.sy, starFor(p), p.active || !!p.ev, ts);
@@ -1346,8 +1349,10 @@
   }
 
   function drawPlanetRings(c) {
+    const W = cvW, H = cvH, M = 16;
     PLANETS.forEach((e) => {
       const p = e.p; if (!p.active && !p.ev) return;
+      if (e.sx < -M || e.sx > W + M || e.sy < -M || e.sy > H + M) return;
       const rr = (p.active ? 5.5 : 4) + 3.4;
       const threat = p.ev ? facColor(p.ev.race) : facColor(p.owner);
       c.lineWidth = 2; c.strokeStyle = hexA(threat, 0.30);
@@ -2072,6 +2077,16 @@
     const mfPanel = () => document.getElementById("map-fleets");
     btn("zfleet", () => { const p = mfPanel(); if (p) { p.classList.toggle("open"); const b = document.getElementById("zfleet"); if (b) b.classList.toggle("on", p.classList.contains("open")); } });
     btn("mf-close", () => { const p = mfPanel(); if (p) p.classList.remove("open"); const b = document.getElementById("zfleet"); if (b) b.classList.remove("on"); });
+    // Manual war-data refresh: re-fetch the snapshot on demand (replaces the old 30s auto-poll). Spins
+    // while loading; staticKey/render are handled inside __refreshMap when the data actually changed.
+    btn("map-refresh", () => {
+      const b = document.getElementById("map-refresh");
+      if (!b || b.classList.contains("loading")) return;
+      const done = () => { b.classList.remove("loading"); b.classList.add("done"); setTimeout(() => b.classList.remove("done"), 900); };
+      b.classList.add("loading");
+      const fn = window.__forcePoll || window.__refreshMap;
+      Promise.resolve(typeof fn === "function" ? fn() : 0).then(done, done);
+    });
 
     Array.prototype.forEach.call(document.querySelectorAll("#map-layers button[data-layer]"), (b) => {
       b.onclick = () => {
@@ -2155,6 +2170,7 @@
     for (const k in to) t[k] = to[k];
     if (t.rot != null && !ease) { let d = ((t.rot - from.rot + 540) % 360) - 180; t.rot = from.rot + d; }
     camAnim = { from, to: t, t0: null, dur, ease };
+    startLoop();   // render-on-demand: ensure the loop runs so this camera animation plays
   }
   function stepCamAnim(ts) {
     const dt = _stepTs ? Math.min(50, ts - _stepTs) : 16.7; _stepTs = ts;
@@ -2290,7 +2306,7 @@
     }
     h += `</div></div>`; return h;
   }
-  function showCompact(p) { if (consoleOpen) return; tip.innerHTML = buildCompact(p); tip.classList.add("show"); compactState = { p, m: tipMeta(p) }; paintCompactBar(); }
+  function showCompact(p) { if (consoleOpen) return; tip.innerHTML = buildCompact(p); tip.classList.add("show"); compactState = { p, m: tipMeta(p) }; startLoop(); paintCompactBar(); }
   function paintCompactBar() {
     if (!compactState) return; const p = compactState.p, m = compactState.m, off = animOff * PB.SPEED_SE;
     if (m.mode === "event") { const cvs = tip.querySelector(".wf-mini-evbar"); if (cvs) drawEventBar(cvs, p, m.dispFac, off); }
@@ -2521,7 +2537,7 @@
     return pois.map(poiCard).join("");
   }
 
-  function openConsole(p) { consoleState = { p, m: tipMeta(p) }; consoleOpen = true; renderConsole(); consoleEl.classList.add("open"); consoleEl.setAttribute("aria-hidden", "false"); }
+  function openConsole(p) { consoleState = { p, m: tipMeta(p) }; consoleOpen = true; renderConsole(); consoleEl.classList.add("open"); consoleEl.setAttribute("aria-hidden", "false"); startLoop(); }
   function renderConsole() {
     consoleEl.innerHTML = buildDashboard(consoleState.p);
     consoleEl.querySelector("#pc-close").onclick = closeConsole;
@@ -2561,6 +2577,12 @@
   }
 
   let animOff = 0, lastTs = 0, lastFrame = 0, _looping = false;
+  // Is anything actually moving/animating right now? This drives render-on-demand: when it's false the
+  // map is a finished static frame, so the loop stops and an idle map costs ~0 CPU instead of redrawing
+  // the whole scene 60x/second forever. The loop is revived (startLoop) the moment interaction resumes.
+  function mapBusy() {
+    return interacting || camAnim || zoomTarget != null || camVel.x || camVel.y || consoleOpen || compactState != null || hovered != null;
+  }
   function frame(ts) {
     ts = ts || (typeof performance !== "undefined" ? performance.now() : Date.now());
 
@@ -2574,13 +2596,17 @@
     } catch (e) {
       if (!frame._warned) { frame._warned = true; if (typeof console !== "undefined") console.error("[map] render frame error (loop kept alive):", e); }
     }
-    requestAnimationFrame(frame);
+    // One frame painted; keep looping only while something is animating. Idle -> stop (static frame stays).
+    if (mapBusy()) requestAnimationFrame(frame);
+    else _looping = false;
   }
 
   function startLoop() { if (_looping) return; _looping = true; lastTs = 0; requestAnimationFrame(frame); }
+  // Safety net: if the loop ever dies mid-animation (thrown frame, returning to the tab), revive it —
+  // but ONLY while something should be animating, so an idle map is never forced back into 60fps redraws.
   setInterval(() => {
     if (cv.offsetParent === null || (typeof document !== "undefined" && document.hidden)) return;
-    startLoop();
+    if (mapBusy()) startLoop();
   }, 220);
   window.__mapRender = render;
   window.__mapResize = resize;
