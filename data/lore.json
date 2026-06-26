@@ -284,6 +284,33 @@
       }
     ]
   },
+  "250": {
+    "poi": [
+      {
+        "category": "[FACTION HOMEWORLD]",
+        "title": "DEFENDERS OF ANDWELL",
+        "icon": "players",
+        "date": "",
+        "status": "DISPENSING FREEDOM",
+        "statusColor": "#FFB900",
+        "body": [
+          {
+            "type": "text",
+            "text": "Home to the [c=#FFE900]Defenders Of Andwell[/c], this planet is a Bastion of Integrity, Security and peace, with every recorded enemy invasion being heroically countered by these brave heroes."
+          },
+          {
+            "type": "text",
+            "text": "Expert research and intelligence suggests that many [c=#FFE900]Illuminate[/c]  forces return from deployment to this planet with conditions similar to Human PTSD, due to the brutality and ruthlessness of it's mighty defenders."
+          },
+          {
+            "type": "image",
+            "url": "https://cdn.discordapp.com/attachments/1499830986375041146/1508463410482778112/ANDWELLERS.png?ex=6a3fd186&is=6a3e8006&hm=cfd3989ed794230db101c6052b81aa746863b691396fccbea846598a00b9b229&",
+            "caption": "The only known photo of the [c=#FFE900]Defenders Of Andwell[/c]. These Heroes are regarded as almost 'Super-Superhuman'."
+          }
+        ]
+      }
+    ]
+  },
   "253": {
     "poi": [
       {
