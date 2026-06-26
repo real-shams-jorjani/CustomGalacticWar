@@ -91,7 +91,7 @@
     return { x: rx * c + ry * s, y: -rx * s + ry * c };
   }
 
-  let PLANETS = [], HIDDEN = [], SECTORS = [], LINKS = [], ATTACKS = [], LABELS = [], DSS = null, MO_MARKS = [], DEFENSE_MARKS = [], FLEET_MARKS = [], FX_MARKS = [], SUBFAC_MARKS = [], GLOOM_LINKS = [], SE_LINKS = [], MIXED_LINKS = [], ENEMY_BORDER = [], TERRITORY = [], CONTESTED = [], CONTESTED_LINES = [];
+  let PLANETS = [], HIDDEN = [], SECTORS = [], LINKS = [], ATTACKS = [], LABELS = [], DSS = null, MO_MARKS = [], DEFENSE_MARKS = [], FLEET_MARKS = [], FX_MARKS = [], SUBFAC_MARKS = [], GLOOM_LINKS = [], SE_LINKS = [], MIXED_LINKS = [], ENEMY_BORDER = [], TERRITORY = [], TERRITORY_MOTES = [], CONTESTED = [], CONTESTED_LINES = [];
 
   const FLEETS_ENABLED = false;
 
@@ -965,6 +965,24 @@
 
     if (interacting || RMOTION || REDUCED) return;
     c.save(); c.globalCompositeOperation = "lighter";
+    if (MAPMODE === "territory") {
+      // motes rise from the planet-driven territory interior (projected per frame so they stay anchored
+      // to the map), NOT the sector grid — keeps them confined to the actual enemy territory in this mode
+      const W = cv.width / dpr, H = cv.height / dpr;
+      for (let ci = 0; ci < TERRITORY_MOTES.length; ci++) {
+        const m = TERRITORY_MOTES[ci], q = project(m.wx, m.wy, 0);
+        if (q.x < -10 || q.x > W + 10 || q.y < -30 || q.y > H + 10) continue;   // cull off-screen
+        c.fillStyle = m.col;
+        for (let e = 0; e < 2; e++) {
+          const ph = ((ts / 2400) + e * 0.5 + ci * 0.37 + m.wx * 0.00022 + m.wy * 0.00031) % 1;
+          if (ph < 0.06) continue;
+          const ex = q.x + Math.sin(ph * 6.28 + ci) * 3, ey = q.y - ph * 24, fade = Math.sin(ph * Math.PI);
+          c.globalAlpha = fade * 0.55; c.beginPath(); c.arc(ex, ey, 1.2, 0, Math.PI * 2); c.fill();
+        }
+      }
+      c.globalAlpha = 1; c.restore();
+      return;
+    }
     for (const s of SECTORS) {
       if (!s.enemy || !s._scrCells) continue;
       c.fillStyle = s.fillHex; const cells = s._scrCells, n = cells.length, off = s.cx * 0.0009 + s.cy * 0.0013;
@@ -996,7 +1014,7 @@
   // marching squares gives ANGULAR (right-angle + 45°) shapes. SE/contested points block but never
   // fill. CONTESTED collects the seam segments where two enemy factions meet (lit white-hot).
   function buildTerritory() {
-    TERRITORY = []; CONTESTED = [];
+    TERRITORY = []; TERRITORY_MOTES = []; CONTESTED = [];
     const pl = PLANETS; if (pl.length < 2) return;
     const ll = (DATA.links || []).map(([a, b]) => { const A = byIndex[a], B = byIndex[b]; return (A && B) ? Math.hypot(A.wx - B.wx, A.wy - B.wy) : 0; }).filter((d) => d > 0).sort((x, y) => x - y);
     const med = ll.length ? ll[ll.length >> 1] : 1600;
@@ -1042,6 +1060,22 @@
         if (trans.length === 2) pushSeg(trans[0], trans[1], (across[0] >= 2 && across[1] >= 2) ? across[0] : 0);
       }
       TERRITORY.push({ fac: F, col: FAC_FILL[F] || facColor(F), fill: fillPolys, contour });
+    }
+    // Ambient-mote seeds for Territory mode: world-space points sampled from INTERIOR territory cells
+    // (>=3 same-faction orthogonal neighbours, so motes sit inside the landmass, never on the rim or
+    // in void). drawSectorFX rises faction-coloured motes from these — confined to the real territory,
+    // not the sector grid. Even-subsampled so density is stable regardless of grid resolution.
+    {
+      const seeds = [];
+      for (let i = 1; i < nx - 1; i++) for (let j = 1; j < ny - 1; j++) {
+        const f = fac[i * ny + j]; if (f < 2) continue;
+        let same = 0;
+        if (fac[(i - 1) * ny + j] === f) same++; if (fac[(i + 1) * ny + j] === f) same++;
+        if (fac[i * ny + j - 1] === f) same++; if (fac[i * ny + j + 1] === f) same++;
+        if (same >= 3) seeds.push({ wx: px(i), wy: py(j), col: FAC_FILL[f] || facColor(f) });
+      }
+      const CAP_M = 340, stride = Math.max(1, Math.ceil(seeds.length / CAP_M));
+      for (let k = 0; k < seeds.length; k += stride) TERRITORY_MOTES.push(seeds[k]);
     }
     // de-dupe the seam: both bordering factions emit the same segment, so collapse by rounded endpoints
     if (CONTESTED.length) {
