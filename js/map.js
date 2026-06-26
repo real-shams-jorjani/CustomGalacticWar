@@ -401,7 +401,11 @@
   let staticKey = "";
   function camKey() {
     const rot = (((cam.rot % 360) + 360) % 360).toFixed(1);
-    return [Math.round(cam.x), Math.round(cam.y), cam.zoom.toFixed(3), cam.pitch.toFixed(3), rot, cvW, cvH, renderDpr].join(",");
+    // `interacting` is part of the key: the static layer's link rendering switches between a bright
+    // settled look and a cheap dim look while panning, so the cache MUST invalidate when it flips —
+    // otherwise (on dpr===INTERACT_DPR displays, where renderDpr doesn't change) the dim version
+    // stayed cached after a pan and supply lines looked dark until a layer toggle forced a rebuild.
+    return [Math.round(cam.x), Math.round(cam.y), cam.zoom.toFixed(3), cam.pitch.toFixed(3), rot, cvW, cvH, renderDpr, interacting ? 1 : 0].join(",");
   }
 
   function setInteractive(on) {
