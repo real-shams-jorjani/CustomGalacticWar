@@ -1367,6 +1367,17 @@
   const _plateDrawn = new Set();   // planet indices that got a plate this frame (so floating timers dedupe)
   // distinct factions present on a planet via ownership + ambient subfactions + named forces
   const planetFactions = (p) => { const s = new Set(); if (p.owner >= 1) s.add(p.owner); if (p.subfac) for (const f of p.subfac) { if (f >= 1) s.add(f); } if (p.forces) for (const f of p.forces) { if (f.f >= 1) s.add(f.f); } return [...s]; };
+  // contested plate sides: owner faction (left) + the faction contesting it (right), if any
+  function plateSides(p) {
+    const own = p.owner >= 1 ? p.owner : (p.campRace || (p.ev && p.ev.race) || 0);
+    let opp = 0;
+    if (p.ev && p.ev.race && p.ev.race !== own) opp = p.ev.race;                  // event attacker
+    if (!opp && p.active && own >= 2) opp = 1;                                     // enemy world being liberated -> SE contesting
+    if (!opp && p.campRace && p.campRace !== own) opp = p.campRace;
+    if (!opp && p.subfac) for (const f of p.subfac) { if (f >= 1 && f !== own) { opp = f; break; } }
+    if (!opp && p.forces) for (const f of p.forces) { if (f.f >= 1 && f.f !== own) { opp = f.f; break; } }
+    return { own, opp };
+  }
   function plateMetrics(c, name, poiN) {
     c.font = "700 12px " + headFont();
     const poiSeg = poiN ? (8 + poiN * PLATE.poiW) : 0;
@@ -1384,12 +1395,21 @@
 
     panel(); c.fillStyle = "rgba(11,15,22,0.97)"; c.fill();
 
-    c.fillStyle = scaleHex(col, 0.78); c.fillRect(x, y, blockW, h);
+    const sides = plateSides(p), ex = x + PLATE.padx, ey = cyr - PLATE.crest / 2, es = PLATE.crest, half = blockW / 2;
+    if (sides.opp) {
+      // contested: split crest block — owner faction's icon (left half) + contesting faction's (right half)
+      c.fillStyle = scaleHex(facColor(sides.own), 0.78); c.fillRect(x, y, half, h);
+      c.fillStyle = scaleHex(facColor(sides.opp), 0.78); c.fillRect(x + half, y, blockW - half, h);
+      const e1 = FAC_EMBLEM[sides.own], e2 = FAC_EMBLEM[sides.opp];
+      if (e1) { c.save(); c.beginPath(); c.rect(x, y, half, h); c.clip(); c.drawImage(e1, ex, ey, es, es); c.restore(); }
+      if (e2) { c.save(); c.beginPath(); c.rect(x + half, y, blockW - half, h); c.clip(); c.drawImage(e2, ex, ey, es, es); c.restore(); }
+      c.fillStyle = "rgba(0,0,0,0.5)"; c.fillRect(x + half - 0.5, y, 1, h);   // centre divider
+    } else {
+      c.fillStyle = scaleHex(col, 0.78); c.fillRect(x, y, blockW, h);
+      const emb = FAC_EMBLEM[fac]; if (emb) c.drawImage(emb, ex, ey, es, es);
+    }
     c.fillStyle = "rgba(255,255,255,0.16)"; c.fillRect(x, y, blockW, 1.5);
     c.fillStyle = "rgba(0,0,0,0.18)"; c.fillRect(x, y + h - 1.5, blockW, 1.5);
-
-    const emb = FAC_EMBLEM[fac];
-    if (emb) c.drawImage(emb, x + PLATE.padx, cyr - PLATE.crest / 2, PLATE.crest, PLATE.crest);
 
     panel(); c.lineWidth = 1.2; c.strokeStyle = hexA(col, 0.78); c.stroke();
     c.fillStyle = hexA(lightHex(col, 0.45), 0.95); c.fillRect(x + blockW, y, 1.6, h);
@@ -1406,14 +1426,7 @@
     }
     if (p.home != null) { c.fillStyle = "#FFE900"; c.beginPath(); c.moveTo(x + w - ch, y); c.lineTo(x + w, y + ch); c.lineTo(x + w - ch, y + ch); c.closePath(); c.fill(); }
 
-    // CONTESTED faction-presence strip along the top edge: one segment per faction present
-    // (owner + ambient subfactions + named forces). >=2 segments reads instantly as contested.
-    const facs = planetFactions(p);
-    if (facs.length >= 2) {
-      const sw = w / facs.length;
-      for (let fi = 0; fi < facs.length; fi++) { c.fillStyle = facColor(facs[fi]); c.fillRect(x + fi * sw, y - 4, Math.ceil(sw), 3); }
-      c.fillStyle = "rgba(0,0,0,0.4)"; for (let fi = 1; fi < facs.length; fi++) c.fillRect(x + fi * sw - 0.5, y - 4, 1, 3);
-    }
+    // (contested is now shown by the split crest block above — owner | contester half-icons)
     // BUILT-IN countdown bar welded under the plate (event expiry / Major Order deadline)
     if (ts != null && LAYERS.timers) {
       let dl = 0, acc = null;
@@ -1650,7 +1663,8 @@
     if (x1 < 0 || y1 < 0 || x0 > W || y0 > H) return;
     ctx.save();
     ctx.beginPath(); ctx.moveTo(pp[0].x, pp[0].y); for (let i = 1; i < pp.length; i++) ctx.lineTo(pp[i].x, pp[i].y); ctx.closePath();
-    ctx.clip();   // clip only - the union boundary is stroked once in drawVoidOutline (no internal seams)
+    ctx.clip();   // clip to the void cell
+    ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);   // opaque black: the void fully hides the territory/grid beneath
     const o = project(0, 0, 0);   // anchor the field pattern to the map so it doesn't swim when panning
     window.EnvFX.voidFieldRect(ctx, Math.max(0, x0), Math.max(0, y0), Math.min(W, x1), Math.min(H, y1), col, ts, RMOTION, interacting || REDUCED, o.x, o.y);
     ctx.restore();
