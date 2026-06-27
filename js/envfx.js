@@ -329,5 +329,38 @@ window.EnvFX = (function () {
     }
   }
 
-  return { draw, drawClose, gloomBlob, voidFieldRect };
+  // EMISSIVE magma/lava globe (WarForge look): the lava texture's own bright veins ARE the emissive
+  // source, so once per globe we bake them into a transparent glow sprite (threshold the hot pixels,
+  // tint incandescent), then additively blit it over the globe each frame with a slow molten pulse.
+  // No new art asset, no dotted voxel field. Cached by image URL so the per-pixel bake runs once.
+  const _magma = {};
+  function bakeMagma(img, S) {
+    const cn = document.createElement("canvas"); cn.width = cn.height = S;
+    const g = cn.getContext("2d"); g.drawImage(img, 0, 0, S, S);
+    let d; try { d = g.getImageData(0, 0, S, S); } catch (e) { return null; }   // cross-origin would taint; local assets are fine
+    const px = d.data;
+    for (let i = 0; i < px.length; i += 4) {
+      const r = px[i], gg = px[i + 1], b = px[i + 2];
+      let m = (0.5 * r + 0.45 * gg - 0.4 * b - 95) / 130;   // hot = high red/green, low blue
+      m = m < 0 ? 0 : m > 1 ? 1 : m; m *= m;                 // curve so only the molten veins glow
+      px[i] = 255; px[i + 1] = (150 + 105 * m) | 0; px[i + 2] = (40 + 70 * m) | 0; px[i + 3] = (255 * m) | 0;
+    }
+    g.putImageData(d, 0, 0); return cn;
+  }
+  function closeMagma(ctx, cx, cy, gR, img, ts, rm) {
+    if (!img || !img.complete || !img.naturalWidth) return;   // wait for the globe image to load
+    const key = img.src; let spr = _magma[key];
+    if (spr === undefined) spr = _magma[key] = bakeMagma(img, Math.max(64, Math.round(gR * 2)));
+    if (!spr) return;
+    const D = gR * 2, x = cx - gR, y = cy - gR, pulse = rm ? 0.85 : 0.72 + 0.24 * Math.sin(ts * 0.0013);
+    ctx.save();
+    ctx.beginPath(); ctx.arc(cx, cy, gR, 0, TAU); ctx.clip();   // confine the glow to the globe disc
+    ctx.globalCompositeOperation = "lighter"; ctx.imageSmoothingEnabled = true;
+    ctx.globalAlpha = 0.5 * pulse; ctx.drawImage(spr, x, y, D, D);                                     // crisp molten veins
+    ctx.globalAlpha = 0.26 * pulse; ctx.drawImage(spr, x - D * 0.05, y - D * 0.05, D * 1.1, D * 1.1);  // soft bloom
+    ctx.restore();
+  }
+  function drawMagma(ctx, cx, cy, gR, img, ts, rm) { closeMagma(ctx, cx, cy, gR, img, ts, rm); }
+
+  return { draw, drawClose, gloomBlob, voidFieldRect, drawMagma };
 })();

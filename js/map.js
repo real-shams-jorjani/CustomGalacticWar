@@ -2379,12 +2379,13 @@
       `<span class="wf-dash-idx"><span class="wf-idx-icon"></span><b>${p.i}</b></span>` +
       `<button class="pc-close" id="pc-close" title="Close">&times;</button></div>`;
     h += `<div class="wf-dash-body">`;
+    const magma = isMagma(p);
     const hasStorm = p.fx && p.fx.some((f) => f.t === "vortex");
     const hasBH = p.fx && p.fx.some((f) => f.t === "black_hole");
 
     h += `<div class="dsr-identity"><div class="dsr-globe">` +
-      `<span class="wf-globe-wrap"><span class="wf-globe${hasStorm ? " exostorm" : ""}${hasBH ? " blackhole" : ""}" style="background-image:url(${p.globe});--fac:${oc}"></span>` +
-      (p.fx && p.fx.length ? `<canvas class="wf-globe-fx" aria-hidden="true"></canvas>` : ``) + hpRingSVG(p) +
+      `<span class="wf-globe-wrap"><span class="wf-globe${hasStorm && !magma ? " exostorm" : ""}${hasBH ? " blackhole" : ""}" style="background-image:url(${p.globe});--fac:${oc}"></span>` +
+      ((p.fx && p.fx.length) || magma ? `<canvas class="wf-globe-fx" aria-hidden="true"></canvas>` : ``) + hpRingSVG(p) +
       `<span class="dsr-ret" aria-hidden="true"></span><span class="dsr-tick tl"></span><span class="dsr-tick tr"></span><span class="dsr-tick bl"></span><span class="dsr-tick br"></span></span>` +
       `<div class="dsr-globe-cap"><span>WORLD TYPE</span><b>${p.biome || "UNKNOWN"}</b></div></div>`;
     h += `<div class="dsr-vitals">`;
@@ -2588,9 +2589,20 @@
     paintTimer(consoleEl);
   }
 
+  // Magma/lava worlds: detected by biome/globe (there is no fx type for it). The inspect globe shows an
+  // EMISSIVE molten glow derived from the lava texture's own bright veins (see EnvFX.drawMagma) instead
+  // of the dotted anomaly voxel field.
+  // Key off the GLOBE texture, not the biome label: the emissive is derived from the lava texture's own
+  // veins, so it only makes sense when the globe IS a lava sphere. (The biome label is unreliable — some
+  // "MAGMA BASE" worlds in the data carry a non-lava globe; those have no veins to glow.)
+  function isMagma(p) { return /magma|lava|molten/i.test(p.globe || ""); }
+  const _globeImgCache = {};
+  function globeImg(url) { if (!url) return null; let im = _globeImgCache[url]; if (!im) { im = _globeImgCache[url] = new Image(); im.src = url; } return im; }
+
   function paintGlobeFx(ts) {
     if (!consoleState || !window.EnvFX) return;
-    const p = consoleState.p; if (!p.fx || !p.fx.length) return;
+    const p = consoleState.p, magma = isMagma(p);
+    if (!magma && (!p.fx || !p.fx.length)) return;
     const cvs = consoleEl.querySelector(".wf-globe-fx"), globe = consoleEl.querySelector(".wf-globe-wrap .wf-globe");
     if (!cvs || !globe) return;
     const gw = globe.offsetWidth; if (!gw) return;
@@ -2600,7 +2612,8 @@
       cvs._sz = size; cvs._d = d;
     }
     const c = cvs.getContext("2d"); c.setTransform(d, 0, 0, d, 0, 0); c.clearRect(0, 0, size, size);
-    window.EnvFX.drawClose(c, p.fx, size / 2, size / 2, gR, ts, RMOTION);
+    if (magma) window.EnvFX.drawMagma(c, size / 2, size / 2, gR, globeImg(p.globe), ts, RMOTION);
+    else window.EnvFX.drawClose(c, p.fx, size / 2, size / 2, gR, ts, RMOTION);
   }
 
   let animOff = 0, lastTs = 0, lastFrame = 0, _looping = false;
