@@ -1666,7 +1666,9 @@
 
     const bridgeCap = 7;
     for (const lk of GLOOM_LINKS) {
-      const ax = lk.a.sx, ay = lk.a.sy, dx = lk.b.sx - ax, dy = lk.b.sy - ay;
+      const ax = lk.a.sx, ay = lk.a.sy, bx = lk.b.sx, by = lk.b.sy;
+      if ((ax < -R && bx < -R) || (ax > W + R && bx > W + R) || (ay < -R && by < -R) || (ay > H + R && by > H + R)) continue;   // whole bridge off-screen
+      const dx = bx - ax, dy = by - ay;
       const dist = Math.hypot(dx, dy) || 1, steps = Math.min(bridgeCap, Math.floor(dist / (R * 0.8)));
       const px = -dy / dist, py = dx / dist;
       for (let i = 1; i <= steps; i++) {
@@ -2577,12 +2579,6 @@
   }
 
   let animOff = 0, lastTs = 0, lastFrame = 0, _looping = false;
-  // Is anything actually moving/animating right now? This drives render-on-demand: when it's false the
-  // map is a finished static frame, so the loop stops and an idle map costs ~0 CPU instead of redrawing
-  // the whole scene 60x/second forever. The loop is revived (startLoop) the moment interaction resumes.
-  function mapBusy() {
-    return interacting || camAnim || zoomTarget != null || camVel.x || camVel.y || consoleOpen || compactState != null || hovered != null;
-  }
   function frame(ts) {
     ts = ts || (typeof performance !== "undefined" ? performance.now() : Date.now());
 
@@ -2596,17 +2592,13 @@
     } catch (e) {
       if (!frame._warned) { frame._warned = true; if (typeof console !== "undefined") console.error("[map] render frame error (loop kept alive):", e); }
     }
-    // One frame painted; keep looping only while something is animating. Idle -> stop (static frame stays).
-    if (mapBusy()) requestAnimationFrame(frame);
-    else _looping = false;
+    requestAnimationFrame(frame);
   }
 
   function startLoop() { if (_looping) return; _looping = true; lastTs = 0; requestAnimationFrame(frame); }
-  // Safety net: if the loop ever dies mid-animation (thrown frame, returning to the tab), revive it —
-  // but ONLY while something should be animating, so an idle map is never forced back into 60fps redraws.
   setInterval(() => {
     if (cv.offsetParent === null || (typeof document !== "undefined" && document.hidden)) return;
-    if (mapBusy()) startLoop();
+    startLoop();
   }, 220);
   window.__mapRender = render;
   window.__mapResize = resize;

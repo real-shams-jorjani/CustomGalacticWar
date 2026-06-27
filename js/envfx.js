@@ -141,9 +141,16 @@ window.EnvFX = (function () {
   // cells to the map so the pattern doesn't swim against the region edge when you pan.
   function voidFieldRect(ctx, x0, y0, x1, y1, c, ts, rm, simple, phaseX, phaseY) {
     phaseX = phaseX || 0; phaseY = phaseY || 0;
-    const B = newBuckets(NB), STEP = simple ? 6 : 5, t = rm ? 0 : ts * 0.00045;
-    const glitch = [];
-    ctx.save(); ctx.globalAlpha = 0.5; ctx.fillStyle = "#0c0522"; ctx.fillRect(x0, y0, x1 - x0, y1 - y0); ctx.restore();
+    const w = x1 - x0, h = y1 - y0, t = rm ? 0 : ts * 0.00045;
+    // The cell's on-screen rect grows with zoom^2, so a fixed pixel STEP made this the single most
+    // expensive thing on the map when zoomed in (tens of thousands of noise samples/frame). Cap the
+    // voxel count: past the cap, grow STEP and the dot radius together so it stays a smooth haze.
+    const MAXV = 4500, base = simple ? 6 : 5;
+    let STEP = base; const est = (w / base) * (h / base);
+    if (est > MAXV) STEP = Math.sqrt((w * h) / MAXV);
+    const ds = STEP / base;
+    const B = newBuckets(NB), glitch = [];
+    ctx.save(); ctx.globalAlpha = 0.5; ctx.fillStyle = "#0c0522"; ctx.fillRect(x0, y0, w, h); ctx.restore();
     for (let gy = y0; gy <= y1; gy += STEP) {
       for (let gx = x0; gx <= x1; gx += STEP) {
         const ux = (gx - phaseX) * 0.06, uy = (gy - phaseY) * 0.06;
@@ -154,20 +161,21 @@ window.EnvFX = (function () {
         if (!rm && Math.sin(colh * 30 + ts * 0.012) < -0.4) b *= 0.32;
         b = b < 0 ? 0 : b > 1 ? 1 : b;
         if (b < 0.07) continue;
-        addDot(B, NB, gx, gy, b, b > 0.66 ? 1.9 : 1.4);
+        addDot(B, NB, gx, gy, b, (b > 0.66 ? 1.9 : 1.4) * ds);
         if (!rm && b > 0.82 && colh > 0.55) glitch.push(gx, gy, b);
       }
     }
     ctx.save(); ctx.globalCompositeOperation = "lighter";
     paintBuckets(ctx, B, NB, (k) => ({ c: k > 0.9 ? "#e6d2ff" : k > 0.68 ? "#b96cff" : k > 0.42 ? "#8a3ff0" : "#5421a8", a: 0.14 + 0.5 * k }));
+    const gr = 1.5 * ds;
     for (let i = 0; i < glitch.length; i += 3) {
-      ctx.globalAlpha = 0.12 * glitch[i + 2]; ctx.fillStyle = GR; ctx.beginPath(); ctx.arc(glitch[i] - 2.2, glitch[i + 1], 1.5, 0, TAU); ctx.fill();
-      ctx.fillStyle = GC; ctx.beginPath(); ctx.arc(glitch[i] + 2.2, glitch[i + 1], 1.5, 0, TAU); ctx.fill();
+      ctx.globalAlpha = 0.12 * glitch[i + 2]; ctx.fillStyle = GR; ctx.beginPath(); ctx.arc(glitch[i] - 2.2 * ds, glitch[i + 1], gr, 0, TAU); ctx.fill();
+      ctx.fillStyle = GC; ctx.beginPath(); ctx.arc(glitch[i] + 2.2 * ds, glitch[i + 1], gr, 0, TAU); ctx.fill();
     }
     if (!rm) {
-      const hh = Math.max(1, y1 - y0), ty = y0 + ((ts * 0.1) % hh);
-      ctx.globalAlpha = 0.14; ctx.fillStyle = GR; ctx.fillRect(x0, ty, x1 - x0, 1.2);
-      ctx.fillStyle = GC; ctx.fillRect(x0, ty + 2.2, (x1 - x0) * (0.4 + 0.5 * h1((ts / 200) | 0)), 1.0);
+      const ty = y0 + ((ts * 0.1) % Math.max(1, h));
+      ctx.globalAlpha = 0.14; ctx.fillStyle = GR; ctx.fillRect(x0, ty, w, 1.2);
+      ctx.fillStyle = GC; ctx.fillRect(x0, ty + 2.2, w * (0.4 + 0.5 * h1((ts / 200) | 0)), 1.0);
     }
     ctx.restore();
   }
