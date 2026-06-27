@@ -2506,10 +2506,11 @@
   }
   function dashSupply(p) {
     const adj = p.adj || []; let h = "";
-    if (adj.length) h += adj.map((a) => { const c = facColor(a.owner), globe = a.globe || "img/globes/default_planet.png"; return `<div class="pc-adj"><span class="mf-globe pc-adj-globe" style="background-image:url(${globe});--fac:${c}"></span><span class="pc-adj-name">${a.name}</span><span class="pc-adj-fac" style="color:${c}">${facName(a.owner)}</span></div>`; }).join("");
-    const inbound = ATTACKS.filter((a) => a.b.p.i === p.i).map((a) => a.a.p.name), outbound = ATTACKS.filter((a) => a.a.p.i === p.i).map((a) => a.b.p.name);
-    if (inbound.length) h += subh("UNDER ASSAULT FROM", "atk") + inbound.map((n) => `<div class="pc-line atk">${n}</div>`).join("");
-    if (outbound.length) h += subh("STAGING ASSAULT ON") + outbound.map((n) => `<div class="pc-line">${n}</div>`).join("");
+    // Each supply-network world is a button that re-inspects that planet (click wired in renderConsole).
+    if (adj.length) h += adj.map((a) => { const c = facColor(a.owner), globe = a.globe || "img/globes/default_planet.png"; return `<button type="button" class="pc-adj pc-jump" data-pi="${a.i}"><span class="mf-globe pc-adj-globe" style="background-image:url(${globe});--fac:${c}"></span><span class="pc-adj-name">${a.name}</span><span class="pc-adj-fac" style="color:${c}">${facName(a.owner)}</span><span class="pc-adj-go" aria-hidden="true">›</span></button>`; }).join("");
+    const inbound = ATTACKS.filter((a) => a.b.p.i === p.i).map((a) => a.a.p), outbound = ATTACKS.filter((a) => a.a.p.i === p.i).map((a) => a.b.p);
+    if (inbound.length) h += subh("UNDER ASSAULT FROM", "atk") + inbound.map((q) => `<button type="button" class="pc-line atk pc-jump" data-pi="${q.i}">${q.name}</button>`).join("");
+    if (outbound.length) h += subh("STAGING ASSAULT ON") + outbound.map((q) => `<button type="button" class="pc-line pc-jump" data-pi="${q.i}">${q.name}</button>`).join("");
     return h;
   }
   function dashRegions(p) {
@@ -2576,6 +2577,8 @@
       consoleEl.querySelectorAll(".dsr-panel").forEach((pn) => pn.classList.toggle("on", pn.getAttribute("data-panel") === id));
     };
     tabBtns.forEach((b) => { b.onclick = () => showTab(b.getAttribute("data-tab")); });
+    // supply-network worlds: clicking one flies to + inspects that planet (like clicking it on the map)
+    consoleEl.querySelectorAll(".pc-jump[data-pi]").forEach((b) => { b.onclick = () => { const e = byIndex[+b.getAttribute("data-pi")]; if (e) selectPlanet(e.p); }; });
     // restore the tab the user was on across the 30s live re-render (if it still exists)
     if (consoleState.tab && consoleEl.querySelector('.dsr-tab[data-tab="' + consoleState.tab + '"]')) showTab(consoleState.tab);
     paintGlanceBars();

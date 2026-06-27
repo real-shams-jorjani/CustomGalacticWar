@@ -725,7 +725,9 @@ body.on-war .ticker, body.on-war footer { display: none; }
 /* Inspect dashboard — segmented HUD-bar intel tabs (right column): one unified bar split into hard
    segments; the active segment fills solid faction colour with dark text, the rest dark steel. */
 .dsr-right { display: flex; flex-direction: column; min-height: 0; gap: 10px; }
-.dsr-tabs { flex: none; display: flex; border: 1px solid #2a3543; background: #0c1118; overflow: hidden; }
+/* Tabs are MOBILE-ONLY: on desktop there's room to show every panel at once (see .dsr-panel below).
+   Re-enabled inside the max-width:600px block. */
+.dsr-tabs { flex: none; display: none; border: 1px solid #2a3543; background: #0c1118; overflow: hidden; }
 .dsr-tab { flex: 1 1 0; min-width: 0; text-align: center; font-family: 'FS Sinclair', 'Swiss 721 Extended', sans-serif;
   font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #8aa0ad; background: #11161d;
   border: 0; border-right: 1px solid #2a3543; padding: 11px 8px 10px; cursor: pointer; white-space: nowrap;
@@ -733,10 +735,13 @@ body.on-war .ticker, body.on-war footer { display: none; }
 .dsr-tab:last-child { border-right: 0; }
 .dsr-tab:hover { color: #cfe0ea; background: #161d26; }
 .dsr-tab.on, .dsr-tab.on:hover { color: #0a0e14; background: var(--fac); }
-.dsr-panels { flex: 1 1 auto; min-height: 0; position: relative; }
-.dsr-panel { display: none; height: 100%; }
+.dsr-panels { flex: 1 1 auto; min-height: 0; position: relative; overflow-y: auto; scrollbar-width: none; }
+.dsr-panels::-webkit-scrollbar { width: 0; height: 0; }
+/* desktop default: show ALL panels stacked (no tabs); each panel keeps its 2-col section grid */
+.dsr-panel { display: block; height: auto; }
+.dsr-panel + .dsr-panel { margin-top: 16px; }
 .dsr-panel.on { display: block; }
-.dsr-panel .dsr-intel { height: 100%; }
+.dsr-panel .dsr-intel { height: auto; overflow: visible; }
 
 .dsr-globe { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
   padding: 14px 0 6px; border: 1px solid #232b34; border-left: 3px solid var(--fac);
@@ -934,6 +939,15 @@ body.on-war .ticker, body.on-war footer { display: none; }
 .pc-adj-name { color: #dbe6ec; flex: 1; } .pc-adj-fac { font-size: 11px; flex: none; }
 .pc-line { font-size: 13px; color: #cfd8de; padding: 4px 0; }
 .pc-line.atk { color: #ff8a8a; }
+/* clickable supply-network worlds — re-inspect the target planet (button reset + hover highlight) */
+button.pc-jump { width: 100%; text-align: left; background: transparent; border: 0; color: inherit; font: inherit; cursor: pointer; transition: background .12s; }
+button.pc-adj.pc-jump { padding: 5px 6px; border-bottom: 1px solid #20262e; }
+button.pc-line.pc-jump { display: block; padding: 5px 6px; }
+button.pc-jump:hover { background: rgba(70,164,255,0.12); }
+button.pc-jump:active { background: rgba(70,164,255,0.2); }
+button.pc-jump:focus-visible { outline: 1px solid var(--fac, #46a4ff); outline-offset: -1px; }
+.pc-adj-go { margin-left: 4px; flex: none; color: #5b7686; font-size: 15px; opacity: 0; transform: translateX(-2px); transition: opacity .12s, transform .12s; }
+button.pc-adj.pc-jump:hover .pc-adj-go { opacity: 1; transform: translateX(0); color: var(--fac, #9fd6ff); }
 .pc-fleet { display: flex; align-items: center; gap: 9px; padding: 6px 0; border-bottom: 1px solid #20262e; font-size: 13px; }
 .pc-fleet-glyph { width: 18px; height: 18px; flex: none; display: inline-block; }
 .pc-fleet-ship { width: 22px; height: 22px; flex: none; object-fit: contain; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6)); }
@@ -1388,8 +1402,12 @@ body.on-war .ticker, body.on-war footer { display: none; }
   .wf-dash-body { display: block; overflow-y: auto; overflow-x: hidden; }
   .dsr-identity, .dsr-right { overflow: visible; min-height: 0; }
   .dsr-right { margin-top: 11px; }
-  .dsr-tabs { position: sticky; top: 0; z-index: 3; background: #0c1015; padding: 2px 0; }
-  .dsr-panel { height: auto; }
+  /* mobile: bring the tabs back and show one panel at a time */
+  .dsr-tabs { display: flex; position: sticky; top: 0; z-index: 3; background: #0c1015; padding: 2px 0; }
+  .dsr-panels { overflow: visible; }
+  .dsr-panel { display: none; height: auto; }
+  .dsr-panel.on { display: block; }
+  .dsr-panel + .dsr-panel { margin-top: 0; }
   .dsr-panel .dsr-intel { height: auto; grid-template-columns: 1fr; overflow: visible; }
 
   .map-controls { gap: 8px; }
