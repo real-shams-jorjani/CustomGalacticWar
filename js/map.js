@@ -2254,9 +2254,18 @@
   const hazIcon = (n) => (HAZ_ICON[n] ? `img/env/${encodeURIComponent(HAZ_ICON[n])}` : null);
   const resistance = (p) => (p.max > 0 ? (p.regen * 3600 / p.max * 100) : 0);
   const hazTag = (e) => { const ic = hazIcon(e); return `<span class="haz">${ic ? `<img src="${ic}" alt="">` : ""}${e}</span>`; };
-  // Subfaction display-name -> Discord emoji icon (id + anim), lifted from fleet_catalogue.json.
-  // Lets ENEMY FORCES chips show the real WarForge subfaction icon (img/enemies/<id>.png, with
-  // a Discord-CDN fallback via enemyIcon). Strains with no emoji fall back to the faction icon.
+  // Subfaction display-name -> dedicated WarForge tag-icon (the FLAG effect id whose monochrome
+  // glyph lives at img/tags/<id>.png — the same purpose-built assets the map paints for POIs via
+  // tagIcon). These are recolored flat to the owning faction's colour on the ENEMY FORCES chips.
+  // Derived from fleet_catalogue.json by pairing each spawn label to its flag effect via pair_id.
+  const SUBFAC_TAG = {
+    "PREDATOR STRAIN": 1245, "RUPTURE STRAIN": 1310, "DRAGONROACHES": 1309, "HIVE LORDS": 1308,
+    "THE JET BRIGADE": 1203, "THE INCINERATION CORPS": 1249, "CYBORGS": 1361, "PANZER DIVISION": 2003,
+    "DECON DIVISION": 2011, "STALKER RAMPAGE": 2005, "MINDLESS MASSES": 1378, "APPROPRIATORS": 1379,
+    "ASSIMILATORS": 2012, "PHANTOM WINGS": 2007, "SEAF": 2001,
+  };
+  // Discord-emoji fallback (full-colour), used only when a subfaction has no tag glyph (e.g. PHANTOM
+  // WINGS) or an unknown name slips through. Tinted hue-only so it still reads as one faction.
   const SUBFAC_ICON = {
     "PREDATOR STRAIN": { eid: "1433396632912924682" }, "RUPTURE STRAIN": { eid: "1433395636241432676" },
     "DRAGONROACHES": { eid: "1433396592836087869" }, "HIVE LORDS": { eid: "1430405000349094008", anim: true },
@@ -2508,13 +2517,22 @@
   function dashForces(p) {
     if (!p.forces || !p.forces.length) return "";
     return `<div class="pc-haz pc-forces">` + p.forces.map((f) => {
-      const c = facColor(f.f), em = f.eid ? { eid: f.eid, anim: f.anim } : SUBFAC_ICON[(f.n || "").toUpperCase()];
-      // The subfaction icon IS the WarForge emoji (no per-effect icon exists). Recolor it to the
-      // faction hue, luminance-preserved (img below + faction-color ::after masked to its alpha,
-      // mix-blend:color in CSS) so every chip reads as one faction instead of a rainbow of emojis.
-      const src = (em && em.eid) ? `img/enemies/${em.eid}.${em.anim ? "gif" : "png"}` : facIcon(f.f);
-      const fb = (em && em.eid) ? ` onerror="this.onerror=null;this.src='https://cdn.discordapp.com/emojis/${em.eid}.${em.anim ? "gif" : "png"}'"` : "";
-      const ic = `<span class="force-ic" style="--ic:url('${src}')"><img src="${src}" alt="" loading="lazy"${fb}></span>`;
+      const c = facColor(f.f), nm = (f.n || "").toUpperCase();
+      // Prefer the dedicated WarForge tag glyph (flag effect id -> img/tags/<id>.png): a monochrome
+      // asset we flat-recolor to the faction colour via CSS mask. Take a baked id (f.tag) if present,
+      // else resolve the name through SUBFAC_TAG; only use it when the asset actually exists.
+      const tag = (+f.tag || SUBFAC_TAG[nm] || 0);
+      let ic;
+      if (tag && TAG_ICON_IDS.has(tag)) {
+        ic = `<span class="force-ic tag" style="--ic:url('img/tags/${tag}.png')"></span>`;
+      } else {
+        // Fallback: the full-colour Discord emoji, hue-tinted (luminance preserved) so it still reads
+        // as the faction; final fallback is the faction emblem.
+        const em = f.eid ? { eid: f.eid, anim: f.anim } : SUBFAC_ICON[nm];
+        const src = (em && em.eid) ? `img/enemies/${em.eid}.${em.anim ? "gif" : "png"}` : facIcon(f.f);
+        const fb = (em && em.eid) ? ` onerror="this.onerror=null;this.src='https://cdn.discordapp.com/emojis/${em.eid}.${em.anim ? "gif" : "png"}'"` : "";
+        ic = `<span class="force-ic emoji" style="--ic:url('${src}')"><img src="${src}" alt="" loading="lazy"${fb}></span>`;
+      }
       return `<span class="haz force" style="--fac:${c}">${ic}${esc(f.n)}</span>`;
     }).join("") + `</div>`;
   }
