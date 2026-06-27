@@ -55,6 +55,16 @@
     staticKey = ""; if (window.__mapRender) window.__mapRender(performance.now());
   }
   window.__setMapMode = setMapMode;
+  // Global render scale: multiplies the canvas backing resolution (1 = native). Lower it on weak/mobile
+  // GPUs for a big fill-rate saving (cost ~ scale^2) at the price of some sharpness. Persisted.
+  const RSCALE_STORED = (function () { try { const v = parseFloat(localStorage.getItem("cgw_rscale")); return (v >= 0.5 && v <= 1) ? v : null; } catch (e) { return null; } })();
+  let RENDER_SCALE = RSCALE_STORED || 1;
+  function setRenderScale(v, persist) {
+    RENDER_SCALE = Math.max(0.5, Math.min(1, v || 1));
+    if (persist !== false) { try { localStorage.setItem("cgw_rscale", RENDER_SCALE); } catch (e) {} }
+    if (typeof resize === "function") resize();   // recomputes dpr/canvas + re-renders
+  }
+  window.__setRenderScale = setRenderScale;
   // Track the device default across viewport changes until a manual choice is stored (so "request
   // desktop site" -> High). Medium is opt-in, so the auto-default only picks low or high.
   window.addEventListener("resize", function () { try { if (localStorage.getItem("cgw_gfx")) return; } catch (e) {} const wl = wantLowGfx() ? 0 : 2; if (wl !== GFX) setGfx(wl, false); });
@@ -387,7 +397,7 @@
     const r = wrap.getBoundingClientRect();
     cvW = Math.max(50, r.width || wrap.offsetWidth || 1100);
     cvH = Math.max(50, r.height || wrap.offsetHeight || 600);
-    dpr = Math.min(2, window.devicePixelRatio || 1);
+    dpr = Math.max(0.4, Math.min(2, window.devicePixelRatio || 1) * RENDER_SCALE);
     renderDpr = interacting ? Math.min(INTERACT_DPR, dpr) : dpr;
     cv.width = Math.round(cvW * dpr); cv.height = Math.round(cvH * dpr);
     off.width = Math.round(cvW * renderDpr); off.height = Math.round(cvH * renderDpr);
@@ -2117,6 +2127,12 @@
       b.classList.toggle("on", b.getAttribute("data-mapmode") === MAPMODE);
       b.onclick = () => setMapMode(b.getAttribute("data-mapmode"));
     });
+    const rscale = document.getElementById("render-scale"), rscaleVal = document.getElementById("render-scale-val");
+    if (rscale) {
+      const showRS = (v) => { if (rscaleVal) rscaleVal.textContent = Math.round(v * 100) + "%"; };
+      rscale.value = RENDER_SCALE; showRS(RENDER_SCALE);
+      rscale.addEventListener("input", () => { const v = parseFloat(rscale.value) || 1; showRS(v); setRenderScale(v); });
+    }
     // Re-derive the device default once the viewport has settled (no stored choice yet); don't persist.
     if (!GFX_STORED) { const wl = wantLowGfx() ? 0 : 2; if (wl !== GFX) setGfx(wl, false); }
     const lbtn = document.getElementById("layers-btn"), lpanel = document.getElementById("map-layers");

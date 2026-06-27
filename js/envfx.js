@@ -33,7 +33,7 @@ window.EnvFX = (function () {
   const NB = 7;
 
   function fieldGloom(ctx, sx, sy, R, ts, rm, simple, seed) {
-    const T = gloomTiers(), B = newBuckets(NB), STEP = 6, t = rm ? 0 : ts * 0.0006;
+    const T = gloomTiers(), B = newBuckets(NB), STEP = 7, t = rm ? 0 : ts * 0.0006;
     const ph = (seed || 0) * 1.7;
     for (let gy = -R; gy <= R; gy += STEP) {
       for (let gx = -R; gx <= R; gx += STEP) {
@@ -47,7 +47,7 @@ window.EnvFX = (function () {
         const n = 0.5 + 0.5 * Math.sin(gx * 0.2 + t * 3.1 + ph) * Math.cos(gy * 0.18 - t * 2.3 + ph);
         const n2 = 0.5 + 0.5 * Math.sin((gx - gy) * 0.33 - t * 2.6 + ph * 0.6);
         let b = (0.4 + 0.6 * light) * edge * (0.4 + 0.5 * n + 0.22 * n2); b = b < 0 ? 0 : b > 1 ? 1 : b;
-        addDot(B, NB, sx + gx, sy + gy, b, b > 0.62 ? 2.7 : 2.0);
+        addDot(B, NB, sx + gx, sy + gy, b, b > 0.62 ? 3.1 : 2.4);
       }
     }
     ctx.save(); ctx.globalCompositeOperation = "lighter";
@@ -105,7 +105,7 @@ window.EnvFX = (function () {
   // reads as a DARK patch with a deep-violet/indigo cast -- not a glow. Same circular "voxel cell"
   // style as gloom / black holes over a dark core wash, with a faint Blackwall red/cyan flicker.
   function fieldVoid(ctx, sx, sy, R, c, ts, rm, simple) {
-    const B = newBuckets(NB), STEP = 6, t = rm ? 0 : ts * 0.0008;
+    const B = newBuckets(NB), STEP = 7, t = rm ? 0 : ts * 0.0008;
     const glitch = [];
     ctx.save();
     const dg = ctx.createRadialGradient(sx, sy, 0, sx, sy, R);
@@ -122,7 +122,7 @@ window.EnvFX = (function () {
         let b = edge * (0.32 + 0.5 * n);
         if (!rm && Math.sin(h1((gx * 0.5) | 0) * 30 + ts * 0.012) < -0.4) b *= 0.32;
         b = b < 0 ? 0 : b > 1 ? 1 : b;
-        addDot(B, NB, sx + gx, sy + gy, b, b > 0.64 ? 2.5 : 2.0);
+        addDot(B, NB, sx + gx, sy + gy, b, b > 0.64 ? 2.9 : 2.3);
         if (!rm && b > 0.84) glitch.push(sx + gx, sy + gy, b);
       }
     }
@@ -145,7 +145,7 @@ window.EnvFX = (function () {
     // The cell's on-screen rect grows with zoom^2, so a fixed pixel STEP made this the single most
     // expensive thing on the map when zoomed in (tens of thousands of noise samples/frame). Cap the
     // voxel count: past the cap, grow STEP and the dot radius together so it stays a smooth haze.
-    const MAXV = 3000, base = simple ? 8 : 7;
+    const MAXV = 2400, base = simple ? 9 : 8;
     let STEP = base; const est = (w / base) * (h / base);
     if (est > MAXV) STEP = Math.sqrt((w * h) / MAXV);
     const ds = STEP / 5;   // dots sized vs the original 5px grid so coverage holds as STEP grows

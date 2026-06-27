@@ -1822,6 +1822,15 @@ html { scroll-padding-bottom: calc(var(--hud-h) + 8px); }
 .lowfx .starfield, .lowfx .holo-fx { display: none !important; }
 .ml-gfx { display: flex; gap: 6px; margin-bottom: 6px; }
 .ml-gfx button { flex: 1; }
+/* render-scale slider (lower it on weak/mobile devices for a big fill-rate saving) */
+.ml-scale { display: flex; align-items: center; gap: 9px; margin-bottom: 7px; padding: 1px 3px 2px; }
+.ml-scale input[type="range"] { flex: 1; -webkit-appearance: none; appearance: none; height: 4px; margin: 0;
+  background: rgba(70,164,255,0.22); border-radius: 2px; outline: none; cursor: pointer; }
+.ml-scale input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 13px; height: 13px;
+  border-radius: 50%; background: var(--accent); border: 2px solid #06121a; box-shadow: 0 0 6px rgba(70,164,255,0.6); cursor: pointer; }
+.ml-scale input[type="range"]::-moz-range-thumb { width: 13px; height: 13px; border-radius: 50%; background: var(--accent); border: 2px solid #06121a; box-shadow: 0 0 6px rgba(70,164,255,0.6); cursor: pointer; }
+.ml-scale input[type="range"]::-moz-range-track { height: 4px; background: rgba(70,164,255,0.22); border-radius: 2px; }
+.ml-scale-val { font-family: var(--font); font-size: 10px; font-weight: 700; color: var(--accent); min-width: 36px; text-align: right; letter-spacing: 0.04em; }
 .sf1 { background-image:
     radial-gradient(1px 1px at 18% 31%, rgba(255,255,255,0.7), transparent),
     radial-gradient(1px 1px at 68% 61%, rgba(180,230,255,0.6), transparent),

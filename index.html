@@ -143,14 +143,19 @@
             <button id="zreset" class="reset" title="Reset view">RESET</button>
             <button id="zfleet" class="reset on" title="Fleet tracker">FLEET</button>
           </div>
-          <!-- display-layer toggles: hide/show map elements -->
-          <button class="map-layers-btn" id="layers-btn" title="Display layers" aria-expanded="false" aria-controls="map-layers">LAYERS</button>
-          <div class="map-layers" id="map-layers" aria-label="Map settings">
+          <!-- VIEW menu: graphics tier, render scale, map style, and display-layer toggles -->
+          <button class="map-layers-btn" id="layers-btn" title="View settings" aria-expanded="false" aria-controls="map-layers">VIEW</button>
+          <div class="map-layers" id="map-layers" aria-label="View settings">
             <div class="ml-head">Graphics</div>
             <div class="ml-gfx">
               <button type="button" data-gfx="high">High</button>
               <button type="button" data-gfx="medium">Med</button>
               <button type="button" data-gfx="low">Low</button>
+            </div>
+            <div class="ml-head">Render Scale</div>
+            <div class="ml-scale">
+              <input type="range" id="render-scale" min="0.5" max="1" step="0.05" value="1" aria-label="Render scale">
+              <span class="ml-scale-val" id="render-scale-val">100%</span>
             </div>
             <div class="ml-head">Map Style</div>
             <div class="ml-gfx ml-mapmode">
