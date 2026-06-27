@@ -2509,7 +2509,12 @@
     if (!p.forces || !p.forces.length) return "";
     return `<div class="pc-haz pc-forces">` + p.forces.map((f) => {
       const c = facColor(f.f), em = f.eid ? { eid: f.eid, anim: f.anim } : SUBFAC_ICON[(f.n || "").toUpperCase()];
-      const ic = (em && em.eid) ? enemyIcon(em, "") : `<img src="${facIcon(f.f)}" alt="">`;
+      // The subfaction icon IS the WarForge emoji (no per-effect icon exists). Recolor it to the
+      // faction hue, luminance-preserved (img below + faction-color ::after masked to its alpha,
+      // mix-blend:color in CSS) so every chip reads as one faction instead of a rainbow of emojis.
+      const src = (em && em.eid) ? `img/enemies/${em.eid}.${em.anim ? "gif" : "png"}` : facIcon(f.f);
+      const fb = (em && em.eid) ? ` onerror="this.onerror=null;this.src='https://cdn.discordapp.com/emojis/${em.eid}.${em.anim ? "gif" : "png"}'"` : "";
+      const ic = `<span class="force-ic" style="--ic:url('${src}')"><img src="${src}" alt="" loading="lazy"${fb}></span>`;
       return `<span class="haz force" style="--fac:${c}">${ic}${esc(f.n)}</span>`;
     }).join("") + `</div>`;
   }

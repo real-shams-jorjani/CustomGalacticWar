@@ -917,9 +917,17 @@ body.on-war .ticker, body.on-war footer { display: none; }
   background: #1b2027; border: 1px solid #2c333c; padding: 3px 8px; }
 .pc-haz .haz img { width: 15px; height: 15px; object-fit: contain; }
 
-/* ENEMY FORCES — same chip family as ENVIRONMENT (.pc-haz .haz), faction-accented + subfaction icon */
-.pc-forces .haz.force { border-left: 2px solid var(--fac, #cdd8de); padding-left: 7px; font-weight: 700; letter-spacing: 0.03em; color: #e7eef3; }
-.pc-forces .haz.force img { width: 16px; height: 16px; filter: drop-shadow(0 0 3px color-mix(in srgb, var(--fac) 60%, transparent)); }
+/* ENEMY FORCES — same chip family as ENVIRONMENT (.pc-haz .haz); the subfaction icon itself is
+   recolored to the faction hue, so no separate accent stripe is needed. */
+.pc-forces .haz.force { padding-left: 8px; font-weight: 700; letter-spacing: 0.03em; color: #e7eef3; }
+/* faction-tinted icon: original emoji <img> for luminance, faction-color ::after masked to its
+   alpha and blended (mix-blend:color) on top → same hue across a faction, detail preserved. */
+.force-ic { position: relative; display: inline-block; width: 16px; height: 16px; isolation: isolate;
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--fac) 55%, transparent)); }
+.force-ic img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.force-ic::after { content: ""; position: absolute; inset: 0; background: var(--fac);
+  -webkit-mask: var(--ic) center / contain no-repeat; mask: var(--ic) center / contain no-repeat;
+  mix-blend-mode: color; }
 
 .pc-card { background: #1b2027; border-left: 3px solid #3a444e; padding: 9px 11px; margin-bottom: 9px; }
 .pc-card-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
