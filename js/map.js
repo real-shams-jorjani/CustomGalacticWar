@@ -1743,12 +1743,21 @@
     const pp = new Array(cell.length);
     for (let i = 0; i < cell.length; i++) { const q = project(cell[i].x, cell[i].y, 0); pp[i] = q; if (q.x < x0) x0 = q.x; if (q.x > x1) x1 = q.x; if (q.y < y0) y0 = q.y; if (q.y > y1) y1 = q.y; }
     if (x1 < 0 || y1 < 0 || x0 > W || y0 > H) return;
+    let ccx = 0, ccy = 0; for (let i = 0; i < pp.length; i++) { ccx += pp[i].x; ccy += pp[i].y; } ccx /= pp.length; ccy /= pp.length;
+    const R = Math.max(x1 - x0, y1 - y0) / 2;
+    const poly = () => { ctx.beginPath(); ctx.moveTo(pp[0].x, pp[0].y); for (let i = 1; i < pp.length; i++) ctx.lineTo(pp[i].x, pp[i].y); ctx.closePath(); };
     ctx.save();
-    ctx.beginPath(); ctx.moveTo(pp[0].x, pp[0].y); for (let i = 1; i < pp.length; i++) ctx.lineTo(pp[i].x, pp[i].y); ctx.closePath();
-    ctx.clip();   // clip to the void cell
-    ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);   // opaque black: the void fully hides the territory/grid beneath
-    const o = project(0, 0, 0);   // anchor the field pattern to the map so it doesn't swim when panning
-    window.EnvFX.voidFieldRect(ctx, Math.max(0, x0), Math.max(0, y0), Math.min(W, x1), Math.min(H, y1), col, ts, RMOTION, interacting || REDUCED, o.x, o.y);
+    poly(); ctx.clip();   // clip to the void cell
+    ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);   // pure black abyss: the void emits/reflects no light
+    window.EnvFX.voidFieldRect(ctx, ccx, ccy, R, col, ts, RMOTION || interacting || REDUCED);   // interior depth
+    // inner-edge Blackwall bleed: stroke the cell INSIDE the clip so only the inner half shows — a soft
+    // lit rim over the abyss (a manual glow, no per-frame shadowBlur). The crisp edge is drawVoidOutline.
+    ctx.globalCompositeOperation = "lighter"; ctx.lineJoin = "round";
+    const fl = RMOTION ? 1 : 0.82 + 0.18 * Math.sin(ts / 300);
+    // widths scale with cell size so the glow always hugs the rim (a thin band) instead of flooding small cells
+    ctx.strokeStyle = hexA(col, 0.06 * fl); ctx.lineWidth = Math.max(2, R * 0.18); poly(); ctx.stroke();
+    ctx.strokeStyle = hexA(col, 0.13 * fl); ctx.lineWidth = Math.max(1.4, R * 0.08); poly(); ctx.stroke();
+    ctx.strokeStyle = hexA(col, 0.24 * fl); ctx.lineWidth = Math.max(1, R * 0.03); poly(); ctx.stroke();
     ctx.restore();
   }
 
