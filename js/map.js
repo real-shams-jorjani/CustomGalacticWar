@@ -427,8 +427,12 @@
     interactTimer = setTimeout(() => setInteractive(false), 200);
   }
   let _zoomVel = 0, _lastZoom = 1, _warpMag = 0, _lastRTs = 0;
+  // Opt-in perf overlay (?perf in the URL or window.__perfHud=1) — measures where each frame goes.
+  let _perfURL = false; try { _perfURL = /[?&#]perf\b/.test(location.href); } catch (e) {}
+  const _perf = { bg: 0, blit: 0, dyn: 0, statk: 0 };
   function render(ts) {
     ts = ts || 0; syncCam();
+    const PERF = _perfURL || window.__perfHud;
 
     const dt = _lastRTs ? Math.min(50, ts - _lastRTs) : 16.7; _lastRTs = ts;
     _zoomVel = cam.zoom - _lastZoom; _lastZoom = cam.zoom;
@@ -437,22 +441,27 @@
     _warpMag += (wtarget - _warpMag) * 0.3;
     if (Math.abs(_warpMag) < 0.01) _warpMag = 0;
     const key = camKey();
-    if (key !== staticKey) { buildStatic(); staticKey = key; }
+    if (key !== staticKey) { const _s = PERF ? performance.now() : 0; buildStatic(); if (PERF) _perf.statk = performance.now() - _s; staticKey = key; }
+    else if (PERF) _perf.statk = 0;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, cv.width, cv.height);
 
     ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
 
+    const _a = PERF ? performance.now() : 0;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     drawBackdrop(ctx, ts);
 
+    const _b = PERF ? performance.now() : 0;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.imageSmoothingEnabled = off.width !== cv.width;
     ctx.drawImage(off, 0, 0, off.width, off.height, 0, 0, cv.width, cv.height);
 
+    const _c = PERF ? performance.now() : 0;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     drawDynamic(ts);
 
+    if (PERF) { const _d = performance.now(); _perf.bg = _b - _a; _perf.blit = _c - _b; _perf.dyn = _d - _c; }
   }
 
   let _stars = null, _starsKey = "", _starBuckets = null, _bgGrad = null, _vignette = null;
@@ -2589,10 +2598,32 @@
       animOff += dt / 30; stepCamAnim(ts); render(ts);
       if (compactState) paintCompactBar();
       if (consoleOpen) { paintGlanceBars(); paintGlobeFx(ts); }
+      if (_perfURL || window.__perfHud) perfHud(ts, dt);
     } catch (e) {
       if (!frame._warned) { frame._warned = true; if (typeof console !== "undefined") console.error("[map] render frame error (loop kept alive):", e); }
     }
     requestAnimationFrame(frame);
+  }
+
+  // Diagnostic overlay: shows real FPS + frame breakdown (backdrop / static-blit / dynamic / static-
+  // rebuild) + dpr & canvas size, so the bottleneck on a real machine is visible. Enable with ?perf.
+  let _perfEl = null, _perfAcc = 0, _perfN = 0, _perfUpd = 0, _perfMax = 0;
+  function perfHud(ts, dt) {
+    _perfAcc += dt; _perfN++; if (dt > _perfMax) _perfMax = dt;
+    if (ts - _perfUpd < 250) return;
+    const fps = _perfN ? Math.round(1000 / (_perfAcc / _perfN)) : 0, worst = Math.round(_perfMax);
+    _perfAcc = 0; _perfN = 0; _perfUpd = ts; _perfMax = 0;
+    if (!_perfEl) {
+      _perfEl = document.createElement("div");
+      _perfEl.style.cssText = "position:fixed;top:64px;left:10px;z-index:99999;background:rgba(0,0,0,.82);color:#6ad08a;font:11px/1.45 ui-monospace,monospace;padding:7px 9px;border:1px solid #6ad08a;border-radius:4px;white-space:pre;pointer-events:none";
+      document.body.appendChild(_perfEl);
+    }
+    _perfEl.textContent =
+      "FPS " + fps + "   worst " + worst + "ms\n" +
+      "dpr " + dpr + "  gfx " + GFX + "  zoom " + cam.zoom.toFixed(1) + "\n" +
+      "canvas " + cv.width + "x" + cv.height + "\n" +
+      "backdrop " + _perf.bg.toFixed(1) + "  blit " + _perf.blit.toFixed(1) + "\n" +
+      "dynamic " + _perf.dyn.toFixed(1) + "  rebuild " + _perf.statk.toFixed(1);
   }
 
   function startLoop() { if (_looping) return; _looping = true; lastTs = 0; requestAnimationFrame(frame); }
@@ -2602,6 +2633,8 @@
   }, 220);
   window.__mapRender = render;
   window.__mapResize = resize;
+  // Console fallback for the perf overlay: window.__perfStats() returns the last frame's section costs.
+  window.__perfStats = () => ({ bg: +_perf.bg.toFixed(2), blit: +_perf.blit.toFixed(2), dyn: +_perf.dyn.toFixed(2), rebuild: +_perf.statk.toFixed(2), dpr: dpr, canvas: cv.width + "x" + cv.height, zoom: +cam.zoom.toFixed(1), gfx: GFX });
 
   let _mapEntered = false;
   function runMapLoader() {
