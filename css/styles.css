@@ -923,10 +923,10 @@ body.on-war .ticker, body.on-war footer { display: none; }
 /* Subfaction icon, recolored to the faction hue. Two recipes share the box + faction glow: */
 .force-ic { display: inline-block; width: 16px; height: 16px;
   filter: drop-shadow(0 0 3px color-mix(in srgb, var(--fac) 55%, transparent)); }
-/* .tag — the dedicated WarForge glyph is a monochrome alpha asset, so a flat faction fill masked to
-   its shape is the correct (and crisp) recolor — same path the map uses for POI tag icons. */
-.force-ic.tag { background: var(--fac);
-  -webkit-mask: var(--ic) center / contain no-repeat; mask: var(--ic) center / contain no-repeat; }
+/* .tag — the dedicated WarForge glyph is a monochrome alpha asset, flat-recolored by filling the box
+   with the faction colour and masking it to the glyph. The fill + mask are set INLINE on the element
+   (literal url + colour, no var()) for robustness on mobile Safari and immunity to a stale stylesheet;
+   this rule only carries the shared sizing/glow above. */
 /* .emoji — fallback only: a full-colour emoji, so keep its luminance and recolor hue alone via a
    faction-color ::after masked to the emoji alpha and composited mix-blend:color over the <img>. */
 .force-ic.emoji { position: relative; isolation: isolate; }

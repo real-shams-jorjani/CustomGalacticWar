@@ -2524,7 +2524,11 @@
       const tag = (+f.tag || SUBFAC_TAG[nm] || 0);
       let ic;
       if (tag && TAG_ICON_IDS.has(tag)) {
-        ic = `<span class="force-ic tag" style="--ic:url('img/tags/${tag}.png')"></span>`;
+        // Self-contained inline styling (no var(), no reliance on cached CSS): the faction colour is
+        // the box fill, masked to the glyph's alpha. Robust on mobile Safari (which is flaky with
+        // var() inside the mask shorthand) and immune to a stale styles.css.
+        const m = `url('img/tags/${tag}.png') center/contain no-repeat`;
+        ic = `<span class="force-ic tag" style="background-color:${c};-webkit-mask:${m};mask:${m}"></span>`;
       } else {
         // Fallback: the full-colour Discord emoji, hue-tinted (luminance preserved) so it still reads
         // as the faction; final fallback is the faction emblem.
