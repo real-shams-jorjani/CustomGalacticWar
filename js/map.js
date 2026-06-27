@@ -2380,7 +2380,7 @@
       `<button class="pc-close" id="pc-close" title="Close">&times;</button></div>`;
     h += `<div class="wf-dash-body">`;
     const magma = isMagma(p);
-    const hasStorm = p.fx && p.fx.some((f) => f.t === "vortex");
+    const hasStorm = p.fx && p.fx.some((f) => f.t === "vortex" || f.t === "void");
     const hasBH = p.fx && p.fx.some((f) => f.t === "black_hole");
 
     h += `<div class="dsr-identity"><div class="dsr-globe">` +

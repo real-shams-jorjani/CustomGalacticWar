@@ -319,13 +319,77 @@ window.EnvFX = (function () {
     }
     ctx.restore();
   }
+  // EMISSIVE Illuminate EXOSTORM (matches the HD2 look: a deep-purple hue radiating streaks outward, a
+  // spinning vortex, a deep-purple hologram rim, and a few faint blue particles) — smooth/glowing, NOT
+  // the old dotted voxel field. Used for both the 'void' and 'vortex' purple anomalies in the inspect.
+  function closeExostorm(ctx, cx, cy, gR, c, ts, rm) {
+    const col = c || "#b06bff", t = rm ? 0 : ts * 0.001;
+    const lighten = (hex, f) => { const a = hexRGBarr(hex), m = (v) => (v + (255 - v) * f) | 0; return "#" + ((1 << 24) + (m(a[0]) << 16) + (m(a[1]) << 8) + m(a[2])).toString(16).slice(1); };
+    const pulse = rm ? 1 : 0.85 + 0.15 * Math.sin(t * 2), rot = rm ? 0 : t * 0.45;
+    ctx.save(); ctx.globalCompositeOperation = "lighter"; ctx.lineCap = "round"; ctx.lineJoin = "round";
+
+    // deep-purple glow radiating outward from the globe
+    const g = ctx.createRadialGradient(cx, cy, gR * 0.55, cx, cy, gR * 1.5);
+    g.addColorStop(0, hexA(col, 0)); g.addColorStop(0.5, hexA(col, 0.18 * pulse));
+    g.addColorStop(0.72, hexA(col, 0.11 * pulse)); g.addColorStop(1, hexA(col, 0));
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, gR * 1.5, 0, TAU); ctx.fill();
+
+    // radiating purple streaks — IRREGULAR (varied length, jittered angle, gaps) so it reads as a storm,
+    // not a uniform sun/urchin; wispy and thin, drifting slowly
+    const N = 28;
+    for (let i = 0; i < N; i++) {
+      const h = h1(i * 7.3), h2 = h1(i * 3.1 + 5);
+      if (h < 0.18) continue;                                   // gaps
+      const a = rot * 0.6 + i * TAU / N + (h2 - 0.5) * 0.28;
+      const len = gR * (0.18 + 0.75 * h * (0.7 + 0.3 * Math.sin(t * 1.8 + i)));
+      const r0 = gR * 0.97, r1 = r0 + len, x0 = cx + Math.cos(a) * r0, y0 = cy + Math.sin(a) * r0, x1 = cx + Math.cos(a) * r1, y1 = cy + Math.sin(a) * r1;
+      const lg = ctx.createLinearGradient(x0, y0, x1, y1);
+      lg.addColorStop(0, hexA(col, 0.5)); lg.addColorStop(1, hexA(col, 0));
+      ctx.strokeStyle = lg; ctx.lineWidth = 0.6 + h2 * 1.2; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+    }
+
+    // spinning vortex + glowing pockets, clipped to the disc
+    ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, gR * 1.02, 0, TAU); ctx.clip();
+    // two prominent bright spiral arms (the spinning vortex), tapering from the core
+    for (let s = 0; s < 2; s++) {
+      const base = rot * 1.7 + s * Math.PI;
+      ctx.strokeStyle = hexA(lighten(col, 0.5), 0.5 * pulse); ctx.beginPath();
+      for (let k = 0; k <= 48; k++) { const u = k / 48, rr = gR * 0.06 + gR * 0.96 * u, aa = base + u * 5.6, xx = cx + Math.cos(aa) * rr, yy = cy + Math.sin(aa) * rr; k ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy); }
+      ctx.lineWidth = 2.4; ctx.stroke();
+      ctx.strokeStyle = hexA(lighten(col, 0.2), 0.22 * pulse); ctx.lineWidth = 5; ctx.stroke();   // soft underglow
+    }
+    // bright core of the vortex
+    const cg = ctx.createRadialGradient(cx, cy, 0, cx, cy, gR * 0.4);
+    cg.addColorStop(0, hexA(lighten(col, 0.7), 0.55 * pulse)); cg.addColorStop(1, hexA(col, 0));
+    ctx.fillStyle = cg; ctx.beginPath(); ctx.arc(cx, cy, gR * 0.4, 0, TAU); ctx.fill();
+    // a few solid glowing energy pockets on the surface
+    for (let i = 0; i < 4; i++) {
+      const a = i * 1.9 + t * 0.5, rr = gR * (0.35 + 0.45 * h1(i * 9.1)), x = cx + Math.cos(a) * rr, y = cy + Math.sin(a) * rr, pr = (2.2 + 1.1 * Math.sin(t * 3 + i)) * 2.6;
+      const pg = ctx.createRadialGradient(x, y, 0, x, y, pr);
+      pg.addColorStop(0, "rgba(255,246,255,0.9)"); pg.addColorStop(0.35, hexA(lighten(col, 0.5), 0.6)); pg.addColorStop(1, hexA(col, 0));
+      ctx.fillStyle = pg; ctx.beginPath(); ctx.arc(x, y, pr, 0, TAU); ctx.fill();
+    }
+    ctx.restore();
+
+    // faint blue particles drifting in orbit
+    for (let i = 0; i < 10; i++) {
+      const a = i * 2.4 - t * 0.8, rr = gR * (1.0 + 0.4 * ((i * 0.29 + t * 0.05) % 1)), x = cx + Math.cos(a) * rr, y = cy + Math.sin(a) * rr;
+      ctx.globalAlpha = 0.5 * (0.5 + 0.5 * Math.sin(t * 2 + i)); ctx.fillStyle = "#9fd6ff"; ctx.beginPath(); ctx.arc(x, y, 1.1, 0, TAU); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // deep-purple hologram rim
+    ctx.strokeStyle = hexA(lighten(col, 0.3), 0.55 * pulse); ctx.lineWidth = 2.2;
+    ctx.beginPath(); ctx.arc(cx, cy, gR, 0, TAU); ctx.stroke();
+    ctx.restore();
+  }
+
   function drawClose(ctx, fxList, cx, cy, gR, ts, rm) {
     for (let i = 0; i < fxList.length; i++) {
       const t = fxList[i].t, c = fxList[i].c;
       if (t === "gloom") closeGloom(ctx, cx, cy, gR, ts, rm);
-      else if (t === "vortex") closeVortex(ctx, cx, cy, gR, c, ts, rm);
+      else if (t === "vortex" || t === "void") closeExostorm(ctx, cx, cy, gR, c, ts, rm);   // emissive exostorm
       else if (t === "black_hole") closeBH(ctx, cx, cy, gR, c, ts, rm);
-      else if (t === "void") closeVoid(ctx, cx, cy, gR, c, ts, rm);
     }
   }
 
